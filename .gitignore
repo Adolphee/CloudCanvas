@@ -1,0 +1,70 @@
+.vscode/launch.json
+.vscode/tasks.json
+
+# .NET Core
+bin/
+obj/
+*.user
+*.suo
+
+# Build results
+*.dll
+*.exe
+*.app
+*.log
+
+# Rider and VS Code
+.idea/
+.vscode/
+.vscode/*
+
+# User-specific files
+*.userprefs
+*.csproj.user
+*.sln.docstates
+
+# ASP.NET Core
+appsettings.Development.json
+Properties/launchSettings.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Packages
+*.nupkg
+packages/
+.nuget/
+
+# Secrets (if you ever use Secret Manager)
+secrets.json
+
+# Build artifacts
+artifacts/
+.publish/
+wwwroot/lib/
+wwwroot/dist/
+
+# JetBrains Rider
+*.sln.iml
+
+# node_modules (if using any frontend JS libs or npm)
+node_modules/
+
+# dotenv files
+.env
+.env.*
+
+# Others (optional - if you use tools like ReSharper or coverage tools)
+_ReSharper*/
+*.DotSettings.user
+coverage/
+
+# Backup files
+*.bak
+*.tmp
+*.swp
