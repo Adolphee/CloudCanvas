@@ -1,70 +1,60 @@
-.vscode/launch.json
-.vscode/tasks.json
+# ==== Build outputs ====
+**/bin/
+**/obj/
 
-# .NET Core
-bin/
-obj/
-*.user
+# ==== VS and Rider ====
+.vs/
 *.suo
-
-# Build results
-*.dll
-*.exe
-*.app
-*.log
-
-# Rider and VS Code
-.idea/
-.vscode/
-.vscode/*
-
-# User-specific files
-*.userprefs
-*.csproj.user
+*.user
+*.userosscache
 *.sln.docstates
+.idea/
+*.sln.iml
 
-# ASP.NET Core
-appsettings.Development.json
-Properties/launchSettings.json
+# ==== VS Code ====
+.vscode/
+**/.vscode/
 
-# OS files
+# ==== Secrets & settings ====
+**/appsettings.Development.json
+**/local.settings.json
+.env
+*.env
+
+# ==== Azure Functions artifacts ====
+# host.json.lock.json is created at runtime
+**/host.json.lock.json
+# Generated function extensions metadata
+**/extensions.csproj
+**/extensions.json
+
+# ==== Static web assets & publish ====
+**/wwwroot/lib/
+**/wwwroot/dist/
+**/publish/
+**/.publish/
+
+# ==== Logs & coverage ====
+**/*.log
+logs/
+coverage/
+TestResults/
+
+# ==== OS files ====
 .DS_Store
 Thumbs.db
 
-# Logs
-*.log
-logs/
-
-# Packages
+# ==== NuGet & Packages ====
 *.nupkg
-packages/
+**/packages/
 .nuget/
 
-# Secrets (if you ever use Secret Manager)
-secrets.json
+# ==== Optional extras ====
+# If you add Terraform, Bicep, or ARM templates:
+**/*.tfstate
+**/*.azurepubxml
 
-# Build artifacts
-artifacts/
-.publish/
-wwwroot/lib/
-wwwroot/dist/
-
-# JetBrains Rider
-*.sln.iml
-
-# node_modules (if using any frontend JS libs or npm)
+# If you add Frontend with Node:
 node_modules/
-
-# dotenv files
-.env
-.env.*
-
-# Others (optional - if you use tools like ReSharper or coverage tools)
-_ReSharper*/
-*.DotSettings.user
-coverage/
-
-# Backup files
-*.bak
-*.tmp
-*.swp
+npm-debug.log*
+yarn-error.log*
