@@ -1,16 +1,18 @@
 
+using CloudCanvas.Constants;
+
 /// <summary>
 /// Simple class to safely hold constant string values.
 /// </summary>
-namespace CloudCanvas.Constants
+namespace CloudCanvas.Functions.Constants
 {
     /// <summary>
     /// Represents constants and nested types related to Azure Blob Storage configuration.
     /// </summary>
-    /// <remarks>This class provides predefined constants for common Azure Blob Storage settings, such as
+    /// <remarks>AzFunc class provides predefined constants for common Azure Blob Storage settings, such as
     /// connection strings and container names. It also includes a nested class, <see cref="Containers"/>, which defines
     /// container-specific constants.</remarks>
-    public abstract class Func: AzureBlobStorage
+    public abstract class WebJobs: AzureBlobStorage
     {
         public const string AzureWebJobsStorage = "AzureWebJobsStorage";
     }

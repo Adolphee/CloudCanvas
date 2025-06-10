@@ -11,6 +11,7 @@ using SixLabors.ImageSharp.Processing;
 using System.Configuration;
 using CloudCanvas.Services;
 using System.IO.Pipelines;
+using CloudCanvas.Functions.Constants;
 namespace CloudCanvas_Functions;
 
 public class ProcessUploadedFiles
@@ -27,7 +28,7 @@ public class ProcessUploadedFiles
     }
 
     [Function(nameof(ProcessUploadedFiles))]
-    public async Task Run([BlobTrigger($"{AzureBlobStorage.Containers.Uploads}" + "/{name}", Connection = "AzureWebJobsStorage")] Stream input, string name)
+    public async Task Run([BlobTrigger($"{AzureBlobStorage.Containers.Uploads}" + "/{name}", Connection = WebJobs.AzureWebJobsStorage)] Stream input, string name)
     {
         _logger.LogWarning($"Preparing to process file: {name}");
 
@@ -45,12 +46,7 @@ public class ProcessUploadedFiles
                 output.Position = 0;
                 await _blobSerivce.UploadAsync(conversions, output, name);
                 _logger.LogInformation($"Successfully processed and saved blob [{name}].");
-            }
-            catch (Exception e)
-            {
-                _logger.LogDebug(e.Message, e.StackTrace);
-                throw e;
-            }
+            } catch (Exception e) { _logger.LogDebug(e.Message, e.StackTrace); }
         }
         else
         {
