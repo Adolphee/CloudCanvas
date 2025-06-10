@@ -30,13 +30,13 @@ public class ProcessUploadedFiles
     [Function(nameof(ProcessUploadedFiles))]
     public async Task Run([BlobTrigger($"{AzureBlobStorage.Containers.Uploads}" + "/{name}", Connection = WebJobs.AzureWebJobsStorage)] Stream input, string name)
     {
-        _logger.LogWarning($"Preparing to process file: {name}");
+        _logger.LogInformation($"[Blob-Trigger][activated]: {name}.");
 
         const string uploads = AzureBlobStorage.Containers.Uploads;
         const string conversions = AzureBlobStorage.Containers.ImgConversions;
         if (input.CanSeek)
         {
-            _logger.LogWarning($"Blob input for file '{name}' is seekable. Attempting to process it...");
+            _logger.LogInformation($"Blob stream for file '{name}' is seekable. Preparing to process it...");
             try
             {
                 using var image = await Image.LoadAsync(input);
