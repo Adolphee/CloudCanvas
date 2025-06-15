@@ -27,7 +27,7 @@ namespace CloudCanvas.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            ImageLinks = await _service.GetUrlsAsync(AzureBlobStorage.Containers.Uploads);
+            ImageLinks = await _service.GetUrlsAsync(BlobStorage.Containers.Uploads);
             return View(nameof(Index), new GalleryViewModel { ImageLinks = this.ImageLinks });
         }
 

@@ -10,7 +10,7 @@ namespace CloudCanvas.Constants
     /// <remarks>This class provides predefined constants for common Azure Blob Storage settings, such as
     /// connection strings and container names. It also includes a nested class, <see cref="Containers"/>, which defines
     /// container-specific constants.</remarks>
-    public abstract class AzureBlobStorage
+    public abstract class BlobStorage
     {
         public const string Self = "AzureBlobStorage";
         public const string ConnectionString = "ConnectionString";
@@ -26,12 +26,33 @@ namespace CloudCanvas.Constants
         // Meant to be in a different azure function, intended to write metadata to azue storage
         public abstract class BlobMeta
         {
+            public const string BlobUrl = "BlobUrl";
             public const string OriginalFileName = "OriginalFileName";
             public const string OriginalImageFormat = "OriginalImageFormat";
             public const string ContentType = "ContentType";
             public const string UploadedBy = "UploadedBy";
             public const string Project = "Project";
+            public const string Properties = "Properties";
             public const string ProcessingStage = "ProcessingStage";
+        }
+    }
+
+    public abstract class ServiceBus
+    {
+
+        public const string Self = "AzureServiceBus";
+        public abstract class Topics
+        {
+            public const string FileUpdates = "file-updates";
+            public abstract class FileUpdate {
+                public const string Send = $"{FileUpdates}-send";
+                public const string Listen = $"{FileUpdates}-listen";
+            }
+        }
+
+        public abstract class Subs
+        {
+            public const string ExtractMetaData = "extract-metadata";
         }
     }
 }

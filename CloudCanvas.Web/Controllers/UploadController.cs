@@ -33,7 +33,7 @@ namespace CloudCanvas.Controllers
             var file = userUpload.File;
             // TODO: 1. validate the file
             // 2. use the BlobSorageService to persist
-            await _service.UploadAsync(AzureBlobStorage.Containers.Uploads, file.OpenReadStream(), file.FileName);
+            await _service.UploadAsync(BlobStorage.Containers.Uploads, file.OpenReadStream(), file.FileName);
             // 3. redirect to gallery
             return RedirectToAction("Index", "Gallery");
         }

@@ -38,7 +38,7 @@ namespace CloudCanvas.Services
                 throw new InvalidDataException("ContainerName not provided.");
             try
             {
-                var cstring = _config.GetConnectionString(AzureBlobStorage.Self);
+                var cstring = _config.GetConnectionString(BlobStorage.Self);
                 var blobClient = new BlobContainerClient(cstring, containerName);
                 await blobClient.CreateIfNotExistsAsync();
                 return blobClient;
@@ -88,7 +88,7 @@ namespace CloudCanvas.Services
                 fileStream.Position = 0;
                 try
                 {
-                    var client = await GetContainerClientAsync(containerName ?? AzureBlobStorage.Containers.Uploads);
+                    var client = await GetContainerClientAsync(containerName ?? BlobStorage.Containers.Uploads);
                     var blob = client.GetBlobClient(filename);
                     await blob.UploadAsync(fileStream, true);
                 }

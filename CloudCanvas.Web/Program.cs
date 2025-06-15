@@ -4,7 +4,7 @@ using CloudCanvas.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.Configure<BlobStorageService>(builder.Configuration.GetSection(AzureBlobStorage.Self));
+builder.Services.Configure<BlobStorageService>(builder.Configuration.GetSection(BlobStorage.Self));
 builder.Services.AddTransient<BlobStorageService>();
 builder.Services.AddControllersWithViews();
 

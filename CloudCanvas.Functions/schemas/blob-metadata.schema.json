@@ -1,0 +1,184 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "originalFileName": {
+      "type": "string"
+    },
+    "blobUrl": {
+      "type": "string"
+    },
+    "processingStage": {
+      "type": "string"
+    },
+    "uploadedBy": {
+      "type": "string"
+    },
+    "project": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "string"
+    },
+    "lastModified": {
+      "type": "string"
+    },
+    "createdOn": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object"
+    },
+    "blobType": {
+      "type": "string"
+    },
+    "copyCompletedOn": {
+      "type": "string"
+    },
+    "copyStatusDescription": {
+      "type": "string"
+    },
+    "copyId": {
+      "type": "string"
+    },
+    "copyProgress": {
+      "type": "string"
+    },
+    "sourceUrl": {
+      "type": "string"
+    },
+    "copyStatus": {
+      "type": "integer"
+    },
+    "blobCopyStatus": {
+      "type": "string"
+    },
+    "isIncrementalCopy": {
+      "type": "boolean"
+    },
+    "destinationSnapshot": {
+      "type": "string"
+    },
+    "contentLength": {
+      "type": "integer"
+    },
+    "contentType": {
+      "type": "string"
+    },
+    "eTag": {
+      "type": "string"
+    },
+    "contentEncoding": {
+      "type": "string"
+    },
+    "contentDisposition": {
+      "type": "string"
+    },
+    "contentLanguage": {
+      "type": "string"
+    },
+    "cacheControl": {
+      "type": "string"
+    },
+    "blobSequenceNumber": {
+      "type": "integer"
+    },
+    "acceptRanges": {
+      "type": "string"
+    },
+    "blobCommittedBlockCount": {
+      "type": "integer"
+    },
+    "isServerEncrypted": {
+      "type": "boolean"
+    },
+    "encryptionKeySha256": {
+      "type": "string"
+    },
+    "encryptionScope": {
+      "type": "string"
+    },
+    "accessTier": {
+      "type": "string"
+    },
+    "accessTierInferred": {
+      "type": "boolean"
+    },
+    "archiveStatus": {
+      "type": "string"
+    },
+    "accessTierChangedOn": {
+      "type": "string"
+    },
+    "versionId": {
+      "type": "string"
+    },
+    "isLatestVersion": {
+      "type": "boolean"
+    },
+    "tagCount": {
+      "type": "integer"
+    },
+    "expiresOn": {
+      "type": "string"
+    },
+    "isSealed": {
+      "type": "boolean"
+    },
+    "rehydratePriority": {
+      "type": "string"
+    },
+    "lastAccessed": {
+      "type": "string"
+    },
+    "hasLegalHold": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "originalFileName",
+    "blobUrl",
+    "processingStage",
+    "uploadedBy",
+    "project",
+    "tags",
+    "lastModified",
+    "createdOn",
+    "metadata",
+    "blobType",
+    "copyCompletedOn",
+    "copyStatusDescription",
+    "copyId",
+    "copyProgress",
+    "sourceUrl",
+    "copyStatus",
+    "blobCopyStatus",
+    "isIncrementalCopy",
+    "destinationSnapshot",
+    "contentLength",
+    "contentType",
+    "eTag",
+    "contentEncoding",
+    "contentDisposition",
+    "contentLanguage",
+    "cacheControl",
+    "blobSequenceNumber",
+    "acceptRanges",
+    "blobCommittedBlockCount",
+    "isServerEncrypted",
+    "encryptionKeySha256",
+    "encryptionScope",
+    "accessTier",
+    "accessTierInferred",
+    "archiveStatus",
+    "accessTierChangedOn",
+    "versionId",
+    "isLatestVersion",
+    "tagCount",
+    "expiresOn",
+    "isSealed",
+    "rehydratePriority",
+    "lastAccessed",
+    "hasLegalHold"
+  ]
+}
