@@ -1,6 +1,7 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "https://json-schema.org/draft-07/schema",
   "type": "object",
+  "description": "ServiceBus Convention - Metadata-Extracted Message",
   "properties": {
     "originalFileName": {
       "type": "string"
@@ -18,7 +19,7 @@
       "type": "string"
     },
     "tags": {
-      "type": "string"
+      "type": "array"
     },
     "lastModified": {
       "type": "string"
@@ -136,49 +137,6 @@
     }
   },
   "required": [
-    "originalFileName",
-    "blobUrl",
-    "processingStage",
-    "uploadedBy",
-    "project",
-    "tags",
-    "lastModified",
-    "createdOn",
-    "metadata",
-    "blobType",
-    "copyCompletedOn",
-    "copyStatusDescription",
-    "copyId",
-    "copyProgress",
-    "sourceUrl",
-    "copyStatus",
-    "blobCopyStatus",
-    "isIncrementalCopy",
-    "destinationSnapshot",
-    "contentLength",
-    "contentType",
-    "eTag",
-    "contentEncoding",
-    "contentDisposition",
-    "contentLanguage",
-    "cacheControl",
-    "blobSequenceNumber",
-    "acceptRanges",
-    "blobCommittedBlockCount",
-    "isServerEncrypted",
-    "encryptionKeySha256",
-    "encryptionScope",
-    "accessTier",
-    "accessTierInferred",
-    "archiveStatus",
-    "accessTierChangedOn",
-    "versionId",
-    "isLatestVersion",
-    "tagCount",
-    "expiresOn",
-    "isSealed",
-    "rehydratePriority",
-    "lastAccessed",
-    "hasLegalHold"
+    
   ]
 }

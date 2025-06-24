@@ -1,5 +1,6 @@
 using Azure.Messaging.ServiceBus;
 using CloudCanvas.Constants;
+using CloudCanvas.Functions.Services;
 using CloudCanvas.Interfaces;
 using CloudCanvas.Services;
 using CloudCanvas.Shared;
@@ -21,6 +22,7 @@ builder.Services.Configure<Dictionary<string, Topic>>(builder.Configuration.GetS
 builder.Services.Configure<ServiceBusOptions>(builder.Configuration.GetSection(ServiceBus.Self)); // Inject my ServiceBus config class
 builder.Services.AddTransient<ServiceBusAdapter>(); // Inject my Service Bus Adapter
 builder.Services.AddSingleton<ServiceBusClientFactory>();
+builder.Services.AddTransient<BlobMetaConverter>();
 
 builder.Services
     .AddApplicationInsightsTelemetryWorkerService()

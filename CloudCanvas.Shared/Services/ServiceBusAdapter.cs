@@ -52,12 +52,13 @@ namespace CloudCanvas.Shared.Services
             } catch(Exception e)
             {
                 var msg = $"The message \"{message.ToString()}\" failed to send.";
-                _logger.LogDebug(msg);
+                _logger.LogDebug(msg, e);
             }
             finally
             {
                 await sender.DisposeAsync();
             }
         }
+
     }
 }

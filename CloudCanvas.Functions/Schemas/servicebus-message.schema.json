@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "type": "object",
+  "description": "ServiceBus Convention - RootMessage",
+  "properties": {
+    "Event": {
+      "type": "string" //example: "metadata-extracted", "thumbnail-created", ...
+    },
+    "Subject": {
+      "type": "string" //example: "Metadata extracted successfully.", ...
+    },
+    "Payload": {
+      "$ref": "blob-metadata.schema.json"
+    },
+    "MetaData": { "type": "array" }
+  },
+  "required": [ "Event", "Subject", "Payload" ]
+}

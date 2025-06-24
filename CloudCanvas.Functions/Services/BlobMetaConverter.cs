@@ -1,14 +1,15 @@
 ﻿using Azure.Storage.Blobs.Models;
 using CloudCanvas.Constants;
-using CloudCanvas.Shared.DTOs;
-using CloudCanvas.Shared.Interfaces;
+using CloudCanvas.Functions.DTOs;
+using CloudCanvas.Functions.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace CloudCanvas.Shared.Services
+namespace CloudCanvas.Functions.Services
 {
     public class BlobMetaConverter : IBlobMetaConverter
     {
@@ -36,9 +37,6 @@ namespace CloudCanvas.Shared.Services
             return meta;
         }
 
-        public string ToString(BlobMetaDTO blobMetaDTO)
-        {
-            throw new NotImplementedException();
-        }
+        public string ToString(CloudCanvasMessageDTO blobMetaDTO) => JsonSerializer.Serialize(blobMetaDTO);
     }
 }

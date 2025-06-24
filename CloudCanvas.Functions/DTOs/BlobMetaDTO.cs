@@ -7,20 +7,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CloudCanvas.Shared.DTOs
+namespace CloudCanvas.Functions.DTOs
 {
     public class BlobMetaDTO
     {
-        public BlobProperties OriginalBlobProperties { get; set; }
         public string OriginalFileName { get; set; }
         public string BlobUrl { get; set; }
         public string ProcessingStage { get; set; }
         public string UploadedBy { get; set; }
         public string Project { get; set; }
-        public string[] Tags { get; set; } // for future A.I. integration
+        public string[] Tags { get; set; } // for future A.I. integration for auto-tagging
         public string LastModified { get; set; }
         public string CreatedOn { get; set; }
-        public IDictionary<string, string> Metadata { get; set; }
+        public IDictionary<string, string> Metadata { get; set; } // any additional/custom metadata
         public string BlobType { get; set; }
         public string CopyCompletedOn { get; set; }
         public string CopyStatusDescription { get; set; }
@@ -62,7 +61,6 @@ namespace CloudCanvas.Shared.DTOs
 
         public BlobMetaDTO()
         {
-            Metadata = new Dictionary<string, string>(System.StringComparer.OrdinalIgnoreCase);;
         }
     }
 }
