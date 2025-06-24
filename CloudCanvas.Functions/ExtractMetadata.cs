@@ -17,6 +17,7 @@ using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading.Tasks;
 using static CloudCanvas.Constants.BlobStorage;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace CloudCanvas.Functions;
 
@@ -62,7 +63,7 @@ public class ExtractMetadata
             bool isValid = obj.IsValid(schema, out errors);
             if (isValid)
             {
-                var payload = System.Text.Json.JsonSerializer.Deserialize<CloudCanvasMessageDTO>(body);
+                var payload = JsonSerializer.Deserialize<CloudCanvasMessageDTO>(body);
 
                 _logger.LogWarning("Message.ID: {id}", message.MessageId);
                 _logger.LogWarning("Message.Body: {body}", _converter.ToString(payload));
@@ -84,7 +85,7 @@ public class ExtractMetadata
         }
         catch (JsonReaderException e)
         {
-            _logger.LogError("Alien message format: considered hostile and ignored. Exception Message:", e.Message);
+            _logger.LogError("UNRECOGNISED message format: considered hostile and ignored. Exception Message:", e);
         }
         await Task.CompletedTask;
     }
