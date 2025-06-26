@@ -10,7 +10,7 @@ This board tracks each major AZ-204 exam objective as a CloudCanvas project feat
 ---
 
 ### 🚀 Core App Features
-- [x] Deploy Razor/MVC App to Azure App Service
+- [~] Deploy Razor/MVC App to Azure App Service
 - [x] Enable Upload via Blob Storage SDK
 - [x] Use AppSettings for Config
 - [x] Process Image in Azure Function (Blob Trigger)
