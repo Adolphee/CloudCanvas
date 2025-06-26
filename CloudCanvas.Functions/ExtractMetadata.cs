@@ -1,92 +1,68 @@
 using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs.Models;
-using CloudCanvas.Constants;
-using CloudCanvas.Functions.Constants;
 using CloudCanvas.Functions.DTOs;
 using CloudCanvas.Functions.Services;
-using CloudCanvas.Shared.Interfaces;
+using CloudCanvas.Services;
+using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.Services;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Schema;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text.Json;
-using System.Threading.Tasks;
-using static CloudCanvas.Constants.BlobStorage;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
-namespace CloudCanvas.Functions;
 
-/// <summary>
-/// Extracts Metadata from uploaded blobs, received as DTO objects through Service Bus Messages
-/// </summary>
+namespace CloudCanvas_Functions;
+
 public class ExtractMetadata
 {
     private readonly ILogger<ExtractMetadata> _logger;
-    private readonly ServiceBusAdapter _adapter;
+    private readonly BlobStorageService _blobSerivce;
+    private readonly ServiceBusAdapter _sbAdapter;
     private readonly BlobMetaConverter _converter;
 
-    public ExtractMetadata(ILogger<ExtractMetadata> logger, ServiceBusAdapter serviceBusAdapter, BlobMetaConverter metaConverter)
+    public ExtractMetadata(ILogger<ExtractMetadata> logger, BlobStorageService blobSerivce, ServiceBusAdapter service, BlobMetaConverter converter)
     {
         _logger = logger;
-        _adapter = serviceBusAdapter;
-        _converter = metaConverter;
+        _blobSerivce = blobSerivce;
+        _sbAdapter = service;
+        _converter = converter;
     }
 
+    /// <summary>
+    /// Processes a blob triggered by an upload event, extracts metadata, and sends a message to a Service Bus topic.
+    /// </summary>
+    /// <remarks>This method is triggered by a blob upload to the specified container. It extracts metadata
+    /// from the blob, logs the processing details, and sends a message to the Service Bus topic for further
+    /// processing.</remarks>
+    /// <param name="input">The stream representing the uploaded blob content.</param>
+    /// <param name="name">The name of the uploaded blob.</param>
+    /// <returns>A <see cref="CloudCanvasMessageDTO"/> containing the event details, subject, and extracted metadata.</returns>
     [Function(nameof(ExtractMetadata))]
-    public async Task Run(
-        [ServiceBusTrigger(ServiceBus.Topics.FileUpdates, ServiceBus.Subs.ExtractMetaData, Connection = ServiceBus.Topics.FileUpdate.Listen)]
-        ServiceBusReceivedMessage message,
-        ServiceBusMessageActions messageActions)
+    [ServiceBusOutput(ServiceBus.Topics.FileUpdates, Connection = ServiceBus.Topics.FileUpdate.Send)]
+    public async Task Run([BlobTrigger(BlobStorage.Containers.Uploads + "/{name}", Connection = BlobStorage.Self)] Stream input, string name)
     {
-        var body = System.Text.Encoding.UTF8.GetString(message.Body);
+        _logger.LogInformation(ServiceBus.GetRealEventString(ServiceBus.Topics.FileUpdates, ServiceBus.Subs.ExtractMetaData, name));
 
-        string pathToMainSchema = Path.Combine(AppContext.BaseDirectory, "Schemas", "servicebus-message.schema.json");
-        string pathToBlobMetaSchema = Path.Combine(AppContext.BaseDirectory, "Schemas", "blob-metadata.schema.json");
+        const string uploads = BlobStorage.Containers.Uploads;
+        var cclient = await _blobSerivce.GetContainerClientAsync(uploads);
+        var blob = cclient.GetBlobClient(name);
+        BlobProperties props = blob.GetProperties();
+        BlobMetaDTO metadata = _converter.ToBlobMeta(name, blob.Uri.ToString(), props);
 
-        string MainSchemaJson = File.ReadAllText(pathToMainSchema);
-        string BlobMetaSchemaJson = File.ReadAllText(pathToBlobMetaSchema);
+        _logger.LogInformation("C# Blob trigger function Processed blob\n Name: {name} \n Data: {content}", name, metadata);
 
-        var resolver = new JSchemaPreloadedResolver();
-        resolver.Add(new Uri("blob-metadata.schema.json", UriKind.RelativeOrAbsolute), System.Text.Encoding.UTF8.GetBytes(BlobMetaSchemaJson));
+        var message = new ServiceBusMessage(_converter.ToString(metadata));
+        message.Subject = "Metadata Extracted - file ready for processing.";
+        // Since I am manually handling messages, I am also responsible for serialization etc.
+        // These properties will help the _converter in another azfunction to deserialize
+        message.ApplicationProperties.Add("blobUrl", metadata.BlobUrl);
+        message.ApplicationProperties.Add("originalFileName", metadata.OriginalFileName);
 
-        var schema = JSchema.Parse(MainSchemaJson, resolver);
-        JObject obj;
-        try
-        {
-            obj = JObject.Parse(body);
-            IList<string> errors;
-            bool isValid = obj.IsValid(schema, out errors);
-            if (isValid)
-            {
-                var payload = JsonSerializer.Deserialize<CloudCanvasMessageDTO>(body);
 
-                _logger.LogWarning("Message.ID: {id}", message.MessageId);
-                _logger.LogWarning("Message.Body: {body}", _converter.ToString(payload));
-
-                if (payload.Event.Contains("Start"))
-                {
-                    _logger.LogInformation("EXTRACT METADATA PROCESSING HERE .... !!!!!!!!!!!!!!");
-                    await _adapter.SendAsync(ServiceBus.Topics.FileUpdates, new ServiceBusMessage("EXTRACT METADATA PROCESSING HERE .... !!!!!!!!!!!!!!"));
-                }
-                else
-                {
-                    _logger.LogWarning("SKIPPING METADATA EXTRACTION... SHOULD BE ALREADY DONE.");
-                }
-            }
-            else
-            {
-                _logger.LogError("INVALID CloudCanvas Message... Does not comply with the standards set in the 'main' schema.");
-            }
-        }
-        catch (JsonReaderException e)
-        {
-            _logger.LogError("UNRECOGNISED message format: considered hostile and ignored. Exception Message:", e);
-        }
+        // Tweaking so the message goes through subscription filters on function CreateThumbnail
+        message.ApplicationProperties.Add(ServiceBus.Props.EventType, ServiceBus.Subs.ExtractMetaData);
+        // I am forced to create to call for a client and send the message manually,
+        // because for dotnet-isolated functions there is no IAsyncCollector<ServiceBusMessage> I can call
+        // to set ApplicationProperties on the message, which I MUST to do for subscription filtering (example: persist-metadata) to work
+        await _sbAdapter.SendAsync(ServiceBus.Topics.FileUpdates, message);
         await Task.CompletedTask;
     }
 }

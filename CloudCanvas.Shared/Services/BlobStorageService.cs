@@ -1,12 +1,8 @@
 using Azure.Storage.Blobs;
-using CloudCanvas.Constants;
+using CloudCanvas.Shared.Constants;
 using CloudCanvas.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.ColorSpaces;
-using System.Runtime.CompilerServices;
 
 namespace CloudCanvas.Services
 {

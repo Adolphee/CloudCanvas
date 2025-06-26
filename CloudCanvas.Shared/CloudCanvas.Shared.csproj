@@ -16,6 +16,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Config\" />
+    <Folder Include="DTOs\" />
     <Folder Include="schemas\" />
   </ItemGroup>
 

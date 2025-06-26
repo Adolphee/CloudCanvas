@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CloudCanvas.Functions.DTOs
+﻿namespace CloudCanvas.Functions.DTOs
 {
+    /// <summary>
+    /// Represents a data transfer object (DTO) for a message in the CloudCanvas system.
+    /// </summary>
+    /// <remarks>This class encapsulates the key details of a CloudCanvas message, including the event type
+    /// and subject. It is typically used to transfer message data between components or services.</remarks>
     public class CloudCanvasMessageDTO
     {
         public string Event { get; set; }
         public string Subject { get; set; }
-        public BlobMetaDTO Payload { get; set; }
+
+        
     }
 }

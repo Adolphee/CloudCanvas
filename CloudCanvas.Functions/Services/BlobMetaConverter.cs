@@ -1,42 +1,64 @@
 ﻿using Azure.Storage.Blobs.Models;
-using CloudCanvas.Constants;
+using CloudCanvas.Shared.Constants;
 using CloudCanvas.Functions.DTOs;
 using CloudCanvas.Functions.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace CloudCanvas.Functions.Services
 {
     public class BlobMetaConverter : IBlobMetaConverter
     {
-        public BlobMetaDTO ToBlobMeta(string blobUrl, BlobProperties props)
+        /// <summary>
+        /// Converts the provided blob properties and metadata into a <see cref="BlobMetaDTO"/> object.
+        /// </summary>
+        /// <remarks>This method maps the properties of a blob, as represented by <see
+        /// cref="BlobProperties"/>,  to a <see cref="BlobMetaDTO"/> object for further processing or use in the
+        /// application.</remarks>
+        /// <param name="originalFileName">The original name of the file before it was uploaded to the blob storage.</param>
+        /// <param name="blobUrl">The URL of the blob in the storage system.</param>
+        /// <param name="props">The properties of the blob, including metadata, content details, and versioning information.</param>
+        /// <returns>A <see cref="BlobMetaDTO"/> object containing metadata and properties of the blob, such as its URL, 
+        /// original file name, content details, and other relevant attributes.</returns>
+        public BlobMetaDTO ToBlobMeta(string originalFileName, string blobUrl, BlobProperties props)
         {
             BlobMetaDTO meta = new BlobMetaDTO();
             meta.BlobUrl = blobUrl;
-            meta.CreatedOn = props.CreatedOn.ToUniversalTime().ToString();
+            meta.OriginalFileName = originalFileName;
+            meta.CreatedOn = props.CreatedOn;
             meta.Metadata = props.Metadata;
             meta.ContentType = props.ContentType;
             meta.ContentLength = props.ContentLength;
-            meta.CopyCompletedOn = props.CopyCompletedOn.ToUniversalTime().ToString();
+            meta.CopyCompletedOn = props.CopyCompletedOn;
             meta.TagCount = props.TagCount;
             meta.ETag = props.ETag.ToString().Trim('\"');
             meta.SourceUrl = props.CopySource?.ToString();
             meta.ProcessingStage = ServiceBus.Subs.ExtractMetaData;
-            meta.CreatedOn = props.CreatedOn.ToUniversalTime().ToString();
-            meta.ExpiresOn = props.ExpiresOn.ToUniversalTime().ToString();
+            meta.CreatedOn = props.CreatedOn;
+            meta.ExpiresOn = props.ExpiresOn;
             meta.ContentLanguage = props.ContentLanguage;
-            meta.LastAccessed = props.LastAccessed.ToUniversalTime().ToString();
-            meta.LastModified = props.LastModified.ToUniversalTime().ToString();
+            meta.ContentEncoding = props.ContentEncoding;
+            meta.ContentDisposition = props.ContentDisposition;
+            meta.ContentLength = props.ContentLength;
+            meta.IsLatestVersion = props.IsLatestVersion;
+            meta.VersionId = props.VersionId;
+            meta.CopyId = props.CopyId;
+            meta.LastAccessed = props.LastAccessed;
+            meta.LastModified = props.LastModified;
             meta.IsLatestVersion = props.IsLatestVersion;
             meta.Tags = []; // future A.I. implementation will further process and fill in these tags
-            meta.BlobType = props.BlobType.ToString();
+            meta.BlobType = props.BlobType;
+            meta.CopyProgress = props.CopyProgress;
+            meta.CopyStatus = props.CopyStatus;
             return meta;
         }
 
-        public string ToString(CloudCanvasMessageDTO blobMetaDTO) => JsonSerializer.Serialize(blobMetaDTO);
+        public string ToString(CloudCanvasMessageDTO ccMessageDto) => JsonSerializer.Serialize(ccMessageDto, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase 
+        });
+        public string ToString(BlobMetaDTO meta) => JsonSerializer.Serialize(meta, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase 
+        });
     }
 }

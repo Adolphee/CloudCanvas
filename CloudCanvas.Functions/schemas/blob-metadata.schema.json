@@ -51,9 +51,6 @@
     "copyStatus": {
       "type": "integer"
     },
-    "blobCopyStatus": {
-      "type": "string"
-    },
     "isIncrementalCopy": {
       "type": "boolean"
     },
@@ -140,13 +137,14 @@
     "originalFileName",
     "blobUrl",
     "processingStage",
+    "lastModified",
+    "createdOn",
+    "blobType",
+    "contentType",
     // "uploadedBy",
     // "project",
     // "tags",
-    "lastModified",
-    "createdOn",
     // "metadata",
-    "blobType",
     // "copyCompletedOn",
     // "copyStatusDescription",
     // "copyId",
@@ -157,9 +155,8 @@
     // "isIncrementalCopy",
     // "destinationSnapshot",
     // "contentLength",
-    "contentType",
     // "eTag",
-    "contentEncoding",
+    // "contentEncoding",
     // "contentDisposition",
     // "contentLanguage",
     // "cacheControl",

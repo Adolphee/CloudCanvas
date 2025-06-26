@@ -3,16 +3,16 @@
   "type": "object",
   "description": "ServiceBus Convention - RootMessage",
   "properties": {
-    "Event": {
+    "event": {
       "type": "string" //example: "metadata-extracted", "thumbnail-created", ...
     },
-    "Subject": {
+    "subject": {
       "type": "string" //example: "Metadata extracted successfully.", ...
     },
-    "Payload": {
+    "payload": {
       "$ref": "blob-metadata.schema.json"
     },
-    "MetaData": { "type": "array" }
+    "metaData": { "type": "array" }
   },
-  "required": [ "Event", "Subject", "Payload" ]
+  "required": [ "event", "subject" ]
 }

@@ -1,29 +1,24 @@
-using Azure.Messaging.ServiceBus;
-using CloudCanvas.Constants;
+using CloudCanvas.Shared.Constants;
 using CloudCanvas.Functions.Services;
-using CloudCanvas.Interfaces;
 using CloudCanvas.Services;
-using CloudCanvas.Shared;
-using CloudCanvas.Shared.Config;
-using CloudCanvas.Shared.Interfaces;
 using CloudCanvas.Shared.Services;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
-using Microsoft.Extensions.Azure;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Text.Json;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
 builder.ConfigureFunctionsWebApplication();
-builder.Services.Configure<BlobStorageService>(builder.Configuration.GetSection(BlobStorage.Self));
-builder.Services.Configure<Dictionary<string, Topic>>(builder.Configuration.GetSection(ServiceBus.Self).GetSection("Topics"));
-builder.Services.Configure<ServiceBusOptions>(builder.Configuration.GetSection(ServiceBus.Self)); // Inject my ServiceBus config class
+builder.Services.Configure<BlobStorageService>(builder.Configuration.GetSection(BlobStorage.Self)); // For blob storage connection secrets
 builder.Services.AddTransient<ServiceBusAdapter>(); // Inject my Service Bus Adapter
-builder.Services.AddSingleton<ServiceBusClientFactory>();
-builder.Services.AddTransient<BlobMetaConverter>();
-
+builder.Services.AddSingleton<ServiceBusClientFactory>(); // To dynamically return the right ServiceBus client (listen vs read)
+builder.Services.AddTransient<BlobMetaConverter>(); // Conoverts blob metadata from a valid json message to {ExtractMetadataMessageDTO}
+builder.Services.Configure<JsonSerializerOptions>(options =>
+{   // Industry standard for json messaging is camelCase, System.Text.Json uses PascalCase by default.
+    options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase; 
+});
 builder.Services
     .AddApplicationInsightsTelemetryWorkerService()
     .ConfigureFunctionsApplicationInsights();
