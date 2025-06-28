@@ -1,4 +1,4 @@
-namespace CloudCanvas.Interfaces;
+namespace CloudCanvas.Shared.Interfaces;
 
 /// <summary>
 /// Defines methods for interacting with a blob storage service, including uploading files and retrieving file URLs from

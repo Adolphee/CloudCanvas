@@ -1,13 +1,11 @@
 using Azure.Messaging.ServiceBus;
 using CloudCanvas.Shared.DTOs;
 using CloudCanvas.Shared.Services;
-using CloudCanvas.Services;
-using CloudCanvas.Shared.Constants;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
-using System.Text.Json;
+using CloudCanvas.Shared;
 
 namespace CloudCanvas_Functions;
 public class CreateThumbnail

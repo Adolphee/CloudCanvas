@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CloudCanvas.Models.ViewModels
+namespace CloudCanvas.Web.Models
 {
     public class UploadViewModel
     {

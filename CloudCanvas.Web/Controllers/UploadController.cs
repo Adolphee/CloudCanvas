@@ -2,14 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CloudCanvas.Shared.Constants;
 using CloudCanvas.Interfaces;
 using CloudCanvas.Models;
-using CloudCanvas.Models.ViewModels;
-using CloudCanvas.Services;
 using Microsoft.AspNetCore.Mvc;
+using CloudCanvas.Web.Models;
+using CloudCanvas.Shared.Services;
+using CloudCanvas.Shared;
 
-namespace CloudCanvas.Controllers
+namespace CloudCanvas.Web.Controllers
 {
     public class UploadController : Controller
     {

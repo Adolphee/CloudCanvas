@@ -1,12 +1,11 @@
-using CloudCanvas.Shared.Constants;
-using CloudCanvas.Services;
 using CloudCanvas.Shared.Services;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Text.Json;
-using CloudCanvas.Interfaces;
+using CloudCanvas.Shared.Interfaces;
+using CloudCanvas.Shared;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 

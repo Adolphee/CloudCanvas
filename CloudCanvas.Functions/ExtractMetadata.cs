@@ -2,10 +2,9 @@ using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs.Models;
 using CloudCanvas.Shared.DTOs;
 using CloudCanvas.Shared.Services;
-using CloudCanvas.Services;
-using CloudCanvas.Shared.Constants;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using CloudCanvas.Shared;
 
 
 namespace CloudCanvas_Functions;

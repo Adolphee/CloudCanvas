@@ -1,6 +1,5 @@
 using Azure.Messaging.ServiceBus;
 using CloudCanvas.Shared.DTOs;
-using CloudCanvas.Shared.Constants;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -8,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
 using CloudCanvas.Shared.Interfaces;
 using CloudCanvas.Shared.Services;
+using CloudCanvas.Shared;
 
 namespace CloudCanvas_Functions;
 

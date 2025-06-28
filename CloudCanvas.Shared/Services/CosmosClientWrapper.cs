@@ -1,7 +1,6 @@
 ﻿using CloudCanvas.Shared.Interfaces;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
-using CloudCanvas.Shared.Constants;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.Extensions.Logging;
 using CloudCanvas.Shared.DTOs;

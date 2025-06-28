@@ -1,10 +1,9 @@
 using Azure.Storage.Blobs;
-using CloudCanvas.Shared.Constants;
-using CloudCanvas.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using CloudCanvas.Shared.Interfaces;
 
-namespace CloudCanvas.Services
+namespace CloudCanvas.Shared.Services
 {
     public class BlobStorageService: IBlobStorageService
     {
@@ -30,7 +29,7 @@ namespace CloudCanvas.Services
         /// <exception cref="OperationCanceledException">Thrown if an error occurs while attempting to create or retrieve the container.</exception>
         public async Task<BlobContainerClient> GetContainerClientAsync(string containerName)
         {
-            if (String.IsNullOrEmpty(containerName)) 
+            if (string.IsNullOrEmpty(containerName)) 
                 throw new InvalidDataException("ContainerName not provided.");
             try
             {
