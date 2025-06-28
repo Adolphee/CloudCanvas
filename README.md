@@ -10,18 +10,18 @@ This board tracks each major AZ-204 exam objective as a CloudCanvas project feat
 ---
 
 ### 🚀 Core App Features
-- [x] Deploy Razor/MVC App to Azure App Service
+- [~] Deploy Razor/MVC App to Azure App Service
 - [x] Enable Upload via Blob Storage SDK
 - [x] Use AppSettings for Config
-- [~] Process Image in Azure Function (Blob Trigger)
-- [ ] Add output container & metadata logging
-- [ ] Save metadata to Cosmos DB or Azure SQL
+- [x] Process Image in Azure Function (Blob Trigger)
+- [x] Add output container & metadata logging
+- [~] Save metadata to Cosmos DB or Azure SQL
 - [ ] Add App Insights + Logging
 - [ ] Secure App with Azure AD (MSAL)
-- [ ] Set up GitHub Actions CI/CD
+- [~] Set up GitHub Actions CI/CD
 - [ ] Use Azure Key Vault for secrets
 - [ ] Implement retry & error handling in Functions
-- [ ] Add Queue-triggered processing
+- [x] Add Queue-triggered processing
 - [ ] Deploy Infra with Bicep or ARM
 
 ---
