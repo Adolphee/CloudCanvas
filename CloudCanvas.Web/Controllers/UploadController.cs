@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CloudCanvas.Constants;
+using CloudCanvas.Shared.Constants;
 using CloudCanvas.Interfaces;
 using CloudCanvas.Models;
 using CloudCanvas.Models.ViewModels;

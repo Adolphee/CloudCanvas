@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using CloudCanvas.Constants;
+using CloudCanvas.Shared.Constants;
 using CloudCanvas.Models.ViewModels;
 using CloudCanvas.Services;
 using Microsoft.AspNetCore.Mvc;
