@@ -1,17 +1,15 @@
 using Azure.Messaging.ServiceBus;
-using Azure.Storage.Blobs.Models;
-using CloudCanvas.Functions.DTOs;
-using CloudCanvas.Functions.Services;
+using CloudCanvas.Shared.DTOs;
 using CloudCanvas.Shared.Constants;
-using CloudCanvas.Shared.Services;
-using Grpc.Core;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
+using CloudCanvas.Shared.Interfaces;
+using CloudCanvas.Shared.Services;
 
-namespace CloudCanvas.Functions;
+namespace CloudCanvas_Functions;
 
 /// <summary>
 /// Extracts Metadata from uploaded blobs, received as DTO objects through Service Bus Messages
@@ -19,15 +17,17 @@ namespace CloudCanvas.Functions;
 public class PersistMetadata
 {
     private readonly ILogger<PersistMetadata> _logger;
-    private readonly ServiceBusAdapter _sbAdapter;
-    private readonly BlobMetaConverter _converter;
+    private readonly IServiceBusAdapter _sbAdapter;
+    private readonly IBlobMetaConverter _converter;
+    private readonly ICosmosClientWrapper _cosmos;
     private const int MaxMessageLength = 16 * 1024; /// TODO: Pull this value from the configuration file
 
-    public PersistMetadata(ILogger<PersistMetadata> logger, ServiceBusAdapter serviceBusAdapter, BlobMetaConverter metaConverter)
+    public PersistMetadata(ILogger<PersistMetadata> logger, ServiceBusAdapter serviceBusAdapter, BlobMetaConverter metaConverter, CosmosClientWrapper cosmos)
     {
         _logger = logger;
         _sbAdapter = serviceBusAdapter;
         _converter = metaConverter;
+        _cosmos = cosmos;
     }
 
     /// <summary>
@@ -38,9 +38,8 @@ public class PersistMetadata
     /// response message indicating the processing status.</remarks>
     /// <param name="message">The received Service Bus message containing metadata to be processed.</param>
     /// <param name="messageActions">Provides actions that can be performed on the Service Bus message, such as completing or abandoning it.</param>
-    /// <returns>A <see cref="CloudCanvasMessageDTO"/> containing information about the completion of metadata processing.</returns>
+    /// <returns>A <see cref="ServiceBusMessageDTO"/> containing information about the completion of metadata processing.</returns>
     [Function(nameof(PersistMetadata))]
-    [ServiceBusOutput(ServiceBus.Topics.FileUpdates, Connection = ServiceBus.Topics.FileUpdate.Send)]
     public async Task Run(
         [ServiceBusTrigger(ServiceBus.Topics.FileUpdates, ServiceBus.Subs.PersistMetadata, Connection = ServiceBus.Topics.FileUpdate.Listen)]
         ServiceBusReceivedMessage message,
@@ -55,20 +54,11 @@ public class PersistMetadata
         }
         */
         
-        ///TODO: Persist to CosmosDB ...
-        
-        var sbMessage = new CloudCanvasMessageDTO
-        {
-            Event = ServiceBus.GetRealEventString(ServiceBus.Topics.FileUpdates, ServiceBus.Subs.PersistMetadata, "done"),
-            Subject = "File completed metadata processing."
-        };
-
-        var body = _converter.ToString(sbMessage);
-        BlobMetaDTO metadata = System.Text.Json.JsonSerializer.Deserialize<BlobMetaDTO>(message.Body.ToString()); //TODO: wrap in try-catch block
+        BlobMetaDTO metadata = _converter.FromBinaryData(message.Body); //TODO: wrap in try-catch block, conversion may fail
         metadata.BlobUrl = message.ApplicationProperties["blobUrl"].ToString()?? ""; // TODO: also wrap in try-catch or validate some other way
         metadata.OriginalFileName = message.ApplicationProperties["originalFileName"].ToString()?? ""; //TODO: idem
-        ///TODO: Save metadata to CosmosDB
-        var responseMessage = new ServiceBusMessage(body);
+        metadata = await _cosmos.SaveAsync(metadata, CloudCosmos.Containers.BlobMeta); // Push metadata to CosmosDB
+        var responseMessage = new ServiceBusMessage(_converter.Serialize(metadata));
         responseMessage.Subject = "Metadata Extracted - file ready for processing.";
         // Tweaking so the message goes through subscription filters on function CreateThumbnail
         responseMessage.ApplicationProperties.Add(ServiceBus.Props.EventType, ServiceBus.Subs.PersistMetadata);

@@ -7,12 +7,24 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Activities\**" />
+    <Compile Remove="Orchestrators\**" />
+    <Compile Remove="Starters\**" />
+    <EmbeddedResource Remove="Activities\**" />
+    <EmbeddedResource Remove="Orchestrators\**" />
+    <EmbeddedResource Remove="Starters\**" />
+    <None Remove="Activities\**" />
+    <None Remove="Orchestrators\**" />
+    <None Remove="Starters\**" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="local.settings.json" />
   </ItemGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.24.1" />
     <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.23.0" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.52.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.0.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="2.0.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.0.2" />

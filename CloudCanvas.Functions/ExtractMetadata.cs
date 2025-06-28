@@ -1,10 +1,9 @@
 using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs.Models;
-using CloudCanvas.Functions.DTOs;
-using CloudCanvas.Functions.Services;
+using CloudCanvas.Shared.DTOs;
+using CloudCanvas.Shared.Services;
 using CloudCanvas.Services;
 using CloudCanvas.Shared.Constants;
-using CloudCanvas.Shared.Services;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
@@ -34,9 +33,8 @@ public class ExtractMetadata
     /// processing.</remarks>
     /// <param name="input">The stream representing the uploaded blob content.</param>
     /// <param name="name">The name of the uploaded blob.</param>
-    /// <returns>A <see cref="CloudCanvasMessageDTO"/> containing the event details, subject, and extracted metadata.</returns>
+    /// <returns>A <see cref="ServiceBusMessageDTO"/> containing the event details, subject, and extracted metadata.</returns>
     [Function(nameof(ExtractMetadata))]
-    [ServiceBusOutput(ServiceBus.Topics.FileUpdates, Connection = ServiceBus.Topics.FileUpdate.Send)]
     public async Task Run([BlobTrigger(BlobStorage.Containers.Uploads + "/{name}", Connection = BlobStorage.Self)] Stream input, string name)
     {
         _logger.LogInformation(ServiceBus.GetRealEventString(ServiceBus.Topics.FileUpdates, ServiceBus.Subs.ExtractMetaData, name));
@@ -45,11 +43,11 @@ public class ExtractMetadata
         var cclient = await _blobSerivce.GetContainerClientAsync(uploads);
         var blob = cclient.GetBlobClient(name);
         BlobProperties props = blob.GetProperties();
-        BlobMetaDTO metadata = _converter.ToBlobMeta(name, blob.Uri.ToString(), props);
+        BlobMetaDTO metadata = _converter.FromBlobProperties(name, blob.Uri.ToString(), props);
 
         _logger.LogInformation("C# Blob trigger function Processed blob\n Name: {name} \n Data: {content}", name, metadata);
 
-        var message = new ServiceBusMessage(_converter.ToString(metadata));
+        var message = new ServiceBusMessage(_converter.Serialize(metadata));
         message.Subject = "Metadata Extracted - file ready for processing.";
         // Since I am manually handling messages, I am also responsible for serialization etc.
         // These properties will help the _converter in another azfunction to deserialize

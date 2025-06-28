@@ -1,13 +1,21 @@
 ﻿using Azure.Storage.Blobs.Models;
 using CloudCanvas.Shared.Constants;
-using CloudCanvas.Functions.DTOs;
-using CloudCanvas.Functions.Interfaces;
+using CloudCanvas.Shared.DTOs;
+using CloudCanvas.Shared.Interfaces;
 using System.Text.Json;
+using Newtonsoft.Json.Linq;
 
-namespace CloudCanvas.Functions.Services
+namespace CloudCanvas.Shared.Services
 {
     public class BlobMetaConverter : IBlobMetaConverter
     {
+        public BlobMetaDTO FromBinaryData(BinaryData binary)
+        {
+            var dto = JsonSerializer.Deserialize<BlobMetaDTO>(binary);
+            if (dto is null) throw new InvalidCastException($"{nameof(BlobMetaConverter)} could not parse {nameof(BinaryData)} to {nameof(BlobMetaDTO)}.");
+            return dto;
+        }
+
         /// <summary>
         /// Converts the provided blob properties and metadata into a <see cref="BlobMetaDTO"/> object.
         /// </summary>
@@ -19,9 +27,10 @@ namespace CloudCanvas.Functions.Services
         /// <param name="props">The properties of the blob, including metadata, content details, and versioning information.</param>
         /// <returns>A <see cref="BlobMetaDTO"/> object containing metadata and properties of the blob, such as its URL, 
         /// original file name, content details, and other relevant attributes.</returns>
-        public BlobMetaDTO ToBlobMeta(string originalFileName, string blobUrl, BlobProperties props)
+        public BlobMetaDTO FromBlobProperties(string originalFileName, string blobUrl, BlobProperties props)
         {
             BlobMetaDTO meta = new BlobMetaDTO();
+            meta.UserId = Guid.NewGuid().ToString();
             meta.BlobUrl = blobUrl;
             meta.OriginalFileName = originalFileName;
             meta.CreatedOn = props.CreatedOn;
@@ -52,11 +61,11 @@ namespace CloudCanvas.Functions.Services
             return meta;
         }
 
-        public string ToString(CloudCanvasMessageDTO ccMessageDto) => JsonSerializer.Serialize(ccMessageDto, new JsonSerializerOptions
+        public string Serialize(ServiceBusMessageDTO ccMessageDto) => JsonSerializer.Serialize(ccMessageDto, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase 
         });
-        public string ToString(BlobMetaDTO meta) => JsonSerializer.Serialize(meta, new JsonSerializerOptions
+        public string Serialize(BlobMetaDTO meta) => JsonSerializer.Serialize(meta, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase 
         });

@@ -59,4 +59,12 @@ namespace CloudCanvas.Shared.Constants
             public const string PersistMetadata = "persist-metadata";
         }
     }
+
+    public abstract class CloudCosmos
+    {
+        public const string Sql = "cloudcosmos_sql";
+        public abstract class Containers {
+            public const string BlobMeta = "blob_metadata";
+        }
+    }
 }

@@ -1,6 +1,7 @@
 ﻿using Azure.Storage.Blobs.Models;
+using System.ComponentModel.DataAnnotations;
 
-namespace CloudCanvas.Functions.DTOs
+namespace CloudCanvas.Shared.DTOs
 {
     /// <summary>
     /// Represents metadata and properties associated with a blob in a storage system.
@@ -9,7 +10,7 @@ namespace CloudCanvas.Functions.DTOs
     /// metadata,  content properties, and various operational states such as copy status, encryption details,  and
     /// access tier. It is designed to encapsulate all relevant data for managing and interacting  with blobs in a
     /// storage context.</remarks>
-    public class BlobMetaDTO
+    public class BlobMetaDTO: MetadataDocumentBase
     {
         public string OriginalFileName { get; set; }
         public string BlobUrl { get; set; }
