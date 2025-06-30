@@ -1,4 +1,5 @@
 ﻿using Azure.Messaging.ServiceBus;
+using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.Interfaces;
 using Microsoft.Extensions.Configuration;
 

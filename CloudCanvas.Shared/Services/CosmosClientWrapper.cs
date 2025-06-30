@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.Extensions.Logging;
 using CloudCanvas.Shared.DTOs;
+using CloudCanvas.Shared.Constants;
 
 namespace CloudCanvas.Shared.Services
 {
