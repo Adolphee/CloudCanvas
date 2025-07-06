@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Text.Json;
 using CloudCanvas.Shared.Interfaces;
-using CloudCanvas.Shared;
+using CloudCanvas.Shared.Constants;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 

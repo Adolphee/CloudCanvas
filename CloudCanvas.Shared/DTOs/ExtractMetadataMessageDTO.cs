@@ -7,6 +7,6 @@
     /// metadata information, for communication purposes.</remarks>
     public class ExtractMetadataMessageDTO: ServiceBusMessageDTO
     {
-        public BlobMetaDTO Payload { get; set; }
+        public BlobMetaDTO? Payload { get; set; }
     }
 }

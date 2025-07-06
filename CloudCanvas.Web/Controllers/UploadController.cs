@@ -1,13 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CloudCanvas.Interfaces;
-using CloudCanvas.Models;
 using Microsoft.AspNetCore.Mvc;
 using CloudCanvas.Web.Models;
 using CloudCanvas.Shared.Services;
-using CloudCanvas.Shared;
+using CloudCanvas.Shared.Constants;
 
 namespace CloudCanvas.Web.Controllers
 {

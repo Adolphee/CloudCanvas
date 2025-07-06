@@ -1,4 +1,4 @@
-using CloudCanvas.Shared;
+using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.Services;
 
 var builder = WebApplication.CreateBuilder(args);

@@ -7,7 +7,7 @@
     /// and subject. It is typically used to transfer message data between components or services.</remarks>
     public class ServiceBusMessageDTO
     {
-        public string Event { get; set; }
-        public string Subject { get; set; }
+        public string? Event { get; set; }
+        public string? Subject { get; set; }
     }
 }

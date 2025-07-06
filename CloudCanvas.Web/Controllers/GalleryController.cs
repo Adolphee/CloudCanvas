@@ -1,13 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using CloudCanvas.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using CloudCanvas.Shared.Services;
-using CloudCanvas.Shared;
+using CloudCanvas.Web.Models;
+using CloudCanvas.Shared.Constants;
 
 namespace CloudCanvas.Web.Controllers
 {

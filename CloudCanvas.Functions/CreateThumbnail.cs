@@ -5,7 +5,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
-using CloudCanvas.Shared;
+using CloudCanvas.Shared.Constants;
 
 namespace CloudCanvas_Functions;
 public class CreateThumbnail

@@ -4,7 +4,7 @@ using CloudCanvas.Shared.DTOs;
 using CloudCanvas.Shared.Services;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using CloudCanvas.Shared;
+using CloudCanvas.Shared.Constants;
 
 
 namespace CloudCanvas_Functions;

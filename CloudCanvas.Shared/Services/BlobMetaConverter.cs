@@ -2,7 +2,6 @@
 using CloudCanvas.Shared.DTOs;
 using CloudCanvas.Shared.Interfaces;
 using System.Text.Json;
-using Newtonsoft.Json.Linq;
 using CloudCanvas.Shared.Constants;
 
 namespace CloudCanvas.Shared.Services
