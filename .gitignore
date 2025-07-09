@@ -267,3 +267,11 @@ __azurite_db_blob__.json
 __blobstorage__
 .DS_Store
 **/.vscode/
+/createdump.exe.ignore
+/func.exe.ignore
+/gozip.exe.ignore
+/Microsoft.Azure.Functions.PowerShellWorker.exe.ignore
+/t32.exe.ignore
+/t64.exe.ignore
+/w32.exe.ignore
+/w64.exe.ignore

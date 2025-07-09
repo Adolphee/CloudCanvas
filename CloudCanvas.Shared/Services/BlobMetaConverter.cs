@@ -53,7 +53,7 @@ namespace CloudCanvas.Shared.Services
             meta.LastAccessed = props.LastAccessed;
             meta.LastModified = props.LastModified;
             meta.IsLatestVersion = props.IsLatestVersion;
-            meta.Tags = []; // future A.I. implementation will further process and fill in these tags
+            meta.Tags = new List<string>(); // future A.I. implementation will further process and fill in these tags
             meta.BlobType = props.BlobType;
             meta.CopyProgress = props.CopyProgress;
             meta.CopyStatus = props.CopyStatus;
