@@ -16,6 +16,6 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.2" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CloudCanvas.Shared\CloudCanvas.Shared.csproj" />
+    <ProjectReference Include="..\..\CloudCanvas.Shared\CloudCanvas.Shared.csproj" />
   </ItemGroup>
 </Project>
