@@ -67,15 +67,9 @@ public class CreateThumbnail
             _logger.LogDebug(e.Message, e.StackTrace);
             await messageActions.AbandonMessageAsync(message);  // Complete the message
         }
-        var body = new ExtractMetadataMessageDTO
-        {
-            Event = ServiceBus.GetRealEventString(ServiceBus.Topics.FileUpdates, ServiceBus.Subs.CreateThumbnail, "done"),
-            Subject = "Thumbnail Created.",
-            Payload = metadata
-        };
-
-        var responseMessage = new ServiceBusMessage(_converter.Serialize(body));
+        var responseMessage = new ServiceBusMessage(_converter.Serialize(metadata));
         // Tweaking so the message goes through subscription filters on function CreateThumbnail
+        responseMessage.Subject = $"{ServiceBus.Topics.FileUpdates}, {ServiceBus.Subs.CreateThumbnail}, done";
         responseMessage.ApplicationProperties.Add(ServiceBus.Props.EventType, ServiceBus.Subs.CreateThumbnail);
         // I am forced to create to call for a client and send the message manually,
         // because for dotnet-isolated functions there is no IAsyncCollector<ServiceBusMessage> I can call

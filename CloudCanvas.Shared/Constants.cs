@@ -29,14 +29,6 @@ namespace CloudCanvas.Shared.Constants
     {
 
         public const string Self = "AzureServiceBus";
-        /// <summary>
-        /// Constructs a formatted string representing an event's details.
-        /// </summary>
-        /// <param name="mainEvent">The name or identifier of the main event.</param>
-        /// <param name="processingStage">The current stage of processing for the event.</param>
-        /// <param name="status">The status of the event at the specified processing stage: "done" or "start".</param>
-        /// <returns>A string in the format "mainEvent--processingStage--status" representing the event's details.</returns>
-        public static string GetRealEventString(string mainEvent, string processingStage, string status) => $"{mainEvent}--{processingStage}--{status}";
         public abstract class Topics
         {
             public const string FileUpdates = "file-updates";
