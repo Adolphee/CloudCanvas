@@ -3,15 +3,16 @@ using CloudCanvas.Shared.DTOs;
 using CloudCanvas.Shared.Interfaces;
 using System.Text.Json;
 using CloudCanvas.Shared.Constants;
+using CloudCanvas.Shared.Exceptions;
 
 namespace CloudCanvas.Shared.Services
 {
-    public class BlobMetaConverter : IBlobMetaConverter
+    public class BlobMetadataSerializer : IBlobMetadataSerializer
     {
         public BlobMetaDTO FromBinaryData(BinaryData binary)
         {
             var dto = JsonSerializer.Deserialize<BlobMetaDTO>(binary);
-            if (dto is null) throw new InvalidCastException($"{nameof(BlobMetaConverter)} could not parse {nameof(BinaryData)} to {nameof(BlobMetaDTO)}.");
+            if (dto is null) throw new InvalidCastException($"{nameof(BlobMetadataSerializer)} could not parse {nameof(BinaryData)} to {nameof(BlobMetaDTO)}.");
             return dto;
         }
 
@@ -28,8 +29,13 @@ namespace CloudCanvas.Shared.Services
         /// original file name, content details, and other relevant attributes.</returns>
         public BlobMetaDTO FromBlobProperties(string originalFileName, string blobUrl, BlobProperties props)
         {
+            if(String.IsNullOrEmpty(originalFileName) || String.IsNullOrEmpty(blobUrl))
+            {
+                throw new BlobMetadataSerializationException($"Missing {nameof(originalFileName)} and/or {nameof(blobUrl)}. Unable to link metadata to blob.");
+            }
+
             BlobMetaDTO meta = new BlobMetaDTO();
-            meta.UserId = Guid.NewGuid().ToString();
+            meta.UserId = Guid.NewGuid().ToString(); // This is just a placeholder for when I introduce auth
             meta.BlobUrl = blobUrl;
             meta.OriginalFileName = originalFileName;
             meta.CreatedOn = props.CreatedOn;

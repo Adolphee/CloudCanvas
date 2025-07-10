@@ -4,9 +4,9 @@ using SixLabors.ImageSharp.Processing;
 
 namespace CloudCanvas.Shared.Utilities
 {
-    public static class ImageResizer
+    public static class ImageTool
     {
-        public static async Task<Stream> ResizeAsync(Stream input, ImageSize size)
+        public static async Task<Stream> ResizeAsync(Stream input, ThumbnailSize size)
         {
             var output = new MemoryStream();
             var image = await Image.LoadAsync(input);
@@ -28,13 +28,13 @@ namespace CloudCanvas.Shared.Utilities
             return output;
         }
 
-        private static int GetPixelSize(ImageSize tnSize)
+        private static int GetPixelSize(ThumbnailSize tnSize)
         {
             switch (tnSize)
             {
-                case ImageSize.XS: return 25;
-                case ImageSize.S: return 50;
-                case ImageSize.M: return 75;
+                case ThumbnailSize.XS: return 25;
+                case ThumbnailSize.S: return 50;
+                case ThumbnailSize.M: return 75;
                 default: return 50;
             }
         }

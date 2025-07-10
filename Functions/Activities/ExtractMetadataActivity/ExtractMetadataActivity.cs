@@ -29,18 +29,18 @@ namespace ExtractMetadataActivity
             .Build();
 
             var blobService = new BlobStorageService(config, (ILogger<BlobStorageService>)log);
-            log.LogInformation(ServiceBus.GetRealEventString(ServiceBus.Topics.FileUpdates, ServiceBus.Subs.ExtractMetaData, name));
+            log.LogInformation($"{ServiceBus.Topics.FileUpdates}, {ServiceBus.Subs.ExtractMetaData}, {name}");
 
             const string uploads = BlobStorage.Containers.Uploads;
             var cclient = await blobService.GetContainerClientAsync(uploads);
             var blob = cclient.GetBlobClient(name);
             BlobProperties props = blob.GetProperties();
-            var converter = new BlobMetaConverter();
-            BlobMetaDTO metadata = converter.FromBlobProperties(name, blob.Uri.ToString(), props);
+            var serializer = new BlobMetadataSerializer();
+            BlobMetaDTO metadata = serializer.FromBlobProperties(name, blob.Uri.ToString(), props);
 
-            log.LogInformation("C# Blob trigger function Processed blob\n Name: {name} \n Data: {content}", name, metadata);
+            log.LogInformation("C# Blob trigger function Processed blob\n Name: {name} \n Data: {content}", name, serializer.Serialize(metadata));
 
-            var message = new ServiceBusMessage(converter.Serialize(metadata));
+            var message = new ServiceBusMessage(serializer.Serialize(metadata));
             message.Subject = "Metadata Extracted - file ready for processing.";
             // Since I am manually handling messages, I am also responsible for serialization etc.
             // These properties will help the _converter in another azfunction to deserialize

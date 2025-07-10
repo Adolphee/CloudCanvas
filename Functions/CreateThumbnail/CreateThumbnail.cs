@@ -14,14 +14,14 @@ public class CreateThumbnail
 {
     private readonly ILogger<CreateThumbnail> _logger;
     private readonly IBlobStorageService _blobService;
-    private readonly IBlobMetaConverter _converter;
+    private readonly IBlobMetadataSerializer _serializer;
     private readonly IServiceBusAdapter _sbAdapter;
 
-    public CreateThumbnail(ILogger<CreateThumbnail> logger, BlobStorageService blobService, BlobMetaConverter converter, ServiceBusAdapter adapter)
+    public CreateThumbnail(ILogger<CreateThumbnail> logger, BlobStorageService blobService, BlobMetadataSerializer converter, ServiceBusAdapter adapter)
     {
         _logger = logger;
         _blobService = blobService;
-        _converter = converter;
+        _serializer = converter;
         _sbAdapter = adapter;
     }
 
@@ -44,11 +44,11 @@ public class CreateThumbnail
     public async Task Run(
         [ServiceBusTrigger(ServiceBus.Topics.FileUpdates, ServiceBus.Subs.CreateThumbnail, Connection = ServiceBus.Topics.FileUpdate.Listen)]
         ServiceBusReceivedMessage message,
-        ServiceBusMessageActions messageActions, ImageSize size = ImageSize.S)
+        ServiceBusMessageActions messageActions, ThumbnailSize size = ThumbnailSize.S)
     {
         const string thumbnails = BlobStorage.Containers.Thumbnails;
         const string uploads = BlobStorage.Containers.Uploads;
-        BlobMetaDTO metadata = _converter.FromBinaryData(message.Body); //TODO: wrap in try-catch block
+        BlobMetaDTO metadata = _serializer.FromBinaryData(message.Body); //TODO: wrap in try-catch block
         metadata.BlobUrl = message.ApplicationProperties["blobUrl"].ToString() ?? ""; // TODO: also wrap in try-catch or validate some other way
         metadata.OriginalFileName = message.ApplicationProperties["originalFileName"].ToString() ?? ""; //TODO: idem
         try
@@ -58,7 +58,7 @@ public class CreateThumbnail
             var bclient = await _blobService.GetContainerClientAsync(uploads); // original file blob container
             var stream = await bclient.GetBlobClient(metadata.OriginalFileName).OpenReadAsync(); // download file
             bclient = await _blobService.GetContainerClientAsync(thumbnails); // switch to thumbnails desination container
-            using var output = await ImageResizer.ResizeAsync(stream, size);
+            using var output = await ImageTool.ResizeAsync(stream, size);
             await _blobService.UploadAsync(thumbnails, output, metadata.OriginalFileName); //upload the thumbnail
             _logger.LogInformation($"Successfully created thumbnail and saved to [{thumbnails}]/{metadata.OriginalFileName}.");
         }

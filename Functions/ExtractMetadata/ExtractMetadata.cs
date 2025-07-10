@@ -1,11 +1,12 @@
 using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs.Models;
+using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.DTOs;
+using CloudCanvas.Shared.Interfaces;
 using CloudCanvas.Shared.Services;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using CloudCanvas.Shared.Constants;
-using CloudCanvas.Shared.Interfaces;
+using System;
 
 
 namespace CloudCanvas_Functions;
@@ -15,14 +16,14 @@ public class ExtractMetadata
     private readonly ILogger<ExtractMetadata> _logger;
     private readonly IBlobStorageService _blobSerivce;
     private readonly IServiceBusAdapter _sbAdapter;
-    private readonly IBlobMetaConverter _converter;
+    private readonly IBlobMetadataSerializer _serializer;
 
-    public ExtractMetadata(ILogger<ExtractMetadata> logger, BlobStorageService blobSerivce, ServiceBusAdapter service, BlobMetaConverter converter)
+    public ExtractMetadata(ILogger<ExtractMetadata> logger, BlobStorageService blobSerivce, ServiceBusAdapter service, BlobMetadataSerializer serializer)
     {
         _logger = logger;
         _blobSerivce = blobSerivce;
         _sbAdapter = service;
-        _converter = converter;
+        _serializer = serializer;
     }
 
     /// <summary>
@@ -43,12 +44,12 @@ public class ExtractMetadata
         var cclient = await _blobSerivce.GetContainerClientAsync(uploads);
         var blob = cclient.GetBlobClient(name);
         BlobProperties props = blob.GetProperties();
-        BlobMetaDTO metadata = _converter.FromBlobProperties(name, blob.Uri.ToString(), props);
+        BlobMetaDTO metadata = _serializer.FromBlobProperties(name, blob.Uri.ToString(), blob.GetProperties());
 
-        var message = new ServiceBusMessage(_converter.Serialize(metadata));
+        var message = new ServiceBusMessage(_serializer.Serialize(metadata));
         message.Subject = "Metadata Extracted - file ready for processing.";
         // Since I am manually handling messages, I am also responsible for serialization etc.
-        // These properties will help the _converter in another azfunction to deserialize
+        // These properties will help the _serializer in another azfunction to deserialize
         message.ApplicationProperties.Add("blobUrl", metadata.BlobUrl);
         message.ApplicationProperties.Add("originalFileName", metadata.OriginalFileName);
 
@@ -58,6 +59,6 @@ public class ExtractMetadata
         // because for dotnet-isolated functions there is no IAsyncCollector<ServiceBusMessage> I can call
         // to set ApplicationProperties on the message, which I MUST to do for subscription filtering (example: persist-metadata) to work
         await _sbAdapter.SendAsync(ServiceBus.Topics.FileUpdates, message);
-        _logger.LogInformation("C# Blob trigger function Processed blob\n Name: {name} \n Data: {content}", name, metadata);
+        _logger.LogInformation("C# Blob trigger function Processed blob\n Name: {name} \n Data: {content}", name, _serializer.Serialize(metadata));
     }
 }

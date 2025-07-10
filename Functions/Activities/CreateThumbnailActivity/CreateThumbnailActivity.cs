@@ -1,7 +1,9 @@
 using Azure.Messaging.ServiceBus;
 using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.DTOs;
+using CloudCanvas.Shared.Enums;
 using CloudCanvas.Shared.Services;
+using CloudCanvas.Shared.Utilities;
 using Google.Protobuf.Reflection;
 using Grpc.Core;
 using Microsoft.Azure.WebJobs;
@@ -25,12 +27,13 @@ namespace CreateThumbnailActivity
     public class CreateThumbnailActivity
     {
         [FunctionName("CreateThumbnailActivity")]
-        public async Task Run([ActivityTrigger] BlobMetaDTO blobmeta, ILogger logger)
+        public async Task Run([ActivityTrigger] BlobMetaDTO blobmeta, ILogger logger, ThumbnailSize size = ThumbnailSize.S)
         {
             const string thumbnails = BlobStorage.Containers.Thumbnails;
             const string uploads = BlobStorage.Containers.Uploads;
-            var converter = new BlobMetaConverter();
+            var converter = new BlobMetadataSerializer();
             var config = new ConfigurationBuilder().AddEnvironmentVariables().Build();
+
             try
             {
                 ///TODO: Implement **better validation** on file type, 
@@ -39,12 +42,8 @@ namespace CreateThumbnailActivity
                 var bclient = await blobService.GetContainerClientAsync(uploads); // original file blob container
                 var stream = await bclient.GetBlobClient(blobmeta.OriginalFileName).OpenReadAsync(); // download file
                 bclient = await blobService.GetContainerClientAsync(thumbnails); // switch to thumbnails desination container
-                using var image = await Image.LoadAsync(stream);
-                image.Mutate(i => i.Resize(50, 50)); // In the real world, more complex operations can be performed in this step
-                using var output = new MemoryStream();
-                await image.SaveAsJpegAsync(output);
-                output.Position = 0;
-                await blobService.UploadAsync(thumbnails, output, blobmeta.OriginalFileName); //upload the thumbnail
+                using var image = await ImageTool.ResizeAsync(stream, size);
+                await blobService.UploadAsync(thumbnails, image, blobmeta.OriginalFileName); //upload the thumbnail
                 logger.LogInformation($"Successfully created thumbnail and saved to [{thumbnails}]/{blobmeta.OriginalFileName}.");
             }
             catch (Exception e)
@@ -55,12 +54,9 @@ namespace CreateThumbnailActivity
             }
 
             var responseMessage = new ServiceBusMessage(JsonSerializer.Serialize(blobmeta));
-            // Tweaking so the message goes through subscription filters on function CreateThumbnail
+            // Tweaking so the message goes through subscription filters
             responseMessage.Subject = $"{ServiceBus.Topics.FileUpdates}, {ServiceBus.Subs.CreateThumbnail}, done";
             responseMessage.ApplicationProperties.Add(ServiceBus.Props.EventType, ServiceBus.Subs.CreateThumbnail);
-            // I am forced to create to call for a client and send the message manually,
-            // because for dotnet-isolated functions there is no IAsyncCollector<ServiceBusMessage> I can call
-            // to set ApplicationProperties on the message, which I MUST to do for subscription filtering (example: persist-metadata) to work
             var sbAdapter = new ServiceBusAdapter(new ServiceBusClientFactory(config), (ILogger<ServiceBusAdapter>) logger, config);
             await sbAdapter.SendAsync(ServiceBus.Topics.FileUpdates, responseMessage);
             logger.LogInformation($"C# Blob trigger function Processed blob\n Name:{blobmeta.OriginalFileName} \n Size: {blobmeta.OriginalFileName.Length} Bytes");

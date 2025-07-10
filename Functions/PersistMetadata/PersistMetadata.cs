@@ -18,15 +18,15 @@ public class PersistMetadata
 {
     private readonly ILogger<PersistMetadata> _logger;
     private readonly IServiceBusAdapter _sbAdapter;
-    private readonly IBlobMetaConverter _converter;
+    private readonly IBlobMetadataSerializer _serializer;
     private readonly ICosmosClientWrapper _cosmos;
     private const int MaxMessageLength = 16 * 1024; /// TODO: Pull this value from the configuration file
 
-    public PersistMetadata(ILogger<PersistMetadata> logger, ServiceBusAdapter serviceBusAdapter, BlobMetaConverter metaConverter, CosmosClientWrapper cosmos)
+    public PersistMetadata(ILogger<PersistMetadata> logger, ServiceBusAdapter serviceBusAdapter, BlobMetadataSerializer metaConverter, CosmosClientWrapper cosmos)
     {
         _logger = logger;
         _sbAdapter = serviceBusAdapter;
-        _converter = metaConverter;
+        _serializer = metaConverter;
         _cosmos = cosmos;
     }
 
@@ -54,11 +54,11 @@ public class PersistMetadata
         }
         */
 
-        BlobMetaDTO metadata = _converter.FromBinaryData(message.Body); //TODO: wrap in try-catch block, conversion may fail
+        BlobMetaDTO metadata = _serializer.FromBinaryData(message.Body); //TODO: wrap in try-catch block, conversion may fail
         metadata.BlobUrl = message.ApplicationProperties["blobUrl"].ToString() ?? ""; // TODO: also wrap in try-catch or validate some other way
         metadata.OriginalFileName = message.ApplicationProperties["originalFileName"].ToString() ?? ""; //TODO: idem
         metadata = await _cosmos.SaveAsync(metadata, CloudCosmos.Containers.BlobMeta); // Push metadata to CosmosDB
-        var responseMessage = new ServiceBusMessage(_converter.Serialize(metadata));
+        var responseMessage = new ServiceBusMessage(_serializer.Serialize(metadata));
         responseMessage.Subject = "Metadata Extracted - file ready for processing.";
         // Tweaking so the message goes through subscription filters on function CreateThumbnail
         responseMessage.ApplicationProperties.Add(ServiceBus.Props.EventType, ServiceBus.Subs.PersistMetadata);
