@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CloudCanvas.Shared.Exceptions
+﻿namespace CloudCanvas.Shared.Exceptions
 {
     [Serializable]
     public class BlobMetadataSerializationException: Exception

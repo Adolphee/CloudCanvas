@@ -6,7 +6,6 @@ using CloudCanvas.Shared.Interfaces;
 using CloudCanvas.Shared.Services;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using System;
 
 
 namespace CloudCanvas_Functions;
