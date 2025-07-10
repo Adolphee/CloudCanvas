@@ -3,6 +3,7 @@ using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.DTOs;
 using CloudCanvas.Shared.Services;
 using Google.Protobuf.Reflection;
+using Grpc.Core;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Host;
@@ -12,6 +13,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using System;
 using System.IO;
+using System.Text.Json;
 using System.Threading.Tasks;
 using static Microsoft.Azure.Amqp.Serialization.SerializableType;
 
@@ -51,15 +53,10 @@ namespace CreateThumbnailActivity
                 logger.LogDebug(e.Message, e.StackTrace); 
                 // TODO: implement retry policies
             }
-            var body = new ExtractMetadataMessageDTO
-            {
-                Event = ServiceBus.GetRealEventString(ServiceBus.Topics.FileUpdates, ServiceBus.Subs.CreateThumbnail, "done"),
-                Subject = "Thumbnail Created.",
-                Payload = blobmeta
-            };
 
-            var responseMessage = new ServiceBusMessage(converter.Serialize(body));
+            var responseMessage = new ServiceBusMessage(JsonSerializer.Serialize(blobmeta));
             // Tweaking so the message goes through subscription filters on function CreateThumbnail
+            responseMessage.Subject = $"{ServiceBus.Topics.FileUpdates}, {ServiceBus.Subs.CreateThumbnail}, done";
             responseMessage.ApplicationProperties.Add(ServiceBus.Props.EventType, ServiceBus.Subs.CreateThumbnail);
             // I am forced to create to call for a client and send the message manually,
             // because for dotnet-isolated functions there is no IAsyncCollector<ServiceBusMessage> I can call

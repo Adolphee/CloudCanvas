@@ -3,7 +3,6 @@ using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.DTOs;
 using CloudCanvas.Shared.Interfaces;
 using CloudCanvas.Shared.Services;
-using Microsoft.Azure.Cosmos.Serialization.HybridRow.Schemas;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;

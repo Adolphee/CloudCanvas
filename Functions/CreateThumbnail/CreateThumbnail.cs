@@ -7,6 +7,7 @@ using CloudCanvas.Shared.Services;
 using CloudCanvas.Shared.Utilities;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace CloudCanvas_Functions;
 public class CreateThumbnail
@@ -67,7 +68,7 @@ public class CreateThumbnail
             _logger.LogDebug(e.Message, e.StackTrace);
             await messageActions.AbandonMessageAsync(message);  // Complete the message
         }
-        var responseMessage = new ServiceBusMessage(_converter.Serialize(metadata));
+        var responseMessage = new ServiceBusMessage(JsonSerializer.Serialize(metadata));
         // Tweaking so the message goes through subscription filters on function CreateThumbnail
         responseMessage.Subject = $"{ServiceBus.Topics.FileUpdates}, {ServiceBus.Subs.CreateThumbnail}, done";
         responseMessage.ApplicationProperties.Add(ServiceBus.Props.EventType, ServiceBus.Subs.CreateThumbnail);
