@@ -37,7 +37,7 @@ public class ExtractMetadata
     [Function(nameof(ExtractMetadata))]
     public async Task Run([BlobTrigger(BlobStorage.Containers.Uploads + "/{name}", Connection = BlobStorage.Self)] Stream input, string name)
     {
-        _logger.LogInformation(ServiceBus.GetRealEventString(ServiceBus.Topics.FileUpdates, ServiceBus.Subs.ExtractMetaData, name));
+        _logger.LogInformation($"{ServiceBus.Topics.FileUpdates}, {ServiceBus.Subs.ExtractMetaData}, {name}");
 
         const string uploads = BlobStorage.Containers.Uploads;
         var cclient = await _blobSerivce.GetContainerClientAsync(uploads);

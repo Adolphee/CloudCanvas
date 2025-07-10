@@ -12,7 +12,6 @@ namespace CloudCanvas.Shared.Interfaces
     {
         BlobMetaDTO FromBinaryData(BinaryData binary);
         BlobMetaDTO FromBlobProperties(string originalFileName, string blobUrl, BlobProperties blobProps);
-        string Serialize(ServiceBusMessageDTO blobMetaDTO);
         string Serialize(BlobMetaDTO blobMetaDTO);
     }
 }

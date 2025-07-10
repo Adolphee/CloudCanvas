@@ -60,10 +60,6 @@ namespace CloudCanvas.Shared.Services
             return meta;
         }
 
-        public string Serialize(ServiceBusMessageDTO ccMessageDto) => JsonSerializer.Serialize(ccMessageDto, new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase 
-        });
         public string Serialize(BlobMetaDTO meta) => JsonSerializer.Serialize(meta, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase 
