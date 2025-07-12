@@ -14,14 +14,14 @@ namespace CloudCanvas.Functions;
 /// <summary>
 /// Extracts Metadata from uploaded blobs, received as DTO objects through Service Bus Messages
 /// </summary>
-/// TODO: Pull this value from the configuration file
+
 public class PersistMetadata(ILogger<PersistMetadata> logger, ServiceBusAdapter serviceBusAdapter, BlobMetadataSerializer metaConverter, CosmosClientWrapper cosmos)
 {
     private readonly ILogger<PersistMetadata> _logger = logger;
     private readonly ServiceBusAdapter _sbAdapter = serviceBusAdapter;
     private readonly BlobMetadataSerializer _serializer = metaConverter;
     private readonly CosmosClientWrapper _cosmos = cosmos;
-    private const int MaxMessageLength = 16 * 1024;
+    private const int MaxMessageLength = 16 * 1024; /// TODO: Pull this value from the configuration file
 
     /// <summary>
     /// Processes a Service Bus message containing metadata, persists the metadata, and returns a response message.

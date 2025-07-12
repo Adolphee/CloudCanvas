@@ -9,7 +9,6 @@ using CloudCanvas.Shared.Constants;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
-builder.ConfigureFunctionsWebApplication();
 builder.Services.Configure<IBlobStorageService>(builder.Configuration.GetSection(BlobStorage.Self)); // For blob storage connection string
 builder.Services.AddTransient<ServiceBusAdapter>(); // Inject my Service Bus Adapter
 builder.Services.AddSingleton<ServiceBusClientFactory>(); // To dynamically return the right ServiceBus client (listen vs read)

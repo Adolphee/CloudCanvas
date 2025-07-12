@@ -1,0 +1,30 @@
+name: Build and Deploy ExtractMetadata Function
+on: 
+    push:
+        branches:
+            - main
+        paths:
+            - 'ExtractMetadata/**'
+            - '.github/workflows/extract-metadata-deploy.yml'
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: 'Checkout Code'
+              uses: actions/checkout@4
+            - name: 'Setup .NET'
+              uses: actions/setup-dotnet@4
+              with: 
+                dotnet-version: '8.0.x'
+            - name: 'Restore Dependencies'
+              run: dotnet restore ExtractMetadata.csproj
+            - name: 'Build'
+              run: dotnet build ExtractMetadata.csproj --configuration Release --no-restore
+            - name: 'Publish'
+              run: dotnet publish ExtractMetadata.csproj --configuration Release --output ./publish
+            - name: 'Deploy to Azure Fuctions App'
+              uses: Azure/functions-action@1
+              with:
+                app-name: ${{ secrets.APP_NAME_A }}
+                publish-profile: ${{ secrets.PP_A }}
+                package: ./publish
