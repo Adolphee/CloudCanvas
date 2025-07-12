@@ -9,26 +9,19 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
 
-namespace CloudCanvas_Functions;
+namespace CloudCanvas.Functions;
 
 /// <summary>
 /// Extracts Metadata from uploaded blobs, received as DTO objects through Service Bus Messages
 /// </summary>
-public class PersistMetadata
+/// TODO: Pull this value from the configuration file
+public class PersistMetadata(ILogger<PersistMetadata> logger, ServiceBusAdapter serviceBusAdapter, BlobMetadataSerializer metaConverter, CosmosClientWrapper cosmos)
 {
-    private readonly ILogger<PersistMetadata> _logger;
-    private readonly IServiceBusAdapter _sbAdapter;
-    private readonly IBlobMetadataSerializer _serializer;
-    private readonly ICosmosClientWrapper _cosmos;
-    private const int MaxMessageLength = 16 * 1024; /// TODO: Pull this value from the configuration file
-
-    public PersistMetadata(ILogger<PersistMetadata> logger, ServiceBusAdapter serviceBusAdapter, BlobMetadataSerializer metaConverter, CosmosClientWrapper cosmos)
-    {
-        _logger = logger;
-        _sbAdapter = serviceBusAdapter;
-        _serializer = metaConverter;
-        _cosmos = cosmos;
-    }
+    private readonly ILogger<PersistMetadata> _logger = logger;
+    private readonly ServiceBusAdapter _sbAdapter = serviceBusAdapter;
+    private readonly BlobMetadataSerializer _serializer = metaConverter;
+    private readonly CosmosClientWrapper _cosmos = cosmos;
+    private const int MaxMessageLength = 16 * 1024;
 
     /// <summary>
     /// Processes a Service Bus message containing metadata, persists the metadata, and returns a response message.
@@ -45,15 +38,6 @@ public class PersistMetadata
         ServiceBusReceivedMessage message,
         ServiceBusMessageActions messageActions)
     {
-        /* Validation -- no longer needed, using input/output bindings instead
-         string critique = ScrutinizeSBMessage(message);
-
-        if(!String.IsNullOrEmpty(critique))
-        {
-            await Task.CompletedTask;
-        }
-        */
-
         BlobMetaDTO metadata = _serializer.FromBinaryData(message.Body); //TODO: wrap in try-catch block, conversion may fail
         metadata.BlobUrl = message.ApplicationProperties["blobUrl"].ToString() ?? ""; // TODO: also wrap in try-catch or validate some other way
         metadata.OriginalFileName = message.ApplicationProperties["originalFileName"].ToString() ?? ""; //TODO: idem
@@ -85,9 +69,9 @@ public class PersistMetadata
     {
         if (message.Body.ToMemory().Length > MaxMessageLength) // if the message is too large, I'm not taking any risks
         {
-            string errorMsg = $"{ServiceBus.Topics.FileUpdates}-{ServiceBus.Subs.PersistMetadata}: MESSAGE TOO LARGE. SKIPPING...";
-            _logger.LogWarning(errorMsg);
-            return errorMsg;
+            _logger.LogWarning("{topic}({subscription}): MESSAGE TOO LARGE. SKIPPING message {messageId}...", 
+               ServiceBus.Topics.FileUpdates, ServiceBus.Subs.PersistMetadata, message.MessageId);
+            return String.Empty;
         }
 
         IList<string> errors;
@@ -100,16 +84,16 @@ public class PersistMetadata
             var isValid = obj != null ? obj.IsValid(schema, out errors) : false;
             if (!isValid)
             {
-                _logger.LogError("INVALID CloudCanvas Message... Does not comply with the standards set in the 'main' schema.");
+                _logger.LogError("INVALID CloudCanvas Message '{messageId}'... Does not comply with the standards set in the 'main' JsonSchema.", message.MessageId);
             }
         }
         catch (JsonReaderException e)
         {
-            var msg = $"UNRECOGNISED message format: considered hostile and ignored. Exception Message: {e.Message}";
-            _logger.LogError(msg);
-            return msg;
+            _logger.LogError(e, "UNRECOGNISED message format: considered hostile and ignored. Exception Message: {message}", e.Message);
+            throw;
         }
-        return "";
+
+        return String.Empty;
     }
 
     /// <summary>

@@ -1,15 +1,12 @@
-using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using CloudCanvas.Shared.Constants;
 using Azure.Messaging.ServiceBus;
 
-namespace CloudCanvas.Functions.Starters
+namespace CloudCanvas.Functions.Durable.Orchestrators
 {
     public static class FileProcessingOrchestrationStarter
     {

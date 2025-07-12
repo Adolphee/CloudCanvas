@@ -1,6 +1,5 @@
 ﻿using Azure.Messaging.ServiceBus;
 using CloudCanvas.Shared.Interfaces;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace CloudCanvas.Shared.Services
@@ -15,26 +14,23 @@ namespace CloudCanvas.Shared.Services
         private readonly ILogger<ServiceBusAdapter> _logger;
         private readonly ServiceBusClientFactory _factory;
 
-        public ServiceBusAdapter(ServiceBusClientFactory factory, ILogger<ServiceBusAdapter> logger, IConfiguration config)
+        public ServiceBusAdapter(ServiceBusClientFactory factory, ILogger<ServiceBusAdapter> logger)
         {
             _logger = logger;
             _factory = factory;
         }
 
-        public async Task SendAsync(string topic, ServiceBusMessage message)
+        public async Task SendAsync(string topic, ServiceBusMessage msg)
         {
             
             var sender = _factory.GetSendClient().CreateSender(topic);
             try
             {
-                await sender.SendMessageAsync(message);
-                _logger.LogInformation($"Message has been published to topic: {topic}.");
+                await sender.SendMessageAsync(msg);
+                _logger.LogInformation("Message {messageId} has been published to topic: {topic}.", msg.MessageId, topic);
             } catch(ServiceBusException e)
             {
-                _logger.LogWarning($"The messages \"{message.MessageId}\" failed to send:");
-                _logger.LogWarning($"{nameof(ServiceBusException)}: {e.Message}");
-                _logger.LogDebug($"Received message: {message.ToString()}");
-                _logger.LogDebug($"{nameof(ServiceBusException)} (StackTrace): {e.StackTrace}");
+                _logger.LogWarning(e, "Failed to send message '{messageId}' to topic: '{topic}'.", msg.MessageId, topic);
             }
             finally
             {
@@ -42,8 +38,7 @@ namespace CloudCanvas.Shared.Services
             }
         }
 
-
-        public async Task SendBatchAsync(string topic, List<ServiceBusMessage> messages, int count = 1)
+        public async Task SendBatchAsync(string topic, List<ServiceBusMessage> messages, int maxBatchSize = 1)
         {
             var sender = _factory.GetSendClient().CreateSender(topic);
             using var messageBatch = await sender.CreateMessageBatchAsync();
@@ -52,21 +47,19 @@ namespace CloudCanvas.Shared.Services
             {
                 if (!messageBatch.TryAddMessage(message))
                 {
-                    var msg = $"The messages \"{message.ToString()}\" is too large to fit in the batch.";
-                    _logger.LogDebug(msg);
-                    throw new Exception(msg);
+                    _logger.LogWarning("The messages {messageId} is too large to fit in the batch.", message.MessageId);
+                    throw new OverflowException($"The message {message.MessageId} is too large to fit in the batch.");
                 }
             }
 
             try
             {
                 await sender.SendMessagesAsync(messageBatch);
-                _logger.LogInformation($"Batch of {count} messages has been published to topic: {topic}.");
+                _logger.LogInformation("Batch of {successful}/{maxBatchSize} messages has been published to topic: {topic}.", messageBatch.Count, maxBatchSize, topic);
             }
-            catch (Exception e)
+            catch (ServiceBusException e)
             {
-                var msg = $"The messages \"{messages.ToString()}\" failed to send.";
-                _logger.LogDebug(msg, e);
+                _logger.LogError(e, "MessageBatch (count: {batchSize}) failed to send.", messageBatch.Count);
             }
             finally
             {

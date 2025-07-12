@@ -8,22 +8,14 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
 
-namespace CloudCanvas_Functions;
+namespace CloudCanvas.Functions;
 
-public class ExtractMetadata
+public class ExtractMetadata(ILogger<ExtractMetadata> logger, BlobStorageService blobSerivce, ServiceBusAdapter service, BlobMetadataSerializer serializer)
 {
-    private readonly ILogger<ExtractMetadata> _logger;
-    private readonly IBlobStorageService _blobSerivce;
-    private readonly IServiceBusAdapter _sbAdapter;
-    private readonly IBlobMetadataSerializer _serializer;
-
-    public ExtractMetadata(ILogger<ExtractMetadata> logger, BlobStorageService blobSerivce, ServiceBusAdapter service, BlobMetadataSerializer serializer)
-    {
-        _logger = logger;
-        _blobSerivce = blobSerivce;
-        _sbAdapter = service;
-        _serializer = serializer;
-    }
+    private readonly ILogger<ExtractMetadata> _logger = logger;
+    private readonly IBlobStorageService _blobSerivce = blobSerivce;
+    private readonly IServiceBusAdapter _sbAdapter = service;
+    private readonly IBlobMetadataSerializer _serializer = serializer;
 
     /// <summary>
     /// Processes a blob triggered by an upload event, extracts metadata, and sends a message to a Service Bus topic.

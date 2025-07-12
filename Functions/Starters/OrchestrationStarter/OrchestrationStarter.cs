@@ -9,12 +9,12 @@ using System;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace OrchestrationStarter
+namespace CloudCanvas.Functions.Durable.Starters
 {
     public class OrchestrationStarter
     {
         [FunctionName("OrchestrationStarter")]
-        public async Task Run([ServiceBusTrigger(ServiceBus.Topics.FileUpdates, ServiceBus.Subs.ExtractMetaData, Connection = BlobStorage.Self)]
+        public static async Task Run([ServiceBusTrigger(ServiceBus.Topics.FileUpdates, ServiceBus.Subs.ExtractMetaData, Connection = BlobStorage.Self)]
         ServiceBusReceivedMessage message,
         [DurableClient] IDurableOrchestrationClient starter,
         ILogger log)

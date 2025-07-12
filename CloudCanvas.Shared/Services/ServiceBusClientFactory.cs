@@ -14,13 +14,11 @@ namespace CloudCanvas.Shared.Services
     /// the provided <see cref="IConfiguration"/> instance.</remarks>
     public class ServiceBusClientFactory : IServiceBusClientFactory, IAsyncDisposable
     {
-        private ServiceBusClient _sendClient;
-        private ServiceBusClient _listenClient;
-        private readonly IConfiguration _config;
+        private readonly ServiceBusClient _sendClient;
+        private readonly ServiceBusClient _listenClient;
 
         public ServiceBusClientFactory(IConfiguration config)
         {
-            _config = config;
             _listenClient = new ServiceBusClient(config.GetConnectionString(ServiceBus.Topics.FileUpdate.Listen));
             _sendClient = new ServiceBusClient(config.GetConnectionString(ServiceBus.Topics.FileUpdate.Send));
         }

@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace ExtractMetadataActivity
+namespace CloudCanvas.Functions.Durable.Activities
 {
     // In the end, I wasn't able to get Orchestration working,
     // so I didn't invest too much time when I moved code,
@@ -22,7 +22,7 @@ namespace ExtractMetadataActivity
     public class ExtractMetadataActivity
     {
         [FunctionName("ExtractMetadataActivity")]
-        public async Task Run([ActivityTrigger] Stream blobStream, string name, ILogger log)
+        public static async Task Run([ActivityTrigger] Stream blobStream, string name, ILogger log)
         {
             var config = new ConfigurationBuilder()
             .AddEnvironmentVariables()
@@ -54,7 +54,7 @@ namespace ExtractMetadataActivity
             // because for dotnet-isolated functions there is no IAsyncCollector<ServiceBusMessage> I can call
             // to set ApplicationProperties on the message, which I MUST to do for subscription filtering (example: persist-metadata) to work
             var sbClientFactory = new ServiceBusClientFactory(config);
-            var sbAdapter = new ServiceBusAdapter(sbClientFactory, (ILogger<ServiceBusAdapter>) log, config);
+            var sbAdapter = new ServiceBusAdapter(sbClientFactory, (ILogger<ServiceBusAdapter>) log);
             await sbAdapter.SendAsync(ServiceBus.Topics.FileUpdates, message);
             log.LogInformation($"C# Blob trigger function Processed blob\n Name:{name} \n Size: {name.Length} Bytes");
         }

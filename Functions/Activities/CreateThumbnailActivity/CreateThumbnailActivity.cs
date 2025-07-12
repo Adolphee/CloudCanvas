@@ -4,34 +4,26 @@ using CloudCanvas.Shared.DTOs;
 using CloudCanvas.Shared.Enums;
 using CloudCanvas.Shared.Services;
 using CloudCanvas.Shared.Utilities;
-using Google.Protobuf.Reflection;
-using Grpc.Core;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
 using System;
-using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static Microsoft.Azure.Amqp.Serialization.SerializableType;
 
-namespace CreateThumbnailActivity
+namespace CloudCanvas.Functions.Durable.Activities
 {
     // You will have noticed by now that there are "new" key words in many places in this function
     // that's because in-proces functions do not support Dependency Injection to the same extent as isolated functions
-    // durable orchestration was the only reason why I even wanted to try in-process functions, but it didn't work out
+    // durable orchestration was the only reason why I even wanted to try in-process functions, but it didn't work out (will try again later)
     public class CreateThumbnailActivity
     {
         [FunctionName("CreateThumbnailActivity")]
-        public async Task Run([ActivityTrigger] BlobMetaDTO blobmeta, ILogger logger, ThumbnailSize size = ThumbnailSize.S)
+        public static async Task Run([ActivityTrigger] BlobMetaDTO blobmeta, ILogger logger, ThumbnailSize size = ThumbnailSize.S)
         {
             const string thumbnails = BlobStorage.Containers.Thumbnails;
             const string uploads = BlobStorage.Containers.Uploads;
-            var converter = new BlobMetadataSerializer();
             var config = new ConfigurationBuilder().AddEnvironmentVariables().Build();
 
             try
@@ -44,7 +36,7 @@ namespace CreateThumbnailActivity
                 bclient = await blobService.GetContainerClientAsync(thumbnails); // switch to thumbnails desination container
                 using var image = await ImageTool.ResizeAsync(stream, size);
                 await blobService.UploadAsync(thumbnails, image, blobmeta.OriginalFileName); //upload the thumbnail
-                logger.LogInformation($"Successfully created thumbnail and saved to [{thumbnails}]/{blobmeta.OriginalFileName}.");
+                logger.LogInformation("Successfully created thumbnail and saved to [{thumbnails}]/{originalFileName}.", thumbnails, blobmeta.OriginalFileName);
             }
             catch (Exception e)
             {
@@ -57,7 +49,7 @@ namespace CreateThumbnailActivity
             // Tweaking so the message goes through subscription filters
             responseMessage.Subject = $"{ServiceBus.Topics.FileUpdates}, {ServiceBus.Subs.CreateThumbnail}, done";
             responseMessage.ApplicationProperties.Add(ServiceBus.Props.EventType, ServiceBus.Subs.CreateThumbnail);
-            var sbAdapter = new ServiceBusAdapter(new ServiceBusClientFactory(config), (ILogger<ServiceBusAdapter>) logger, config);
+            var sbAdapter = new ServiceBusAdapter(new ServiceBusClientFactory(config), (ILogger<ServiceBusAdapter>) logger);
             await sbAdapter.SendAsync(ServiceBus.Topics.FileUpdates, responseMessage);
             logger.LogInformation($"C# Blob trigger function Processed blob\n Name:{blobmeta.OriginalFileName} \n Size: {blobmeta.OriginalFileName.Length} Bytes");
         }

@@ -9,21 +9,13 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
-namespace CloudCanvas_Functions;
-public class CreateThumbnail
+namespace CloudCanvas.Functions;
+public class CreateThumbnail(ILogger<CreateThumbnail> logger, BlobStorageService blobService, BlobMetadataSerializer converter, ServiceBusAdapter adapter)
 {
-    private readonly ILogger<CreateThumbnail> _logger;
-    private readonly IBlobStorageService _blobService;
-    private readonly IBlobMetadataSerializer _serializer;
-    private readonly IServiceBusAdapter _sbAdapter;
-
-    public CreateThumbnail(ILogger<CreateThumbnail> logger, BlobStorageService blobService, BlobMetadataSerializer converter, ServiceBusAdapter adapter)
-    {
-        _logger = logger;
-        _blobService = blobService;
-        _serializer = converter;
-        _sbAdapter = adapter;
-    }
+    private readonly ILogger<CreateThumbnail> _logger = logger;
+    private readonly BlobStorageService _blobService = blobService;
+    private readonly BlobMetadataSerializer _serializer = converter;
+    private readonly ServiceBusAdapter _sbAdapter = adapter;
 
     /// <summary>
     /// Processes a Service Bus message to create a thumbnail image from the provided metadata and uploads it to a
@@ -60,17 +52,18 @@ public class CreateThumbnail
             bclient = await _blobService.GetContainerClientAsync(thumbnails); // switch to thumbnails desination container
             using var output = await ImageTool.ResizeAsync(stream, size);
             await _blobService.UploadAsync(thumbnails, output, metadata.OriginalFileName); //upload the thumbnail
-            _logger.LogInformation($"Successfully created thumbnail and saved to [{thumbnails}]/{metadata.OriginalFileName}.");
-        }
-        catch (Exception e)
+            _logger.LogInformation("Successfully created thumbnail and saved to {thumbnails}/{originalFileName}.", thumbnails, metadata.OriginalFileName);
+        } catch (Exception e)
         {
-            _logger.LogError($"Failed Create Thumbnail. Service Bus Message [{ServiceBus.Subs.CreateThumbnail}]:\n{message.ToString()}");
-            _logger.LogDebug(e.Message, e.StackTrace);
+            _logger.LogError(e, "Failed Create Thumbnail for {originalFilename}. Service Bus Message '{messageId}'", metadata.OriginalFileName, message.MessageId);
             await messageActions.AbandonMessageAsync(message);  // Complete the message
         }
-        var responseMessage = new ServiceBusMessage(JsonSerializer.Serialize(metadata));
+        var responseMessage = new ServiceBusMessage(JsonSerializer.Serialize(metadata))
+        {
+            // Admittedly unnecessary
+            Subject = $"{ServiceBus.Topics.FileUpdates}, {ServiceBus.Subs.CreateThumbnail}, done"
+        };
         // Tweaking so the message goes through subscription filters on function CreateThumbnail
-        responseMessage.Subject = $"{ServiceBus.Topics.FileUpdates}, {ServiceBus.Subs.CreateThumbnail}, done";
         responseMessage.ApplicationProperties.Add(ServiceBus.Props.EventType, ServiceBus.Subs.CreateThumbnail);
         // I am forced to create to call for a client and send the message manually,
         // because for dotnet-isolated functions there is no IAsyncCollector<ServiceBusMessage> I can call
