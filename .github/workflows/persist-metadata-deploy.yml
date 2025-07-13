@@ -22,7 +22,7 @@ jobs:
         with:
           path: '~/.nuget/packages'
           key: nuget-${{ runner.os }}-${{ hashFiles('**/**.csproj') }}
-          restore-key: |
+          restore-keys: |
             nuget-${{ runner.os }}-
             nuget-
       - name: 'Check if Nuget'
