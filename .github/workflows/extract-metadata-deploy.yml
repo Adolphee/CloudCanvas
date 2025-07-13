@@ -6,6 +6,9 @@ on:
         paths:
             - 'ExtractMetadata/**'
             - '.github/workflows/extract-metadata-deploy.yml'
+    pull_request: 
+        branches:
+            - main
 jobs:
     build-and-deploy:
         runs-on: ubuntu-latest
@@ -16,6 +19,18 @@ jobs:
               uses: actions/setup-dotnet@4
               with: 
                 dotnet-version: '8.0.x'
+            - name: 'Cache or Download Nuget Packages'
+              id: cache-nuget-packages
+              uses: actions/cache@4
+              with:
+                path: ~/.nuget/packages
+                key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+                restore-keys: |
+                  nuget-${{ runner.os }}
+                  nuget-
+            - name: 'Check if NuGet Cache was restored'
+              if: steps.cache-nuget-packages.outputs.cache-hit != 'true'
+              run: echo "No cache hit — restoring packages from NuGet.or"
             - name: 'Restore Dependencies'
               run: dotnet restore ExtractMetadata.csproj
             - name: 'Build'
