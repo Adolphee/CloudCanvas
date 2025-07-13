@@ -6,7 +6,7 @@ on:
         paths:
             - 'Functions/ExtractMetadata/**'
             - '.github/workflows/extract-metadata-deploy.yml'
-    pull_request: 
+    pull_request:
         branches:
             - main
 jobs:
