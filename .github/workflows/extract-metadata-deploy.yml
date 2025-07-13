@@ -15,7 +15,7 @@ jobs:
         strategy:
             matrix:
                 include:
-                    - project : 'Functions/ExtractMetadata.csproj'
+                    - project : 'Functions/ExtractMetadata/ExtractMetadata.csproj'
                     - target: '--configuration Release'
         steps:
             - name: 'Checkout Code'
