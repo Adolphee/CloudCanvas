@@ -1,15 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using CloudCanvas.Constants;
-using CloudCanvas.Models.ViewModels;
-using CloudCanvas.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+using CloudCanvas.Shared.Services;
+using CloudCanvas.Web.Models;
+using CloudCanvas.Shared.Constants;
 
-namespace CloudCanvas.Controllers
+namespace CloudCanvas.Web.Controllers
 {
     [Route("[controller]")]
     public class GalleryController : Controller
@@ -27,8 +21,8 @@ namespace CloudCanvas.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            ImageLinks = await _service.GetUrlsAsync(AzureBlobStorage.Containers.Uploads);
-            return View(nameof(Index), new GalleryViewModel { ImageLinks = this.ImageLinks });
+            ImageLinks = await _service.GetUrlsAsync(BlobStorage.Containers.Uploads);
+            return View(nameof(Index), new GalleryViewModel { ImageLinks = ImageLinks });
         }
 
         [HttpGet("gallery/error")]

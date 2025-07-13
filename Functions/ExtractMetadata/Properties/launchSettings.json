@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "CloudCanvas_Functions": {
+    "ExtractMetadata": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7227",
+      "commandLineArgs": "--port 7013",
       "launchBrowser": false
     }
   }

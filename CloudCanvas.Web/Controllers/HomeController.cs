@@ -1,9 +1,8 @@
 ﻿using System.Diagnostics;
+using CloudCanvas.Web.Models;
 using Microsoft.AspNetCore.Mvc;
-using CloudCanvas.Models;
-using CloudCanvas.Models.ViewModels;
 
-namespace CloudCanvas.Controllers;
+namespace CloudCanvas.Web.Controllers;
 
 public class HomeController : Controller
 {

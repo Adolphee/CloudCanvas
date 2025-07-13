@@ -1,15 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CloudCanvas.Constants;
-using CloudCanvas.Interfaces;
-using CloudCanvas.Models;
-using CloudCanvas.Models.ViewModels;
-using CloudCanvas.Services;
 using Microsoft.AspNetCore.Mvc;
+using CloudCanvas.Web.Models;
+using CloudCanvas.Shared.Services;
+using CloudCanvas.Shared.Constants;
 
-namespace CloudCanvas.Controllers
+namespace CloudCanvas.Web.Controllers
 {
     public class UploadController : Controller
     {
@@ -33,7 +27,7 @@ namespace CloudCanvas.Controllers
             var file = userUpload.File;
             // TODO: 1. validate the file
             // 2. use the BlobSorageService to persist
-            await _service.UploadAsync(AzureBlobStorage.Containers.Uploads, file.OpenReadStream(), file.FileName);
+            await _service.UploadAsync(BlobStorage.Containers.Uploads, file.OpenReadStream(), file.FileName);
             // 3. redirect to gallery
             return RedirectToAction("Index", "Gallery");
         }

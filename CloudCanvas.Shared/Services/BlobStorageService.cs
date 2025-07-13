@@ -1,14 +1,10 @@
 using Azure.Storage.Blobs;
-using CloudCanvas.Constants;
-using CloudCanvas.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.ColorSpaces;
-using System.Runtime.CompilerServices;
+using CloudCanvas.Shared.Interfaces;
+using CloudCanvas.Shared.Constants;
 
-namespace CloudCanvas.Services
+namespace CloudCanvas.Shared.Services
 {
     public class BlobStorageService: IBlobStorageService
     {
@@ -34,11 +30,11 @@ namespace CloudCanvas.Services
         /// <exception cref="OperationCanceledException">Thrown if an error occurs while attempting to create or retrieve the container.</exception>
         public async Task<BlobContainerClient> GetContainerClientAsync(string containerName)
         {
-            if (String.IsNullOrEmpty(containerName)) 
+            if (string.IsNullOrEmpty(containerName)) 
                 throw new InvalidDataException("ContainerName not provided.");
             try
             {
-                var cstring = _config.GetConnectionString(AzureBlobStorage.Self);
+                var cstring = _config.GetConnectionString(BlobStorage.Self);
                 var blobClient = new BlobContainerClient(cstring, containerName);
                 await blobClient.CreateIfNotExistsAsync();
                 return blobClient;
@@ -88,7 +84,7 @@ namespace CloudCanvas.Services
                 fileStream.Position = 0;
                 try
                 {
-                    var client = await GetContainerClientAsync(containerName ?? AzureBlobStorage.Containers.Uploads);
+                    var client = await GetContainerClientAsync(containerName ?? BlobStorage.Containers.Uploads);
                     var blob = client.GetBlobClient(filename);
                     await blob.UploadAsync(fileStream, true);
                 }

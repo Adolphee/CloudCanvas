@@ -1,0 +1,62 @@
+using Azure.Messaging.ServiceBus;
+using Azure.Storage.Blobs.Models;
+using CloudCanvas.Shared.Constants;
+using CloudCanvas.Shared.DTOs;
+using CloudCanvas.Shared.Services;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using System.IO;
+using System.Threading.Tasks;
+
+namespace CloudCanvas.Functions.Durable.Activities
+{
+    // In the end, I wasn't able to get Orchestration working,
+    // so I didn't invest too much time when I moved code,
+    // I had lost enough of it already trying to set this up
+    // (first with isolated, then in-process workers)
+    // from isolated functions to these in-process durable activities
+    // You will recognize the body of this function from my isolated worker:
+    // CloudCanvas.Functions->ExtractMetadata
+    public class ExtractMetadataActivity
+    {
+        [FunctionName("ExtractMetadataActivity")]
+        public static async Task Run([ActivityTrigger] Stream blobStream, string name, ILogger log)
+        {
+            var config = new ConfigurationBuilder()
+            .AddEnvironmentVariables()
+            .Build();
+
+            var blobService = new BlobStorageService(config, (ILogger<BlobStorageService>)log);
+            log.LogInformation($"{ServiceBus.Topics.FileUpdates}, {ServiceBus.Subs.ExtractMetaData}, {name}");
+
+            const string uploads = BlobStorage.Containers.Uploads;
+            var cclient = await blobService.GetContainerClientAsync(uploads);
+            var blob = cclient.GetBlobClient(name);
+            BlobProperties props = blob.GetProperties();
+            var serializer = new BlobMetadataSerializer();
+            BlobMetaDTO metadata = serializer.FromBlobProperties(name, blob.Uri.ToString(), props);
+
+            log.LogInformation("C# Blob trigger function Processed blob\n Name: {name} \n Data: {content}", name, serializer.Serialize(metadata));
+
+            var message = new ServiceBusMessage(serializer.Serialize(metadata));
+            message.Subject = "Metadata Extracted - file ready for processing.";
+            // Since I am manually handling messages, I am also responsible for serialization etc.
+            // These properties will help the _converter in another azfunction to deserialize
+            message.ApplicationProperties.Add("blobUrl", metadata.BlobUrl);
+            message.ApplicationProperties.Add("originalFileName", metadata.OriginalFileName);
+
+
+            // Tweaking so the message goes through subscription filters on function CreateThumbnail
+            message.ApplicationProperties.Add(ServiceBus.Props.EventType, ServiceBus.Subs.ExtractMetaData);
+            // I am forced to create to call for a client and send the message manually,
+            // because for dotnet-isolated functions there is no IAsyncCollector<ServiceBusMessage> I can call
+            // to set ApplicationProperties on the message, which I MUST to do for subscription filtering (example: persist-metadata) to work
+            var sbClientFactory = new ServiceBusClientFactory(config);
+            var sbAdapter = new ServiceBusAdapter(sbClientFactory, (ILogger<ServiceBusAdapter>) log);
+            await sbAdapter.SendAsync(ServiceBus.Topics.FileUpdates, message);
+            log.LogInformation($"C# Blob trigger function Processed blob\n Name:{name} \n Size: {name.Length} Bytes");
+        }
+    }
+}

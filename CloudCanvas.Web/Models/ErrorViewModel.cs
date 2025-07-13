@@ -1,4 +1,4 @@
-namespace CloudCanvas.Models.ViewModels
+namespace CloudCanvas.Web.Models
 {
     public class ErrorViewModel
     {
