@@ -6,9 +6,6 @@ on:
         paths:
             - 'Functions/ExtractMetadata/**'
             - '.github/workflows/extract-metadata-deploy.yml'
-    pull_request:
-        branches:
-            - main
 jobs:
     build-and-deploy:
         runs-on: ubuntu-latest
@@ -30,7 +27,7 @@ jobs:
                   nuget-
             - name: 'Check if NuGet Cache was restored'
               if: steps.cache-nuget-packages.outputs.cache-hit != 'true'
-              run: echo "No cache hit — restoring packages from NuGet.or"
+              run: echo "No cache hit — restoring packages from NuGet.org"
             - name: 'Restore Dependencies'
               run: dotnet restore Functions/ExtractMetadata/ExtractMetadata.csproj
             - name: 'Build'
