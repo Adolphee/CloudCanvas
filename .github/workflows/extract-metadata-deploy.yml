@@ -12,11 +12,6 @@ on:
 jobs:
     build-and-deploy:
         runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                include:
-                    - project : 'Functions/ExtractMetadata/ExtractMetadata.csproj'
-                    - target: '--configuration Release'
         steps:
             - name: 'Checkout Code'
               uses: actions/checkout@v4
@@ -37,11 +32,11 @@ jobs:
               if: steps.cache-nuget-packages.outputs.cache-hit != 'true'
               run: echo "No cache hit — restoring packages from NuGet.or"
             - name: 'Restore Dependencies'
-              run: dotnet restore ${{ matrix.project }}
+              run: dotnet restore Functions/ExtractMetadata/ExtractMetadata.csproj
             - name: 'Build'
-              run: dotnet build ${{ matrix.project }} ${{ matrix.target }} --no-restore
+              run: dotnet build Functions/ExtractMetadata/ExtractMetadata.csproj --configuration Release --no-restore
             - name: 'Publish'
-              run: dotnet publish ${{ matrix.project }} ${{ matrix.target }} --output ./publish
+              run: dotnet publish Functions/ExtractMetadata/ExtractMetadata.csproj --configuration Release --output ./publish
             - name: 'Deploy to Azure Fuctions App'
               uses: Azure/functions-action@v1
               with:
