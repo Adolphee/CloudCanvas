@@ -4,7 +4,7 @@ on:
         branches:
             - main
         paths:
-            - 'ExtractMetadata/**'
+            - 'Functions/ExtractMetadata/**'
             - '.github/workflows/extract-metadata-deploy.yml'
     pull_request: 
         branches:
@@ -12,6 +12,11 @@ on:
 jobs:
     build-and-deploy:
         runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                include:
+                    - project : 'Functions/ExtractMetadata.csproj'
+                    - target: '--configuration Release'
         steps:
             - name: 'Checkout Code'
               uses: actions/checkout@v4
@@ -32,11 +37,11 @@ jobs:
               if: steps.cache-nuget-packages.outputs.cache-hit != 'true'
               run: echo "No cache hit — restoring packages from NuGet.or"
             - name: 'Restore Dependencies'
-              run: dotnet restore ExtractMetadata.csproj
+              run: dotnet restore ${{ matrix.project }}
             - name: 'Build'
-              run: dotnet build ExtractMetadata.csproj --configuration Release --no-restore
+              run: dotnet build ${{ matrix.project }} ${{ matrix.target }} --no-restore
             - name: 'Publish'
-              run: dotnet publish ExtractMetadata.csproj --configuration Release --output ./publish
+              run: dotnet publish ${{ matrix.project }} ${{ matrix.target }} --output ./publish
             - name: 'Deploy to Azure Fuctions App'
               uses: Azure/functions-action@v1
               with:
