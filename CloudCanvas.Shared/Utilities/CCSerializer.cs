@@ -4,17 +4,16 @@ using CloudCanvas.Shared.Interfaces;
 using System.Text.Json;
 using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.Exceptions;
+using System.Text.Json.Serialization;
 
-namespace CloudCanvas.Shared.Services
+namespace CloudCanvas.Shared.Utilities
 {
-    public class BlobMetadataSerializer : IBlobMetadataSerializer
+    public static class CCSerializer
     {
-        public BlobMetaDTO FromBinaryData(BinaryData binary)
+        private static JsonSerializerOptions _options = new JsonSerializerOptions
         {
-            var dto = JsonSerializer.Deserialize<BlobMetaDTO>(binary);
-            if (dto is null) throw new InvalidCastException($"{nameof(BlobMetadataSerializer)} could not parse {nameof(BinaryData)} to {nameof(BlobMetaDTO)}.");
-            return dto;
-        }
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
 
         /// <summary>
         /// Converts the provided blob properties and metadata into a <see cref="BlobMetaDTO"/> object.
@@ -27,11 +26,11 @@ namespace CloudCanvas.Shared.Services
         /// <param name="props">The properties of the blob, including metadata, content details, and versioning information.</param>
         /// <returns>A <see cref="BlobMetaDTO"/> object containing metadata and properties of the blob, such as its URL, 
         /// original file name, content details, and other relevant attributes.</returns>
-        public BlobMetaDTO FromBlobProperties(string originalFileName, string blobUrl, BlobProperties props)
+        public static BlobMetaDTO FromBlobProperties(string originalFileName, string blobUrl, BlobProperties props)
         {
             if(String.IsNullOrEmpty(originalFileName) || String.IsNullOrEmpty(blobUrl))
             {
-                throw new BlobMetadataSerializationException($"Missing {nameof(originalFileName)} and/or {nameof(blobUrl)}. Unable to link metadata to blob.");
+                throw new CCSerializationException($"Missing {nameof(originalFileName)} and/or {nameof(blobUrl)}. Unable to link metadata to blob.");
             }
 
             BlobMetaDTO meta = new BlobMetaDTO();
@@ -66,9 +65,28 @@ namespace CloudCanvas.Shared.Services
             return meta;
         }
 
-        public string Serialize(BlobMetaDTO meta) => JsonSerializer.Serialize(meta, new JsonSerializerOptions
+        public static string Serialize<T>(T target) => JsonSerializer.Serialize(Validate.Object(target), _options);
+        public static T FromBinaryData<T>(BinaryData blobMetadataDto) => Deserialize<T>(blobMetadataDto.ToString());
+        
+        /// <summary>
+        /// Tries to deserialize a structured string into an object of a given type.
+        /// </summary>
+        /// <typeparam name="T">The type of the object to try and create.</typeparam>
+        /// <param name="blobMetadataDto"></param>
+        /// <returns></returns>
+        /// <exception cref="CCSerializationException">When the operation fails</exception>
+        public static T Deserialize<T>(string blobMetadataDto)
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase 
-        });
+            try
+            {
+                Validate.StringValue(nameof(blobMetadataDto), blobMetadataDto);
+                T? dto = JsonSerializer.Deserialize<T>(blobMetadataDto, _options);
+                return Validate.Object(dto);
+            }
+            catch (InvalidArgumentException e)
+            {
+                throw new CCSerializationException($"Invalid object '{blobMetadataDto}' provided.", e);
+            }
+        }
     }
 }

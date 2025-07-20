@@ -1,11 +1,19 @@
+using Azure.Storage.Blobs;
 using CloudCanvas.Shared.Constants;
+using CloudCanvas.Shared.Interfaces;
 using CloudCanvas.Shared.Services;
+using CloudCanvas.Shared.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.Configure<BlobStorageService>(builder.Configuration.GetSection(BlobStorage.Self));
 builder.Services.AddTransient<BlobStorageService>();
+builder.Services.AddSingleton(bsc =>
+{
+    var blobStorageConnectionString = Environment.GetEnvironmentVariable(Secrets.MNSTRG);
+    Validate.StringValue(nameof(blobStorageConnectionString), blobStorageConnectionString);
+    return new BlobServiceClient(blobStorageConnectionString);
+});
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

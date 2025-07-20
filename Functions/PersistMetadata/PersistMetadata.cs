@@ -1,13 +1,12 @@
 using Azure.Messaging.ServiceBus;
 using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.DTOs;
+using CloudCanvas.Shared.Exceptions;
 using CloudCanvas.Shared.Interfaces;
 using CloudCanvas.Shared.Services;
+using CloudCanvas.Shared.Utilities;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Schema;
 
 namespace CloudCanvas.Functions;
 
@@ -15,13 +14,12 @@ namespace CloudCanvas.Functions;
 /// Extracts Metadata from uploaded blobs, received as DTO objects through Service Bus Messages
 /// </summary>
 
-public class PersistMetadata(ILogger<PersistMetadata> logger, ServiceBusAdapter serviceBusAdapter, BlobMetadataSerializer metaConverter, CosmosClientWrapper cosmos)
+public class PersistMetadata(ILogger<PersistMetadata> logger, ServiceBusAdapter serviceBusAdapter, CosmosClientWrapper cosmos)
 {
     private readonly ILogger<PersistMetadata> _logger = logger;
-    private readonly ServiceBusAdapter _sbAdapter = serviceBusAdapter;
-    private readonly BlobMetadataSerializer _serializer = metaConverter;
-    private readonly CosmosClientWrapper _cosmos = cosmos;
-    private const int MaxMessageLength = 16 * 1024; /// TODO: Pull this value from the configuration file
+    private readonly IServiceBusAdapter _sbAdapter = serviceBusAdapter;
+    private readonly ICosmosClientWrapper _cosmos = cosmos;
+    private readonly int _maxMessageLength = Convert.ToInt32(Environment.GetEnvironmentVariable(Config.MaxMessageLength)); // Enables configurable max message size
 
     /// <summary>
     /// Processes a Service Bus message containing metadata, persists the metadata, and returns a response message.
@@ -34,88 +32,34 @@ public class PersistMetadata(ILogger<PersistMetadata> logger, ServiceBusAdapter 
     /// <returns>A <see cref="ServiceBusMessageDTO"/> containing information about the completion of metadata processing.</returns>
     [Function(nameof(PersistMetadata))]
     public async Task Run(
-        [ServiceBusTrigger(ServiceBus.Topics.FileUpdates, ServiceBus.Subs.PersistMetadata, Connection = ServiceBus.Topics.FileUpdate.Listen)]
+        [ServiceBusTrigger(ServiceBus.Topics.FileUpdates, ServiceBus.Subs.PersistMetadata, Connection = Secrets.FUMSGI)]
         ServiceBusReceivedMessage message,
         ServiceBusMessageActions messageActions)
     {
-        BlobMetaDTO metadata = _serializer.FromBinaryData(message.Body); //TODO: wrap in try-catch block, conversion may fail
-        metadata.BlobUrl = message.ApplicationProperties["blobUrl"].ToString() ?? ""; // TODO: also wrap in try-catch or validate some other way
-        metadata.OriginalFileName = message.ApplicationProperties["originalFileName"].ToString() ?? ""; //TODO: idem
-        metadata = await _cosmos.SaveAsync(metadata, CloudCosmos.Containers.BlobMeta); // Push metadata to CosmosDB
-        var responseMessage = new ServiceBusMessage(_serializer.Serialize(metadata));
-        responseMessage.Subject = "Metadata Extracted - file ready for processing.";
-        // Tweaking so the message goes through subscription filters on function CreateThumbnail
-        responseMessage.ApplicationProperties.Add(ServiceBus.Props.EventType, ServiceBus.Subs.PersistMetadata);
-        // I am forced to create to call for a client and send the message manually,
-        // because for dotnet-isolated functions there is no IAsyncCollector<ServiceBusMessage> I can call
-        // to set ApplicationProperties on the message, which I MUST to do for subscription filtering (example: persist-metadata) to work
-        await _sbAdapter.SendAsync(ServiceBus.Topics.FileUpdates, responseMessage);
-    }
-
-    #region Validation
-    /// <summary>
-    /// Analyzes a received Service Bus message to validate its format and schema compliance.
-    /// </summary>
-    /// <remarks>This method performs the following checks: <list type="bullet"> <item><description>Ensures
-    /// the message body does not exceed the maximum allowed size.</description></item> <item><description>Validates the
-    /// message body against a predefined JSON schema.</description></item> <item><description>Handles unrecognized or
-    /// malformed JSON formats gracefully by logging the issue and returning an error message.</description></item>
-    /// </list> If the message is invalid or unrecognized, the method logs the issue and returns a descriptive error
-    /// message. If the message is valid, an empty string is returned.</remarks>
-    /// <param name="message">The <see cref="ServiceBusReceivedMessage"/> to scrutinize. The message body is expected to be a JSON string.</param>
-    /// <returns>A string containing an error message if the message is invalid, too large, or unrecognized; otherwise, an empty
-    /// string if the message is valid.</returns>
-    public string ScrutinizeSBMessage(ServiceBusReceivedMessage message)
-    {
-        if (message.Body.ToMemory().Length > MaxMessageLength) // if the message is too large, I'm not taking any risks
+        _logger.LogInformation("[{correlationId}][START] Function {functionName} triggered by {messageId}. Getting to work...", message.CorrelationId, nameof(PersistMetadata), message.MessageId);
+        try { Validate.SBMessageSize(message, _maxMessageLength); }                             // try Validate message size
+        catch (MessageTooLargeException e)                                                      // I'll let anything else 
         {
-            _logger.LogWarning("{topic}({subscription}): MESSAGE TOO LARGE. SKIPPING message {messageId}...", 
-               ServiceBus.Topics.FileUpdates, ServiceBus.Subs.PersistMetadata, message.MessageId);
-            return String.Empty;
+            _logger.LogWarning(e, "[{correlationId}][SKIP] Message '{messageId}' too large. Size: {messageLength}/{maxMessageLength} Bytes. DLQ Material ->  Skipping...", message.CorrelationId, message.MessageId, e.ActualMessageSize, e.MaxMessageSize);
+            // If the message is larger than expected, it's considered unsafe... and thrown away. 
+            await messageActions.DeadLetterMessageAsync(message, deadLetterReason: nameof(MessageTooLargeException), deadLetterErrorDescription: e.Message);
+            return;
         }
 
-        IList<string> errors;
-        var body = System.Text.Encoding.UTF8.GetString(message.Body);
-        var schema = GetCloudCanvasMainJsonSchema();
-        JObject obj;
         try
         {
-            obj = JObject.Parse(body);
-            var isValid = obj != null ? obj.IsValid(schema, out errors) : false;
-            if (!isValid)
-            {
-                _logger.LogError("INVALID CloudCanvas Message '{messageId}'... Does not comply with the standards set in the 'main' JsonSchema.", message.MessageId);
-            }
-        }
-        catch (JsonReaderException e)
+            BlobMetaDTO metadata = CCSerializer.FromBinaryData<BlobMetaDTO>(message.Body);      // Validate & Deserialize body
+            metadata = await _cosmos.SaveMetadataAsync(metadata, CloudCosmos.Containers.BlobMeta);      // Push metadata to CosmosDB
+            var response = MessageFactory.BuildFor(metadata)                                    // Manual dispatch required for full control (dotnet-isolated)
+                .WithSubject("Metadata Persisted - file ready for further processing.")         // Add Subject
+                .AddProperty(ServiceBus.Props.EventType, ServiceBus.Subs.PersistMetadata)       // So that it makes it through subscription filters
+                .Finalize(message.CorrelationId);                                               // Finalize and return the message
+            await _sbAdapter.SendAsync(ServiceBus.Topics.FileUpdates, response);               // Send the message and call it a day
+            _logger.LogInformation("[{correlationId}][DONE] Sent Message '{messageId}' to topic '{topic}': {subject}", response.CorrelationId, response.MessageId, ServiceBus.Topics.FileUpdates, response.Subject);
+        } catch (CCSerializationException e)
         {
-            _logger.LogError(e, "UNRECOGNISED message format: considered hostile and ignored. Exception Message: {message}", e.Message);
+            _logger.LogError(e, "[{correlationId}][ERROR] Failed to deserialize metadata into an object of type {type}. Operation aborted. ", message.CorrelationId, nameof(BlobMetaDTO));
             throw;
         }
-
-        return String.Empty;
     }
-
-    /// <summary>
-    /// Loads and returns the main JSON schema for CloudCanvas, resolving any referenced subschemas.
-    /// </summary>
-    /// <remarks>This method reads the primary schema file and a referenced subschema file from the
-    /// application's base directory. It resolves the subschema using a preloaded resolver to ensure all schema
-    /// dependencies are properly handled.</remarks>
-    /// <returns>A <see cref="JSchema"/> object representing the main JSON schema for CloudCanvas, with all references resolved.</returns>
-    public JSchema GetCloudCanvasMainJsonSchema()
-    {
-        string pathToMainSchema = Path.Combine(AppContext.BaseDirectory, "Schemas", "servicebus-message.schema.json");
-        string pathToBlobMetaSchema = Path.Combine(AppContext.BaseDirectory, "Schemas", "blob-metadata.schema.json");
-
-        string MainSchemaJson = File.ReadAllText(pathToMainSchema);
-        string BlobMetaSchemaJson = File.ReadAllText(pathToBlobMetaSchema);
-
-        var resolver = new JSchemaPreloadedResolver();
-        resolver.Add(new Uri("blob-metadata.schema.json", UriKind.RelativeOrAbsolute), System.Text.Encoding.UTF8.GetBytes(BlobMetaSchemaJson));
-
-        var schema = JSchema.Parse(MainSchemaJson, resolver);
-        return schema;
-    }
-    #endregion
 }
