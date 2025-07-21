@@ -12,7 +12,6 @@ using System.Text.Json;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 builder.Services.AddTransient<BlobStorageService>(); // Inject custom Blob Storage Service
-builder.Services.AddSingleton<CosmosClientWrapper>(); // Inject custom Cosmos wrapper
 builder.Services.AddSingleton(bsc =>
 {
     var blobStorageConnectionString = Environment.GetEnvironmentVariable(Secrets.MNSTRG);

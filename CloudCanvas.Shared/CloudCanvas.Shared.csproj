@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
 	<PackageId>CloudCanvas.Shared</PackageId>
 	<Authors>Adolphe Munyankumburwa</Authors>
-	<Version>0.1.0</Version>
+	<Version>0.2.0</Version>
 	<Description>
 		The shared kernel of CloudCanvas — a durable substrate of logic, contracts, and infrastructure boundaries 
 		that form the connective tissue between independently deployed function apps. 
