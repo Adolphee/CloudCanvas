@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
 	<PackageId>CloudCanvas.Shared</PackageId>
 	<Authors>Adolphe Munyankumburwa</Authors>
-	<Version>0.1.0</Version>
+	<Version>0.2.0</Version>
 	<Description>
 		The shared kernel of CloudCanvas — a durable substrate of logic, contracts, and infrastructure boundaries 
 		that form the connective tissue between independently deployed function apps. 
@@ -25,6 +25,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Newtonsoft.Json.Schema" Version="4.0.1" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.10" />
   </ItemGroup>
 

@@ -8,7 +8,7 @@ namespace CloudCanvas.Shared.Interfaces;
 /// </summary>
 public interface IBlobStorageService
 {
-    public Task UploadAsync(string containerName, Stream fileStream, string filename);
-    public Task<List<string>> GetUrlsAsync(string containerName);
-    public Task<BlobContainerClient> GetContainerClientAsync(string uploads);
+    public Task UploadAsync(Stream fileStream, string filename, string containerName);
+    public Task<List<string>> GetBlobUrlsAsync(string containerName);
+    public Task<BlobContainerClient> GetOrCreateContainerClientAsync(string containerName, bool createIfNotExists = true);
 }

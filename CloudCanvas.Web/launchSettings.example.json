@@ -1,4 +1,5 @@
-{
+{ /* Serves as an fresh template for local development, no secrets included. read-only. 
+     Should never be pushed again. Gitignore if modified. */
   "profiles": {
     "CloudCanvas": {
       "commandName": "Project",

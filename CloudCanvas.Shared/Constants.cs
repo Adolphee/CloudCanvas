@@ -13,8 +13,7 @@ namespace CloudCanvas.Shared.Constants
     public abstract class BlobStorage
     {
         public const string Self = "AzureBlobStorage";
-        public const string ConnectionString = "ConnectionString";
-        public const string ContainerName = "ContainerName";
+        public const string ConnStringName = "AZURE_BSTORAGE";
 
         public abstract class Containers
         {
@@ -27,20 +26,15 @@ namespace CloudCanvas.Shared.Constants
 
     public abstract class ServiceBus
     {
-
-        public const string Self = "AzureServiceBus";
         public abstract class Topics
         {
             public const string FileUpdates = "file-updates";
-            public abstract class FileUpdate {
-                public const string Send = $"{FileUpdates}-send";
-                public const string Listen = $"{FileUpdates}-listen";
-            }
         }
 
         public abstract class Props
         {
             public const string EventType = "eventType";
+            public const string ThumbnailSize = "thumbnailSize";
         }
 
         public abstract class Subs
@@ -50,6 +44,14 @@ namespace CloudCanvas.Shared.Constants
             public const string ResizeImage = "resize-image";
             public const string PersistMetadata = "persist-metadata";
         }
+
+        public abstract class Status
+        {
+            public const string MetadataExctracted = "Metadata Exctracted";
+            public const string ThumbnailCreated = "Thumbnail Created";
+            public const string ImageResized = "Image Resized";
+            public const string MetadataPersisted = "Metadata Persisted";
+        }
     }
 
     public abstract class CloudCosmos
@@ -58,5 +60,18 @@ namespace CloudCanvas.Shared.Constants
         public abstract class Containers {
             public const string BlobMeta = "blob_metadata";
         }
+    }
+
+    public abstract class Secrets
+    {
+        public const string MNSTRG = "MNSTRG";
+        public const string MTSTRG = "MTSTRG";
+        public const string FUMSGO = "FUMSGO";
+        public const string FUMSGI = "FUMSGI";
+    }
+
+    public abstract class Config
+    {
+        public const string MaxMessageLength = "MAX_MSG_LEN";
     }
 }

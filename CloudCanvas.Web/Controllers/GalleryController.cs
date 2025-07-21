@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using CloudCanvas.Shared.Services;
 using CloudCanvas.Web.Models;
 using CloudCanvas.Shared.Constants;
+using CloudCanvas.Shared.Interfaces;
 
 namespace CloudCanvas.Web.Controllers
 {
@@ -9,8 +10,8 @@ namespace CloudCanvas.Web.Controllers
     public class GalleryController : Controller
     {
         private readonly ILogger<GalleryController> _logger;
-        private readonly BlobStorageService _service;
-        public List<string> ImageLinks { get; set; } = new();
+        private readonly IBlobStorageService _service;
+        public List<string> ImageLinks { get; set; } = new List<string>();
 
         public GalleryController(ILogger<GalleryController> logger, BlobStorageService service)
         {
@@ -21,7 +22,7 @@ namespace CloudCanvas.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            ImageLinks = await _service.GetUrlsAsync(BlobStorage.Containers.Uploads);
+            ImageLinks = await _service.GetBlobUrlsAsync(BlobStorage.Containers.Uploads);
             return View(nameof(Index), new GalleryViewModel { ImageLinks = ImageLinks });
         }
 

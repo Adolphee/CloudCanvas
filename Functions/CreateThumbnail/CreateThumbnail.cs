@@ -2,23 +2,23 @@ using Azure.Messaging.ServiceBus;
 using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.DTOs;
 using CloudCanvas.Shared.Enums;
+using CloudCanvas.Shared.Exceptions;
 using CloudCanvas.Shared.Interfaces;
 using CloudCanvas.Shared.Services;
 using CloudCanvas.Shared.Utilities;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
 
 namespace CloudCanvas.Functions;
-public class CreateThumbnail(ILogger<CreateThumbnail> logger, BlobStorageService blobService, BlobMetadataSerializer converter, ServiceBusAdapter adapter)
+public class CreateThumbnail(ILogger<CreateThumbnail> logger, BlobStorageService blobService, ServiceBusAdapter adapter)
 {
     private readonly ILogger<CreateThumbnail> _logger = logger;
-    private readonly BlobStorageService _blobService = blobService;
-    private readonly BlobMetadataSerializer _serializer = converter;
-    private readonly ServiceBusAdapter _sbAdapter = adapter;
+    private readonly IBlobStorageService _blobService = blobService;
+    private readonly IServiceBusAdapter _sbAdapter = adapter;
+    private readonly int _maxMessageLength = Convert.ToInt32(Environment.GetEnvironmentVariable(Config.MaxMessageLength)); // Enables configurable max message size
 
     /// <summary>
-    /// Processes a Service Bus message to create a thumbnail image from the provided metadata and uploads it to a
+    /// Processes a incoming Service Bus  message to create a thumbnail image from the provided metadata and uploads it to a
     /// specified blob storage container.
     /// </summary>
     /// <remarks>This function listens to the Service Bus topic <see cref="ServiceBus.Topics.FileUpdates"/>
@@ -27,48 +27,54 @@ public class CreateThumbnail(ILogger<CreateThumbnail> logger, BlobStorageService
     /// cref="BlobStorage.Containers.ImgConversions"/>. <para> If an exception occurs during processing, the message is
     /// marked as completed to prevent retries. Ensure that the input metadata contains a valid image file URL, as
     /// unsupported file types may cause the operation to fail. </para></remarks>
-    /// <param name="message">The received Service Bus message containing the event data.</param>
+    /// <param name="incoming">The received Service Bus message containing the event data.</param>
     /// <param name="messageActions">Provides actions for completing, abandoning, or deferring the Service Bus message.</param>
     /// <param name="input">The metadata payload containing information about the source image and its properties.</param>
     /// <returns>A <see cref="ServiceBusMessageDTO"/> containing the event details and metadata after the thumbnail creation
     /// process is completed.</returns>
     [Function(nameof(CreateThumbnail))]
     public async Task Run(
-        [ServiceBusTrigger(ServiceBus.Topics.FileUpdates, ServiceBus.Subs.CreateThumbnail, Connection = ServiceBus.Topics.FileUpdate.Listen)]
-        ServiceBusReceivedMessage message,
-        ServiceBusMessageActions messageActions, ThumbnailSize size = ThumbnailSize.S)
+        [ServiceBusTrigger(ServiceBus.Topics.FileUpdates, ServiceBus.Subs.CreateThumbnail, Connection = Secrets.FUMSGI)]
+        ServiceBusReceivedMessage incoming,
+        ServiceBusMessageActions messageActions, ThumbnailSize size = ThumbnailSize.Small)
     {
+        _logger.LogInformation("Function {functionName} started & wired up successfully. Looking for a job...", nameof(CreateThumbnail));
+        try { Validate.SBMessageSize(incoming, _maxMessageLength); }
+        catch (MessageTooLargeException e) // Unexpectedly larg? considered unsafe, discard
+        {
+            _logger.LogWarning(e, "[{correlationId}] Message '{messageId}' too large. Size: {messageLength}/{maxMessageLength} Bytes. DLQ Material -> Skipping...", incoming.CorrelationId, incoming.MessageId, e.ActualMessageSize, e.MaxMessageSize);
+            await messageActions.DeadLetterMessageAsync(incoming); // Skip and throw awway
+            throw;
+        }
         const string thumbnails = BlobStorage.Containers.Thumbnails;
         const string uploads = BlobStorage.Containers.Uploads;
-        BlobMetaDTO metadata = _serializer.FromBinaryData(message.Body); //TODO: wrap in try-catch block
-        metadata.BlobUrl = message.ApplicationProperties["blobUrl"].ToString() ?? ""; // TODO: also wrap in try-catch or validate some other way
-        metadata.OriginalFileName = message.ApplicationProperties["originalFileName"].ToString() ?? ""; //TODO: idem
+        int intSize = (int) incoming.ApplicationProperties[ServiceBus.Props.ThumbnailSize];
+        var metadata = CCSerializer.FromBinaryData<BlobMetaDTO>(incoming.Body);
+        ThumbnailSize altSize = ImageTool.GetThumbnailSize(intSize);
+        _logger.LogInformation("[{correlationId}][START] Creating thumbnail for {fileName} at destination: {thumbnails}/{originalFileName}.", incoming.CorrelationId, metadata.OriginalFileName, thumbnails, metadata.OriginalFileName);
         try
         {
-            ///TODO: Implement **better validation** on file type, 
+            ///TODO: Implement **better validation** on file type before CloudCanvas v1.0, 
             /// for example, what if this function receives a .pdf file? or a .mp4, .zip etc...
-            var bclient = await _blobService.GetContainerClientAsync(uploads); // original file blob container
+            var bclient = await _blobService.GetOrCreateContainerClientAsync(uploads); // original file blob container
             var stream = await bclient.GetBlobClient(metadata.OriginalFileName).OpenReadAsync(); // download file
-            bclient = await _blobService.GetContainerClientAsync(thumbnails); // switch to thumbnails desination container
-            using var output = await ImageTool.ResizeAsync(stream, size);
-            await _blobService.UploadAsync(thumbnails, output, metadata.OriginalFileName); //upload the thumbnail
-            _logger.LogInformation("Successfully created thumbnail and saved to {thumbnails}/{originalFileName}.", thumbnails, metadata.OriginalFileName);
+            bclient = await _blobService.GetOrCreateContainerClientAsync(thumbnails); // switch to thumbnails desination container
+            using var output = await ImageTool.ResizeAsync(stream, size); // Create thumbnail
+            await _blobService.UploadAsync(output, metadata.OriginalFileName!, thumbnails); //upload the thumbnail to destionation
         } catch (Exception e)
         {
-            _logger.LogError(e, "Failed Create Thumbnail for {originalFilename}. Service Bus Message '{messageId}'", metadata.OriginalFileName, message.MessageId);
-            await messageActions.AbandonMessageAsync(message);  // Complete the message
+            _logger.LogCritical(e, "[{correlationId}][CRIT] Unable to Create {size} Thumbnail for blob {originalFilename}.\n Message ({messageId}) abandoned.", incoming.CorrelationId, size.ToString(), metadata.OriginalFileName, incoming.MessageId);
+            await messageActions.AbandonMessageAsync(incoming);  // Drop the ball & Run away
+            throw;
         }
-        var responseMessage = new ServiceBusMessage(JsonSerializer.Serialize(metadata))
-        {
-            // Admittedly unnecessary
-            Subject = $"{ServiceBus.Topics.FileUpdates}, {ServiceBus.Subs.CreateThumbnail}, done"
-        };
-        // Tweaking so the message goes through subscription filters on function CreateThumbnail
-        responseMessage.ApplicationProperties.Add(ServiceBus.Props.EventType, ServiceBus.Subs.CreateThumbnail);
-        // I am forced to create to call for a client and send the message manually,
-        // because for dotnet-isolated functions there is no IAsyncCollector<ServiceBusMessage> I can call
-        // to set ApplicationProperties on the message, which I MUST to do for subscription filtering (example: persist-metadata) to work
-        await _sbAdapter.SendAsync(ServiceBus.Topics.FileUpdates, responseMessage);
-        await Task.CompletedTask;
+
+        _logger.LogInformation("[{correlationId}][OK] Created thumbnail for blob '{blobName}' and saved to {thumbnails}/{originalFileName}.", incoming.CorrelationId, metadata.OriginalFileName, thumbnails, metadata.OriginalFileName);
+        var response = MessageFactory.BuildFor(metadata) // Manual dispatch required for full control (dotnet-isolated)
+            .WithSubject($"{ServiceBus.Status.ThumbnailCreated}:{thumbnails}/{metadata.OriginalFileName}.") // Add Subject
+            .AddProperty(ServiceBus.Props.EventType, ServiceBus.Subs.CreateThumbnail) // So that it makes it through subscription filters
+            .AddProperty(ServiceBus.Props.ThumbnailSize, size.ToString()) // Let's make it through even more subscription filters
+            .Finalize(incoming.CorrelationId); // Finalize and return the message
+        await _sbAdapter.SendAsync(ServiceBus.Topics.FileUpdates, response); // Send the message and call it a day
+        _logger.LogInformation("[{correlationId}][DONE] Sent Message '{messageId}' to topic '{topic}': {subject}", response.CorrelationId, response.MessageId, ServiceBus.Topics.FileUpdates, response.Subject);
     }
 }

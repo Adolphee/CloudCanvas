@@ -1,0 +1,105 @@
+﻿using Azure.Messaging.ServiceBus;
+using CloudCanvas.Shared.DTOs;
+using CloudCanvas.Shared.Exceptions;
+using Microsoft.Azure.Amqp.Framing;
+using Microsoft.Azure.Cosmos.Serialization.HybridRow.Schemas;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema;
+using System.ComponentModel.DataAnnotations;
+using System.Text;
+using System.Text.Json;
+
+namespace CloudCanvas.Shared.Utilities
+{
+    public static class Validate
+    {
+        public static void MetadataDocumentBase<T>(T obj) where T: MetadataDocumentBase
+        {
+            var errMsg = $"{typeof(T).Name}: both Id and UserId are required fields for CosmosDB persistence.";
+            Validate.StringValue("Id", obj.Id, errMsg);
+            Validate.StringValue("UserId", obj.UserId, errMsg);
+            Validate.Object(obj); // Custom Schema Validation based on plain model/DTO classes before persistence
+        }
+
+        public static bool JsonWithSchema(string jsonValidationTarget)
+        {
+            Validate.StringValue(nameof(jsonValidationTarget), jsonValidationTarget);
+            IList<string> errors;
+            var schema = GetCloudCanvasMainJsonSchema();
+            JObject obj;
+            try
+            {
+                obj = JObject.Parse(jsonValidationTarget);
+                var isValid = obj != null ? obj.IsValid(schema, out errors) : false;
+                if (!isValid) throw new JSonSchemaValidationException("Invalid Json string provided.");
+                return isValid;
+            }
+            catch (JsonReaderException e)
+            {
+                throw new JSonSchemaValidationException($"Unable to parse '{nameof(jsonValidationTarget)}' to JObject;", e);
+            }
+        }
+
+
+        /// <summary>
+        /// Loads and returns the main JSON schema for CloudCanvas, resolving any referenced subschemas.
+        /// </summary>
+        /// <remarks>This method reads the primary schema file and a referenced subschema file from the
+        /// application's base directory. It resolves the subschema using a preloaded resolver to ensure all schema
+        /// dependencies are properly handled.</remarks>
+        /// <returns>A <see cref="JSchema"/> object representing the main JSON schema for CloudCanvas, with all references resolved.</returns>
+        private static JSchema GetCloudCanvasMainJsonSchema()
+        {
+            string pathToMainSchema = Path.Combine(AppContext.BaseDirectory, "Schemas", "servicebus-message.schema.json");
+            string pathToBlobMetaSchema = Path.Combine(AppContext.BaseDirectory, "Schemas", "blob-metadata.schema.json");
+
+            string MainSchemaJson = File.ReadAllText(pathToMainSchema);
+            string BlobMetaSchemaJson = File.ReadAllText(pathToBlobMetaSchema);
+
+            var resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("blob-metadata.schema.json", UriKind.RelativeOrAbsolute), System.Text.Encoding.UTF8.GetBytes(BlobMetaSchemaJson));
+
+            var schema = JSchema.Parse(MainSchemaJson, resolver);
+            return schema;
+        }
+
+        public static T Object<T>(T? validationTarget)
+        {
+            if (validationTarget == null) throw new ArgumentNullException(nameof(validationTarget));
+            var context = new ValidationContext(validationTarget);
+            var results = new List<ValidationResult>();
+            bool isValid = Validator.TryValidateObject(validationTarget, context, results, true);
+            if (!isValid) throw new InvalidArgumentException($"Argument of type {typeof(T).Name} did not pass validation. Reasons: {results.ToString()}");
+            return validationTarget;
+        }
+
+        public static string StringValue(string paramName, string? paramValue, string message = "")
+        {
+            if(String.IsNullOrEmpty(paramValue))
+            throw new InvalidArgumentException(String.IsNullOrWhiteSpace(message)? $"Argument ({paramName}) detected with Invalid value ''.": message);
+            return paramValue;
+        }
+
+        public static double Number(string paramName, double paramValue, double max = int.MaxValue, double min = 0)
+        {
+            if(min > paramValue || paramValue > max) 
+                throw new ArgumentOutOfRangeException($"Argument({paramName}): value must be between {min} and {max}. Provided instead: {paramValue}");
+            return paramValue;
+        }
+
+        public static int SBMessageSize(ServiceBusReceivedMessage message, int maxMessageLength, string errorMessage = "")
+        {
+            int messageLength = message.Body.ToArray().Length;
+            if (messageLength > maxMessageLength)                                           // Validate message size
+                throw new MessageTooLargeException(errorMessage ?? $"Message '{message.MessageId}' is too large: {messageLength}/{maxMessageLength} Bytes.")
+                {
+                    MessageId = message.MessageId,
+                    MaxMessageSize = maxMessageLength,
+                    ActualMessageSize = messageLength,
+                    CorrelationId = message.CorrelationId
+                };
+            return messageLength;
+        }
+    }
+}

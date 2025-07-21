@@ -2,8 +2,8 @@
 {
     public enum ThumbnailSize
     {
-        XS, // 25x25 pixels
-        S, // 50x50 pixels
-        M // 75x75 pixels
+        XSmall = 0, // 25x25 pixels
+        Small = 1, // 50x50 pixels
+        Medium = 2 // 75x75 pixels
     }
 }

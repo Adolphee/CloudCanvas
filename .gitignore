@@ -275,3 +275,7 @@ __blobstorage__
 /t64.exe.ignore
 /w32.exe.ignore
 /w64.exe.ignore
+/CloudCanvas.Web/Properties/launchSettings.Development.json
+/CloudCanvas.Web/Properties/launchSettings.json
+/CloudCanvas.Web/Properties/launchSettings.json
+*.json

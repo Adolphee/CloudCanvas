@@ -20,7 +20,7 @@ namespace CloudCanvas.Shared.Interfaces
         /// <param name="obj">The object to be saved. Cannot be <see langword="null"/>.</param>
         /// <param name="containerName">The name of the container where the object will be saved. Cannot be <see langword="null"/> or empty.</param>
         /// <returns>A task that represents the asynchronous save operation. The task result contains the saved object.</returns>
-        public Task<T> SaveAsync<T>(T obj, string containerName) where T : MetadataDocumentBase;
+        public Task<T> SaveMetadataAsync<T>(T obj, string containerName) where T : MetadataDocumentBase;
 
         /// <summary>
         /// Retrieves a collection of items of the specified type from the given container.
@@ -32,6 +32,6 @@ namespace CloudCanvas.Shared.Interfaces
         /// <param name="containerName">The name of the container to query. Must not be null or empty.</param>
         /// <returns>An <see cref="IEnumerable{T}"/> containing the items of type <typeparamref name="T"/>  retrieved from the
         /// specified container. Returns an empty collection if the container is empty or does not exist.</returns>
-        public IEnumerable<T> Query<T>(string containerName) where T : MetadataDocumentBase;
+        public IEnumerable<T> QueryContainer<T>(string containerName) where T : MetadataDocumentBase;
     }
 }

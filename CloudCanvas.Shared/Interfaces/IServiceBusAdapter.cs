@@ -20,7 +20,7 @@ namespace CloudCanvas.Shared.Interfaces
         /// <param name="topic">The name of the Service Bus topic to which the message will be published. Cannot be null or empty.</param>
         /// <param name="message">The <see cref="ServiceBusMessage"/> to be published. Cannot be null.</param>
         /// <returns>A <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public Task SendAsync(string topic, ServiceBusMessage message);
+        public Task<string> SendAsync(string topic, ServiceBusMessage message);
 
         /// <summary>
         /// Publishes a batch of messages to the specified Service Bus topic.
