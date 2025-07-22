@@ -38,7 +38,8 @@ public class ExtractMetadata(ILogger<ExtractMetadata> logger, BlobStorageService
             .WithSubject($"{ServiceBus.Status.MetadataExctracted} - file ready for processing.")    // Add Subject
             .AddProperty(ServiceBus.Props.EventType, ServiceBus.Subs.ExtractMetaData) // So that it makes it through subscription filters
             .AddProperty(ServiceBus.Props.ThumbnailSize, (int) ThumbnailSize.Small) // BuildFor thumbnail generation, later used by orchestrators to fan-out differet sizes
-            .Finalize(); // Finalize and return the message
+            .SetCorrelationId(Guid.NewGuid().ToString()) // Set a new CorrelationId for this message, as the first in the chain
+            .Finalize(); // Finalize and return the message ---> TODO: add custom (meaningful & descriptive) message ID builder, like {eventType}-{blobName}-{timestamp}
         var responseMessageId = await _sbAdapter.SendAsync(ServiceBus.Topics.FileUpdates, message); // Send the message and call it a day
         _logger.LogInformation("[DONE] Sent Message '{messageId}' to topic '{topic}': {subject}", responseMessageId, ServiceBus.Topics.FileUpdates, message.Subject);
     }
