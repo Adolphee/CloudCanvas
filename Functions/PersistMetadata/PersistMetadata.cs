@@ -1,6 +1,7 @@
 using Azure.Messaging.ServiceBus;
 using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.DTOs;
+using CloudCanvas.Shared.Enums;
 using CloudCanvas.Shared.Exceptions;
 using CloudCanvas.Shared.Interfaces;
 using CloudCanvas.Shared.Services;
@@ -49,6 +50,7 @@ public class PersistMetadata(ILogger<PersistMetadata> logger, ServiceBusAdapter 
         try
         {
             BlobMetaDTO metadata = CCSerializer.FromBinaryData<BlobMetaDTO>(message.Body);      // Validate & Deserialize body
+            metadata.ProcessingStage = (int) BlobProcessingStage.UpdateMetadata;
             metadata = await _cosmos.SaveMetadataAsync(metadata, CloudCosmos.Containers.BlobMeta);      // Push metadata to CosmosDB
             var response = MessageFactory.BuildFor(metadata)                                    // Manual dispatch required for full control (dotnet-isolated)
                 .WithSubject("Metadata Persisted - file ready for further processing.")         // Add Subject

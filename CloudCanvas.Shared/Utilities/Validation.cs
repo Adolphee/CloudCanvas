@@ -14,33 +14,22 @@ namespace CloudCanvas.Shared.Utilities
 {
     public static class Validate
     {
-        public static void MetadataDocumentBase<T>(T obj) where T: MetadataDocumentBase
+        public static string StringValue(string paramName, string? paramValue, string message = "")
         {
-            var errMsg = $"{typeof(T).Name}: both Id and UserId are required fields for CosmosDB persistence.";
-            Validate.StringValue("Id", obj.Id, errMsg);
-            Validate.StringValue("UserId", obj.UserId, errMsg);
-            Validate.Object(obj); // Custom Schema Validation based on plain model/DTO classes before persistence
+            if(String.IsNullOrEmpty(paramValue))
+            throw new InvalidArgumentException(String.IsNullOrWhiteSpace(message)? $"Argument ({paramName}) detected with Invalid value ''.": message);
+            return paramValue;
         }
 
-        public static bool JsonWithSchema(string jsonValidationTarget)
+        public static T Object<T>(T? validationTarget)
         {
-            Validate.StringValue(nameof(jsonValidationTarget), jsonValidationTarget);
-            IList<string> errors;
-            var schema = GetCloudCanvasMainJsonSchema();
-            JObject obj;
-            try
-            {
-                obj = JObject.Parse(jsonValidationTarget);
-                var isValid = obj != null ? obj.IsValid(schema, out errors) : false;
-                if (!isValid) throw new JSonSchemaValidationException("Invalid Json string provided.");
-                return isValid;
-            }
-            catch (JsonReaderException e)
-            {
-                throw new JSonSchemaValidationException($"Unable to parse '{nameof(jsonValidationTarget)}' to JObject;", e);
-            }
+            if (validationTarget == null) throw new ArgumentNullException(nameof(validationTarget));
+            var context = new ValidationContext(validationTarget);
+            var results = new List<ValidationResult>();
+            bool isValid = Validator.TryValidateObject(validationTarget, context, results, true);
+            if (!isValid) throw new InvalidArgumentException($"Argument of type {typeof(T).Name} did not pass validation. Reasons: {results.ToString()}");
+            return validationTarget;
         }
-
 
         /// <summary>
         /// Loads and returns the main JSON schema for CloudCanvas, resolving any referenced subschemas.
@@ -63,31 +52,12 @@ namespace CloudCanvas.Shared.Utilities
             var schema = JSchema.Parse(MainSchemaJson, resolver);
             return schema;
         }
-
-        public static T Object<T>(T? validationTarget)
-        {
-            if (validationTarget == null) throw new ArgumentNullException(nameof(validationTarget));
-            var context = new ValidationContext(validationTarget);
-            var results = new List<ValidationResult>();
-            bool isValid = Validator.TryValidateObject(validationTarget, context, results, true);
-            if (!isValid) throw new InvalidArgumentException($"Argument of type {typeof(T).Name} did not pass validation. Reasons: {results.ToString()}");
-            return validationTarget;
-        }
-
-        public static string StringValue(string paramName, string? paramValue, string message = "")
-        {
-            if(String.IsNullOrEmpty(paramValue))
-            throw new InvalidArgumentException(String.IsNullOrWhiteSpace(message)? $"Argument ({paramName}) detected with Invalid value ''.": message);
-            return paramValue;
-        }
-
         public static double Number(string paramName, double paramValue, double max = int.MaxValue, double min = 0)
         {
             if(min > paramValue || paramValue > max) 
                 throw new ArgumentOutOfRangeException($"Argument({paramName}): value must be between {min} and {max}. Provided instead: {paramValue}");
             return paramValue;
         }
-
         public static int SBMessageSize(ServiceBusReceivedMessage message, int maxMessageLength, string errorMessage = "")
         {
             int messageLength = message.Body.ToArray().Length;
@@ -100,6 +70,24 @@ namespace CloudCanvas.Shared.Utilities
                     CorrelationId = message.CorrelationId
                 };
             return messageLength;
+        }
+        public static bool JsonWithSchema(string jsonValidationTarget)
+        {
+            Validate.StringValue(nameof(jsonValidationTarget), jsonValidationTarget);
+            IList<string> errors;
+            var schema = GetCloudCanvasMainJsonSchema();
+            JObject obj;
+            try
+            {
+                obj = JObject.Parse(jsonValidationTarget);
+                var isValid = obj != null ? obj.IsValid(schema, out errors) : false;
+                if (!isValid) throw new JSonSchemaValidationException("Invalid Json string provided.");
+                return isValid;
+            }
+            catch (JsonReaderException e)
+            {
+                throw new JSonSchemaValidationException($"Unable to parse '{nameof(jsonValidationTarget)}' to JObject;", e);
+            }
         }
     }
 }

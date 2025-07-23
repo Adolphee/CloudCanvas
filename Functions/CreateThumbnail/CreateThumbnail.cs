@@ -36,21 +36,24 @@ public class CreateThumbnail(ILogger<CreateThumbnail> logger, BlobStorageService
     public async Task Run(
         [ServiceBusTrigger(ServiceBus.Topics.FileUpdates, ServiceBus.Subs.CreateThumbnail, Connection = Secrets.FUMSGI)]
         ServiceBusReceivedMessage incoming,
-        ServiceBusMessageActions messageActions, ThumbnailSize size = ThumbnailSize.Small)
+        ServiceBusMessageActions messageActions)
     {
-        _logger.LogInformation("Function {functionName} started & wired up successfully. Looking for a job...", nameof(CreateThumbnail));
+        _logger.LogInformation("Function {functionName} started & wired up successfully. Running Validations & adding metadata...", nameof(CreateThumbnail));
         try { Validate.SBMessageSize(incoming, _maxMessageLength); }
         catch (MessageTooLargeException e) // Unexpectedly larg? considered unsafe, discard
         {
             _logger.LogWarning(e, "[{correlationId}] Message '{messageId}' too large. Size: {messageLength}/{maxMessageLength} Bytes. DLQ Material -> Skipping...", incoming.CorrelationId, incoming.MessageId, e.ActualMessageSize, e.MaxMessageSize);
-            await messageActions.DeadLetterMessageAsync(incoming); // Skip and throw awway
+            await messageActions.DeadLetterMessageAsync(incoming, deadLetterReason: nameof(MessageTooLargeException), deadLetterErrorDescription: e.Message); // Skip and throw awway
             throw;
         }
         const string thumbnails = BlobStorage.Containers.Thumbnails;
         const string uploads = BlobStorage.Containers.Uploads;
-        int intSize = (int) incoming.ApplicationProperties[ServiceBus.Props.ThumbnailSize];
+        var size = (ThumbnailSize) incoming.ApplicationProperties[ServiceBus.Props.ThumbnailSize];
         var metadata = CCSerializer.FromBinaryData<BlobMetaDTO>(incoming.Body);
-        ThumbnailSize altSize = ImageTool.GetThumbnailSize(intSize);
+        // Add thumbnail related metadata
+        metadata.ProcessingStage = (int) BlobProcessingStage.CreateThumbnail;
+        metadata.Thumbnails.Add(size, metadata.Url);
+        metadata.LastModified = DateTime.UtcNow;
         _logger.LogInformation("[{correlationId}][START] Creating thumbnail for {fileName} at destination: {thumbnails}/{originalFileName}.", incoming.CorrelationId, metadata.OriginalFileName, thumbnails, metadata.OriginalFileName);
         try
         {

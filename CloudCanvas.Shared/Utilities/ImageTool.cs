@@ -38,9 +38,9 @@ namespace CloudCanvas.Shared.Utilities
         {
             switch (tnSize)
             {
-                case ThumbnailSize.XSmall: return 25;
-                case ThumbnailSize.Small: return 50;
-                case ThumbnailSize.Medium: return 75;
+                case ThumbnailSize.xsmall: return 25;
+                case ThumbnailSize.small: return 50;
+                case ThumbnailSize.medium: return 75;
                 default: return 50;
             }
         }

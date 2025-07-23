@@ -32,12 +32,16 @@ public class ExtractMetadata(ILogger<ExtractMetadata> logger, BlobStorageService
         var bcClient = await _blobSerivce.GetOrCreateContainerClientAsync(uploads);
         var blob = bcClient.GetBlobClient(name); // There is already validation on name etc from the SDK
         BlobMetaDTO metadata = CCSerializer.FromBlobProperties(name, blob.Uri.ToString(), blob.GetProperties());
+        metadata.ContainerName = BlobStorage.Containers.Uploads;
+        metadata.Name = name;
+        metadata.ProcessingStage = (int) BlobProcessingStage.ExtractMetadata;
+        metadata.Project = "CloudCanvas"; // TODO: This should be dynamic, based on the blob name or metadata
         _logger.LogInformation("[OK] Extracted Metadata from blob: {name}. Sending Message...", name);
 
         var message = MessageFactory.BuildFor(metadata) // Manual dispatch required for full control (dotnet-isolated)
             .WithSubject($"{ServiceBus.Status.MetadataExctracted} - file ready for processing.")    // Add Subject
             .AddProperty(ServiceBus.Props.EventType, ServiceBus.Subs.ExtractMetaData) // So that it makes it through subscription filters
-            .AddProperty(ServiceBus.Props.ThumbnailSize, (int) ThumbnailSize.Small) // BuildFor thumbnail generation, later used by orchestrators to fan-out differet sizes
+            .AddProperty(ServiceBus.Props.ThumbnailSize, (int) ThumbnailSize.small) // BuildFor thumbnail generation, later used by orchestrators to fan-out differet sizes
             .SetCorrelationId(Guid.NewGuid().ToString()) // Set a new CorrelationId for this message, as the first in the chain
             .Finalize(); // Finalize and return the message ---> TODO: add custom (meaningful & descriptive) message ID builder, like {eventType}-{blobName}-{timestamp}
         var responseMessageId = await _sbAdapter.SendAsync(ServiceBus.Topics.FileUpdates, message); // Send the message and call it a day

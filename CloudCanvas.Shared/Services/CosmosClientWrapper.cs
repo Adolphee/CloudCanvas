@@ -1,10 +1,9 @@
 ﻿using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.DTOs;
+using CloudCanvas.Shared.Exceptions;
 using CloudCanvas.Shared.Interfaces;
 using CloudCanvas.Shared.Utilities;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 namespace CloudCanvas.Shared.Services
 {
@@ -28,23 +27,53 @@ namespace CloudCanvas.Shared.Services
         /// <param name="metadata">The object to be saved. The object must have valid data annotations and non-empty <see
         /// cref="MetadataDocumentBase.Id"/> and <see cref="MetadataDocumentBase.UserId"/> properties.</param>
         /// <param name="containerName">The name of the Cosmos DB container where the object will be saved.</param>
+        /// <param name="documentId">The Id of the Cosmos DB docuement to be updated. If not [null/whitespace/empty], then this becomes an update operation.</param>
         /// <returns>The saved object as returned by Cosmos DB after the upsert operation.</returns>
         /// <exception cref="ArgumentException">Thrown if the <paramref name="metadata"/> is invalid, or if the <see cref="MetadataDocumentBase.Id"/> or <see
         /// cref="MetadataDocumentBase.UserId"/> properties are null, empty, or whitespace.</exception>
-        public async Task<T> SaveMetadataAsync<T>(T metadata, string containerName) where T: MetadataDocumentBase
+        public async Task<T> SaveMetadataAsync<T>(T metadata, string containerName, bool overWrite = false) where T: MetadataDocumentBase
         {
             Validate.StringValue(nameof(containerName), containerName);
-            Validate.MetadataDocumentBase(metadata);
+            Validate.Object(metadata);
             var container = _client.GetContainer(CloudCosmos.Sql, containerName);
-            var upsertResult = await container.UpsertItemAsync(metadata, new PartitionKey(metadata.UserId));
-            return upsertResult.Resource;
+            ItemResponse<T> result;
+            if (overWrite) result = await container.ReplaceItemAsync(metadata, metadata.Id, new PartitionKey(metadata.UserId));
+            else result = await container.UpsertItemAsync(metadata, new PartitionKey(metadata.UserId));
+            return result.Resource;
         }
 
-        public IEnumerable<T> QueryContainer<T>(string containerName) where T : MetadataDocumentBase
+        public Container GetContainer(string containerName)
         {
             Validate.StringValue(nameof(containerName), containerName);
-            var result = _client.GetContainer(CloudCosmos.Sql, containerName).GetItemLinqQueryable<T>();
-            return result.AsEnumerable();
+            var result = _client.GetContainer(CloudCosmos.Sql, containerName);
+            if (result == null) throw new CosmosContainerNotFoundException($"Container Not Found: '{containerName}'")
+            {
+                ContainerName = containerName,
+                DatabaseName = CloudCosmos.Sql
+            };
+
+            return result;
+        }
+
+        public async Task<IEnumerable<BlobMetaDTO>> ListBlobsAsync(string containerName)
+        {
+            var con = GetContainer(containerName);
+            var items = con.GetItemQueryIterator<BlobMetaDTO>(new QueryDefinition("Select * from c"));
+            var res = new List<BlobMetaDTO>();
+            while (items.HasMoreResults)
+            {
+                var resItems = await items.ReadNextAsync();
+                res.AddRange(resItems.ToList());
+            }
+            return res;
+        }
+
+        public async Task<bool> DeleteBlob(BlobMetaDTO meta, string containerName)
+        {
+            Validate.StringValue(nameof(containerName), containerName);
+            var con = GetContainer(containerName);
+            await con.DeleteItemAsync<BlobMetaDTO>(meta.Id, new PartitionKey(meta.UserId));
+            return false;
         }
     }
 }

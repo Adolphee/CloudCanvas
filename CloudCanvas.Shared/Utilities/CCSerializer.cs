@@ -1,10 +1,8 @@
 ﻿using Azure.Storage.Blobs.Models;
 using CloudCanvas.Shared.DTOs;
-using CloudCanvas.Shared.Interfaces;
 using System.Text.Json;
-using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.Exceptions;
-using System.Text.Json.Serialization;
+using CloudCanvas.Shared.Enums;
 
 namespace CloudCanvas.Shared.Utilities
 {
@@ -33,36 +31,37 @@ namespace CloudCanvas.Shared.Utilities
                 throw new CCSerializationException($"Missing {nameof(originalFileName)} and/or {nameof(blobUrl)}. Unable to link metadata to blob.");
             }
 
-            BlobMetaDTO meta = new BlobMetaDTO();
-            meta.UserId = Guid.NewGuid().ToString(); // This is just a placeholder for when I introduce auth
-            meta.BlobUrl = blobUrl;
-            meta.OriginalFileName = originalFileName;
-            meta.CreatedOn = props.CreatedOn;
-            meta.Metadata = props.Metadata;
-            meta.ContentType = props.ContentType;
-            meta.ContentLength = props.ContentLength;
-            meta.CopyCompletedOn = props.CopyCompletedOn;
-            meta.TagCount = props.TagCount;
-            meta.ETag = props.ETag.ToString().Trim('\"');
-            meta.SourceUrl = props.CopySource?.ToString();
-            meta.ProcessingStage = ServiceBus.Subs.ExtractMetaData;
-            meta.CreatedOn = props.CreatedOn;
-            meta.ExpiresOn = props.ExpiresOn;
-            meta.ContentLanguage = props.ContentLanguage;
-            meta.ContentEncoding = props.ContentEncoding;
-            meta.ContentDisposition = props.ContentDisposition;
-            meta.ContentLength = props.ContentLength;
-            meta.IsLatestVersion = props.IsLatestVersion;
-            meta.VersionId = props.VersionId;
-            meta.CopyId = props.CopyId;
-            meta.LastAccessed = props.LastAccessed;
-            meta.LastModified = props.LastModified;
-            meta.IsLatestVersion = props.IsLatestVersion;
-            meta.Tags = new List<string>(); // future A.I. implementation will further process and fill in these tags
-            meta.BlobType = props.BlobType;
-            meta.CopyProgress = props.CopyProgress;
-            meta.CopyStatus = props.CopyStatus;
-            return meta;
+            return new BlobMetaDTO
+            {
+                UserId = Guid.NewGuid().ToString(), // This is just a placeholder for when I introduce auth
+                Url = blobUrl,
+                OriginalFileName = originalFileName,
+                CreatedOn = props.CreatedOn,
+                ProcessingStage = (int) BlobProcessingStage.ExtractMetadata,
+                Metadata = props.Metadata,
+                Thumbnails = new Dictionary<ThumbnailSize, string>(),
+                Name = originalFileName,
+                Description = String.Empty, // future A.I. implementation will further process and fill in this description
+                Tags = new List<string>(), // future A.I. implementation will further process and fill in these tags
+                TagCount = props.TagCount,
+                BlobType = props.BlobType,
+                ETag = props.ETag.ToString().Trim('\"'),
+                LastAccessed = props.LastAccessed,
+                LastModified = props.LastModified,
+                ExpiresOn = props.ExpiresOn,
+                ContentType = props.ContentType,
+                ContentLength = props.ContentLength,
+                ContentLanguage = props.ContentLanguage,
+                ContentEncoding = props.ContentEncoding,
+                ContentDisposition = props.ContentDisposition,
+                CopyId = props.CopyId,
+                CopyStatus = props.CopyStatus,
+                CopyProgress = props.CopyProgress,
+                CopySourceUrl = props.CopySource?.ToString() ?? String.Empty,
+                CopyCompletedOn = props.CopyCompletedOn,
+                IsLatestVersion = props.IsLatestVersion,
+                VersionId = props.VersionId,
+            };  
         }
 
         public static string Serialize<T>(T target) => JsonSerializer.Serialize(Validate.Object(target), _options);
