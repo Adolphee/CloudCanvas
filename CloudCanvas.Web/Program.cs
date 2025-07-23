@@ -3,6 +3,8 @@ using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.Interfaces;
 using CloudCanvas.Shared.Services;
 using CloudCanvas.Shared.Utilities;
+using Microsoft.Azure.Cosmos;
+using System.Collections;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +16,21 @@ builder.Services.AddSingleton(bsc =>
     Validate.StringValue(nameof(blobStorageConnectionString), blobStorageConnectionString);
     return new BlobServiceClient(blobStorageConnectionString);
 });
+
+builder.Services.AddTransient<CosmosClientWrapper>();
+builder.Services.AddSingleton(cc =>
+{
+    var CosmosConnString = Environment.GetEnvironmentVariable(Secrets.MTSTRG);
+    Validate.StringValue(nameof(CosmosConnString), CosmosConnString);
+    return new CosmosClient(CosmosConnString, new CosmosClientOptions
+    {
+        SerializerOptions = new CosmosSerializationOptions
+        {
+            PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
+        }
+    });
+});
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

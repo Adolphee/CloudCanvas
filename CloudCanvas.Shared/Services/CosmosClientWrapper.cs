@@ -55,7 +55,9 @@ namespace CloudCanvas.Shared.Services
             return result;
         }
 
-        public async Task<IEnumerable<BlobMetaDTO>> ListBlobsAsync(string containerName)
+
+
+        public async Task<List<BlobMetaDTO>> ListBlobsAsync(string containerName)
         {
             var con = GetContainer(containerName);
             var items = con.GetItemQueryIterator<BlobMetaDTO>(new QueryDefinition("Select * from c"));
@@ -68,12 +70,29 @@ namespace CloudCanvas.Shared.Services
             return res;
         }
 
-        public async Task<bool> DeleteBlob(BlobMetaDTO meta, string containerName)
+        public async Task<bool> DeleteBlobAsync(BlobMetaDTO meta, string containerName)
         {
             Validate.StringValue(nameof(containerName), containerName);
             var con = GetContainer(containerName);
-            await con.DeleteItemAsync<BlobMetaDTO>(meta.Id, new PartitionKey(meta.UserId));
-            return false;
+            var result = await con.DeleteItemAsync<BlobMetaDTO>(meta.Id, new PartitionKey(meta.UserId));
+            return result == null;
+        }
+
+        public async Task<BlobMetaDTO> SingleAsync(string documentId, string userId, string containerName)
+        {
+            Validate.StringValue(nameof(containerName), containerName);
+            Validate.StringValue(nameof(userId), userId);
+            Validate.StringValue(nameof(documentId), documentId);
+            var con = GetContainer(containerName);
+            var blob = await con.ReadItemAsync<BlobMetaDTO>(documentId, new PartitionKey(userId));
+            if (blob == null) throw new CosmosDocumentNotFoundException
+            {
+                ContainerName = containerName,
+                DocumentId = documentId,
+                UserId = userId
+            };
+
+            return blob;
         }
     }
 }

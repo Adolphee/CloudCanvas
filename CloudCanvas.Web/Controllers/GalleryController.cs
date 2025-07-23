@@ -3,6 +3,7 @@ using CloudCanvas.Shared.Services;
 using CloudCanvas.Web.Models;
 using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.Interfaces;
+using CloudCanvas.Shared.DTOs;
 
 namespace CloudCanvas.Web.Controllers
 {
@@ -10,20 +11,20 @@ namespace CloudCanvas.Web.Controllers
     public class GalleryController : Controller
     {
         private readonly ILogger<GalleryController> _logger;
-        private readonly IBlobStorageService _service;
-        public List<string> ImageLinks { get; set; } = new List<string>();
+        private readonly ICosmosClientWrapper _cosmos;
+        public List<BlobMetaDTO> blobsMetadataList { get; set; } = new();
 
-        public GalleryController(ILogger<GalleryController> logger, BlobStorageService service)
+        public GalleryController(ILogger<GalleryController> logger, CosmosClientWrapper cosmos)
         {
             _logger = logger;
-            _service = service;
+            _cosmos = cosmos;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            ImageLinks = await _service.GetBlobUrlsAsync(BlobStorage.Containers.Uploads);
-            return View(nameof(Index), new GalleryViewModel { ImageLinks = ImageLinks });
+            blobsMetadataList = await _cosmos.ListBlobsAsync(CloudCosmos.Containers.BlobMeta);
+            return View(nameof(Index), new GalleryViewModel { Images = blobsMetadataList });
         }
 
         [HttpGet("gallery/error")]
