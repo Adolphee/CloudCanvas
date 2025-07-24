@@ -24,13 +24,9 @@ namespace CloudCanvas.Shared.Utilities
         /// <param name="props">The properties of the blob, including metadata, content details, and versioning information.</param>
         /// <returns>A <see cref="BlobMetaDTO"/> object containing metadata and properties of the blob, such as its URL, 
         /// original file name, content details, and other relevant attributes.</returns>
-        public static BlobMetaDTO FromBlobProperties(string originalFileName, string blobUrl, BlobProperties props)
+        public static BlobMetaDTO MetaFromBlobProperties(string originalFileName, string blobUrl, BlobProperties props)
         {
-            if(String.IsNullOrEmpty(originalFileName) || String.IsNullOrEmpty(blobUrl))
-            {
-                throw new CCSerializationException($"Missing {nameof(originalFileName)} and/or {nameof(blobUrl)}. Unable to link metadata to blob.");
-            }
-
+            Validate.StringValue(nameof(originalFileName), originalFileName, $"Missing {nameof(originalFileName)} and/or {nameof(blobUrl)}. Unable to link metadata to blob.");
             return new BlobMetaDTO
             {
                 UserId = Guid.NewGuid().ToString(), // This is just a placeholder for when I introduce auth
@@ -65,7 +61,7 @@ namespace CloudCanvas.Shared.Utilities
         }
 
         public static string Serialize<T>(T target) => JsonSerializer.Serialize(Validate.Object(target), _options);
-        public static T FromBinaryData<T>(BinaryData blobMetadataDto) => Deserialize<T>(blobMetadataDto.ToString());
+        public static T MetaFromBinaryData<T>(BinaryData blobMetadataDto) => Deserialize<T>(blobMetadataDto.ToString());
         
         /// <summary>
         /// Tries to deserialize a structured string into an object of a given type.

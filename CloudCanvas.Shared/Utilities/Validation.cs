@@ -16,8 +16,8 @@ namespace CloudCanvas.Shared.Utilities
     {
         public static string StringValue(string paramName, string? paramValue, string message = "")
         {
-            if(String.IsNullOrEmpty(paramValue))
-            throw new InvalidArgumentException(String.IsNullOrWhiteSpace(message)? $"Argument ({paramName}) detected with Invalid value ''.": message);
+            if(String.IsNullOrWhiteSpace(paramValue))
+            throw new InvalidArgumentException(String.IsNullOrWhiteSpace(message)?$"Argument ({paramName}) detected with Invalid value ''.": message);
             return paramValue;
         }
 
@@ -58,7 +58,7 @@ namespace CloudCanvas.Shared.Utilities
                 throw new ArgumentOutOfRangeException($"Argument({paramName}): value must be between {min} and {max}. Provided instead: {paramValue}");
             return paramValue;
         }
-        public static int SBMessageSize(ServiceBusReceivedMessage message, int maxMessageLength, string errorMessage = "")
+        public static int SBMessageSize(ServiceBusReceivedMessage message, int maxMessageLength = 16384, string errorMessage = "")
         {
             int messageLength = message.Body.ToArray().Length;
             if (messageLength > maxMessageLength)                                           // Validate message size

@@ -49,7 +49,7 @@ public class CreateThumbnail(ILogger<CreateThumbnail> logger, BlobStorageService
         const string thumbnails = BlobStorage.Containers.Thumbnails;
         const string uploads = BlobStorage.Containers.Uploads;
         var size = (ThumbnailSize) incoming.ApplicationProperties[ServiceBus.Props.ThumbnailSize];
-        var metadata = CCSerializer.FromBinaryData<BlobMetaDTO>(incoming.Body);
+        var metadata = CCSerializer.MetaFromBinaryData<BlobMetaDTO>(incoming.Body);
         // Add thumbnail related metadata
         metadata.ProcessingStage = (int) BlobProcessingStage.CreateThumbnail;
         metadata.Thumbnails.Add(size, metadata.Url);

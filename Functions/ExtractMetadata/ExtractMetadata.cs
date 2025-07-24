@@ -31,7 +31,7 @@ public class ExtractMetadata(ILogger<ExtractMetadata> logger, BlobStorageService
         const string uploads = BlobStorage.Containers.Uploads;
         var bcClient = await _blobSerivce.GetOrCreateContainerClientAsync(uploads);
         var blob = bcClient.GetBlobClient(name); // There is already validation on name etc from the SDK
-        BlobMetaDTO metadata = CCSerializer.FromBlobProperties(name, blob.Uri.ToString(), blob.GetProperties());
+        BlobMetaDTO metadata = CCSerializer.MetaFromBlobProperties(name, blob.Uri.ToString(), blob.GetProperties());
         metadata.ContainerName = BlobStorage.Containers.Uploads;
         metadata.Name = name;
         metadata.ProcessingStage = (int) BlobProcessingStage.ExtractMetadata;
