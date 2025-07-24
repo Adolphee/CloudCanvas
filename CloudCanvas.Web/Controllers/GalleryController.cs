@@ -11,20 +11,26 @@ namespace CloudCanvas.Web.Controllers
     public class GalleryController : Controller
     {
         private readonly ILogger<GalleryController> _logger;
-        private readonly ICosmosClientWrapper _cosmos;
-        public List<BlobMetaDTO> blobsMetadataList { get; set; } = new();
+        private readonly IBlobStorageService _bservice;
+        public List<BlobMetaDTO> BlobsMetadataList { get; set; } = new();
+        public List<string> BlobUrls { get; set; } = new();
 
-        public GalleryController(ILogger<GalleryController> logger, CosmosClientWrapper cosmos)
+        public GalleryController(ILogger<GalleryController> logger, BlobStorageService bservice)
         {
             _logger = logger;
-            _cosmos = cosmos;
+            _bservice = bservice;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            blobsMetadataList = await _cosmos.ListBlobsAsync(CloudCosmos.Containers.BlobMeta);
-            return View(nameof(Index), new GalleryViewModel { Images = blobsMetadataList });
+            _logger.LogInformation("[GET] Processing request: Getting blob urls from {service}...", nameof(BlobStorageService));
+            BlobUrls = await _bservice.GetBlobUrlsAsync(BlobStorage.Containers.Uploads);
+            _logger.LogInformation("[GET] Succesfully obtained blob urls from {service}...", nameof(BlobStorageService));
+            return View(nameof(Index), new GalleryViewModel { 
+                BlobUrls = BlobUrls,
+                BlobsMetadata = BlobsMetadataList
+            });
         }
 
         [HttpGet("gallery/error")]
