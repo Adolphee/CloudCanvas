@@ -5,7 +5,7 @@ on:
       - main
     paths:
       - 'Functions/CreateThumbnail/**'
-      - '.github\workflows\create-thumbnail-deploy.yml'
+      - '.github/workflows/create-thumbnail-deploy.yml'
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -16,29 +16,30 @@ jobs:
         uses: 'actions/setup-dotnet@v4'
         with:
           dotnet-version: '8.0.x'
-      - name: 'Cache or Download'
+      - name: 'Cache or Download Nuget Packages'
         id: cache-nuget-packages
         uses: actions/cache@v4
         with:
           path: '~/.nuget/packages'
           key: nuget-${{ runner.os }}-${{ hashFiles('**/**.csproj') }}
           restore-keys: |
-            nuget-${{ runner.os }},
+            nuget-${{ runner.os }}
             nuget-
-      - name: 'Check if cache was restored'
+      - name: 'Check if NuGet Cache was restored'
         if: steps.cache-nuget-packages.outputs.cache-hit == true
         run: echo 'Cache hit! Copying Cache & skipping restore.'
       - name: 'Restore Dependencies'
-        run: 'dotnet restore Functions/CreateThumbnail/CreateThumbnail.csproj'
-      - name: 'Build the project'
+        run: dotnet restore Functions/CreateThumbnail/CreateThumbnail.csproj
+      - name: 'Build'
         run: dotnet build Functions/CreateThumbnail/CreateThumbnail.csproj --configuration release --no-restore
-      - name: 'Publish artifacts'
+      - name: 'Publish'
         run: dotnet publish Functions/CreateThumbnail/CreateThumbnail.csproj --configuration release --output ./publish
       - name: 'Deploy to Azure Functions App'
-        uses: Azure/functions-action@v1
+        uses: azure/functions-action@v1
         with:
           app-name: ${{ secrets.APP_NAME_C }}
           publish-profile: ${{ secrets.PP_C }}
+          package: ./publish
 
 
 

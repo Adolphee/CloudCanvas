@@ -57,11 +57,11 @@ namespace CloudCanvas.Shared.Services
 
 
 
-        public async Task<List<BlobMetaDTO>> ListBlobsAsync(string containerName)
+        public async Task<List<T>> ListBlobsAsync<T>(string containerName) where T: CosmosDocumentBase
         {
             var con = GetContainer(containerName);
-            var items = con.GetItemQueryIterator<BlobMetaDTO>(new QueryDefinition("Select * from c"));
-            var res = new List<BlobMetaDTO>();
+            var items = con.GetItemQueryIterator<T>(new QueryDefinition("Select * from c"));
+            var res = new List<T>();
             while (items.HasMoreResults)
             {
                 var resItems = await items.ReadNextAsync();

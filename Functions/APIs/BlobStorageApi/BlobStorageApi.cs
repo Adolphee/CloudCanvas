@@ -27,7 +27,7 @@ public class BlobStorageApi
     public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get")] HttpRequest req)
     {
         _logger.LogInformation("C# HTTP trigger function processed a request.");
-        var res = await _cosmos.ListBlobsAsync(CloudCosmos.Containers.BlobMeta);
+        var res = await _cosmos.ListBlobsAsync<GalleryItemDTO>(CloudCosmos.Containers.BlobMeta);
         return new OkObjectResult(res);
     }
 
@@ -38,7 +38,7 @@ public class BlobStorageApi
         var payload = req.Query["image"].ToString();
         try
         {
-            var meta = CCSerializer.Deserialize<BlobMetaDTO>(payload); // Validation behind the scenes
+            var meta = CCSerializer.Deserialize<GalleryItemDTO>(payload); // Validation behind the scenes
             var res = await _cosmos.SaveMetadataAsync(meta, CloudCosmos.Containers.BlobMeta);
             return new OkObjectResult(res);
         }

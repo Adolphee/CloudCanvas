@@ -36,7 +36,11 @@ namespace CloudCanvas.Shared.DTOs
         public BlobType BlobType { get; set; }
         public string? ContentType { get; set; }
         public long TagCount { get; set; }
+        public long ContentLength { get; set; }
+        public string? ContentEncoding { get; set; }
+        public string? ContentLanguage { get; set; }
 
+        public bool HasLegalHold { get; internal set; }
         public IDictionary<string, string>? Metadata { get; set; } // any additional/custom metadata
         public DateTimeOffset CopyCompletedOn { get; set; } = new();
         public string? CopyStatusDescription { get; set; }
@@ -46,11 +50,8 @@ namespace CloudCanvas.Shared.DTOs
         public CopyStatus? CopyStatus { get; set; }
         public bool IsIncrementalCopy { get; set; }
         public string? DestinationSnapshot { get; set; }
-        public long ContentLength { get; set; }
         public string? ETag { get; set; }
-        public string? ContentEncoding { get; set; }
         public string? ContentDisposition { get; set; }
-        public string? ContentLanguage { get; set; }
         public string? CacheControl { get; set; }
         public long BlobSequenceNumber { get; set; }
         public string? AcceptRanges { get; set; }
@@ -68,7 +69,6 @@ namespace CloudCanvas.Shared.DTOs
         public bool IsSealed { get; set; }
         public RehydratePriority RehydratePriority { get; set; }
         public DateTimeOffset LastAccessed { get; set; }
-        public bool HasLegalHold { get; internal set; }
 
     }
 }

@@ -35,7 +35,7 @@ namespace CloudCanvas.Shared.Interfaces
         /// <returns>An <see cref="Container"/> The specified container. Returns an empty collection if the container is empty or does not exist.</returns>
         Task<bool> DeleteBlobAsync(BlobMetaDTO metaDTO, string containerName = CloudCosmos.Containers.BlobMeta);
 
-        Task<List<BlobMetaDTO>> ListBlobsAsync(string containerName);
+        Task<List<T>> ListBlobsAsync<T>(string containerName) where T: CosmosDocumentBase;
 
         Task<BlobMetaDTO> SingleAsync(string documentId, string userId, string containerName = CloudCosmos.Containers.BlobMeta);
     }

@@ -16,8 +16,8 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-      - name: 'Cache NuGet Packages'
-        id: nuget-cache
+      - name: 'Cache or Download Nuget Packages'
+        id: cache-nuget-packages
         uses: actions/cache@v4
         with:
           path: '~/.nuget/packages'
@@ -25,10 +25,10 @@ jobs:
           restore-keys: |
             nuget-${{ runner.os }}-
             nuget-
-      - name: 'Check if Nuget'
-        if: steps.nuget-cache.outputs.cache-hit == false
+      - name: 'Check if NuGet Cache was restored'
+        if: steps.cache-nuget-packages.outputs.cache-hit == false
         run: echo "No cache hit — restoring packages from NuGet.org"
-      - name: 'Restore Nuget Packages'
+      - name: 'Restore Dependencies'
         run: dotnet restore Functions/PersistMetadata/PersistMetadata.csproj --configuraton Release
       - name: 'Build'
         run: dotnet build Functions/PersistMetadata/PersistMetadata.csproj --configuration Release --no-restore

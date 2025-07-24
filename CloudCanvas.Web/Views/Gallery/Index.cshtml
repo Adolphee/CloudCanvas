@@ -51,24 +51,14 @@
     <div id="GalleryInventory" class="d-flex flex-wrap gap-3">
         @for (var i = 0; i < Model.BlobUrls.Count(); i++)
         {
-            <div class="card" style="width: 18rem;">
+            <div id="card-@i" class="card" style="width: 18rem;">
                 <img src="@Model.BlobUrls[i]" class="d-block w-100" style="height: 100px;" alt="...">
                 <div class="card-body">
-                    <h6 class="card-title">Image Title @i goes here.</h6>
-                    <p class="card-text">Some quick example text.</p>
+                    <h6 id="card-@i-title" class="card-title">Image Title @i goes here.</h6>
+                    <p id="card-@i-description" class="card-text">Some quick example text.</p>
                 </div>
-                <div class="card-footer">Anonymous User</div>
+                <div id="card-@i-footer" class="card-footer">Anonymous User</div>
             </div>
         }
-        <!-- @foreach(var image in Model.BlobsMetadata){
-            <div class="card" style="width: 18rem;">
-                <img src="@image.Url" class="d-block w-100" style="height: 100px;" alt="...">
-                <div class="card-body">
-                    <h6 class="card-title">@image.Name</h6>
-                    <p class="card-text">@image.CreatedOn</p>
-                    <p class="card-text">@(image.Description ?? "Some quick example text.")</p>
-                </div>
-            </div>
-        } -->
     </div>
 </div>

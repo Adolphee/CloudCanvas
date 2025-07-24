@@ -29,7 +29,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistMetadata", "Function
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreateThumbnail", "Functions\CreateThumbnail\CreateThumbnail.csproj", "{4F00C9DF-064E-9F67-D004-03E13EEEF8BE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlobStorageApi", "Functions\APIs\BlobStorageApi\BlobStorageApi.csproj", "{B88AF99E-7513-44F5-8B9C-59E9C4DA8746}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlobsMetadataAPI", "Functions\APIs\BlobStorageApi\BlobsMetadataAPI.csproj", "{B88AF99E-7513-44F5-8B9C-59E9C4DA8746}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
