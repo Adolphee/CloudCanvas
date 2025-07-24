@@ -15,10 +15,10 @@ This board tracks each major AZ-204 exam objective as a CloudCanvas project feat
 - [x] Use AppSettings for Config
 - [x] Process Image in Azure Function (Blob Trigger)
 - [x] Add output container & metadata logging
-- [~] Save metadata to Cosmos DB or Azure SQL
+- [x] Save metadata to Cosmos DB or Azure SQL
 - [ ] Add App Insights + Logging
 - [ ] Secure App with Azure AD (MSAL)
-- [~] Set up GitHub Actions CI/CD
+- [x] Set up GitHub Actions CI/CD
 - [ ] Use Azure Key Vault for secrets
 - [ ] Implement retry & error handling in Functions
 - [x] Add Queue-triggered processing
@@ -28,7 +28,7 @@ This board tracks each major AZ-204 exam objective as a CloudCanvas project feat
 
 ### 🧪 Practice & Testing
 - [ ] Timed exam simulation
-- [ ] Troubleshoot app in production (emulate real bug)
+- [x] Troubleshoot app in production (emulate real bug)
 - [ ] Build monitoring dashboard in Azure Portal
 
 ---
