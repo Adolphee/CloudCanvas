@@ -18,7 +18,7 @@ jobs:
           dotnet-version: '8.0.x'
       - name: 'Cache or Download'
         id: cache-nuget-packages
-        uses: actions/cache@4
+        uses: actions/cache@v4
         with:
           path: '~/.nuget/packages'
           key: nuget-${{ runner.os }}-${{ hashFiles('**/**.csproj') }}
