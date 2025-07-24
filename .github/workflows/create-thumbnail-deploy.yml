@@ -1,4 +1,4 @@
-name: Deploy CreateThumbnail Function App
+name: Build and Deploy CreateThumbnail Function
 on:
   push:
     branches: 
