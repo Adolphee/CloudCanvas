@@ -5,8 +5,6 @@ using CloudCanvas.Shared.Services;
 using CloudCanvas.Shared.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Amqp.Framing;
-using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
@@ -31,14 +29,16 @@ public class BlobStorageApi
         return new OkObjectResult(res);
     }
 
-    [Function("CreateBlob")]
+    [Function("CreateBlobMetadata")]
     public async Task<IActionResult> Post([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequest req)
     {
         _logger.LogInformation("C# HTTP trigger function processed a request.");
-        var payload = req.Query["image"].ToString();
+        using var reader = new StreamReader(req.Body);
+        var payload = await reader.ReadToEndAsync();
+
         try
         {
-            var meta = CCSerializer.Deserialize<GalleryItemDTO>(payload); // Validation behind the scenes
+            var meta = CCSerializer.Deserialize<BlobMetaDTO>(payload); // Validation behind the scenes
             var res = await _cosmos.SaveMetadataAsync(meta, CloudCosmos.Containers.BlobMeta);
             return new OkObjectResult(res);
         }

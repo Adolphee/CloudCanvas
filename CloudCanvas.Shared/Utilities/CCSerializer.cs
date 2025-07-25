@@ -82,7 +82,7 @@ namespace CloudCanvas.Shared.Utilities
             }
             catch (InvalidArgumentException e)
             {
-                throw new CCSerializationException($"Invalid object '{blobMetadataDto}' provided.", e);
+                throw new CCSerializationException($"Invalid argument '{nameof(blobMetadataDto)}' provided with value: '{blobMetadataDto}'.", e);
             }
         }
     }
