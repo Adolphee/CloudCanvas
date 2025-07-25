@@ -34,7 +34,7 @@ namespace CloudCanvas.Web.Controllers
             // Functions will take care of any further updates, while for now the user gets the bare minimum
             meta.Name = userUpload.File.FileName;
             meta.ProcessingStage = (int) BlobProcessingStage.UploadSuccessful;
-            await _cosmos.SaveMetadataAsync((GalleryItemDTO) meta, CloudCosmos.Containers.BlobMeta);
+            await _cosmos.SaveMetadataAsync(meta, CloudCosmos.Containers.BlobMeta);
             // 3. redirect to gallery
             return RedirectToAction("Index", "Gallery");
         }

@@ -49,8 +49,10 @@ public class PersistMetadata(ILogger<PersistMetadata> logger, ServiceBusAdapter 
 
         try
         {
+            _logger.LogInformation("[{correlationId}] Validating payload...", message.CorrelationId);
             BlobMetaDTO metadata = CCSerializer.MetaFromBinaryData<BlobMetaDTO>(message.Body);      // Validate & Deserialize body
             metadata.ProcessingStage = (int) BlobProcessingStage.UpdateMetadata;
+            _logger.LogInformation("[{correlationId}] Updating metadata for document '{documentId}'...", message.CorrelationId, metadata.Id);
             metadata = await _cosmos.SaveMetadataAsync(metadata, CloudCosmos.Containers.BlobMeta);      // Push metadata to CosmosDB
             var response = MessageFactory.BuildFor(metadata)                                    // Manual dispatch required for full control (dotnet-isolated)
                 .WithSubject("Metadata Persisted - file ready for further processing.")         // Add Subject
