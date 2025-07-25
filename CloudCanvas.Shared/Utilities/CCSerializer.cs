@@ -3,6 +3,7 @@ using CloudCanvas.Shared.DTOs;
 using System.Text.Json;
 using CloudCanvas.Shared.Exceptions;
 using CloudCanvas.Shared.Enums;
+using CloudCanvas.Shared.Constants;
 
 namespace CloudCanvas.Shared.Utilities
 {
@@ -33,6 +34,7 @@ namespace CloudCanvas.Shared.Utilities
                 Url = blobUrl,
                 OriginalFileName = originalFileName,
                 CreatedOn = props.CreatedOn,
+                ContainerName = BlobStorage.Containers.Uploads,
                 ProcessingStage = (int) BlobProcessingStage.ExtractMetadata,
                 Metadata = props.Metadata,
                 Thumbnails = new Dictionary<ThumbnailSize, string>(),

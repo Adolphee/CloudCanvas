@@ -8,6 +8,7 @@ namespace CloudCanvas.Shared.Enums
 {
     public enum BlobProcessingStage
     {
+        UploadSuccessful,
         ExtractMetadata,
         CreateThumbnail,
         UpdateMetadata,

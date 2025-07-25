@@ -4,22 +4,17 @@ using CloudCanvas.Web.Models;
 using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.Interfaces;
 using CloudCanvas.Shared.DTOs;
+using CloudCanvas.Shared.Utilities;
 
 namespace CloudCanvas.Web.Controllers
 {
     [Route("[controller]")]
-    public class GalleryController : Controller
+    public class GalleryController(ILogger<GalleryController> logger, BlobStorageService bservice) : Controller
     {
-        private readonly ILogger<GalleryController> _logger;
-        private readonly IBlobStorageService _bservice;
-        public List<BlobMetaDTO> BlobsMetadataList { get; set; } = new();
+        private readonly ILogger<GalleryController> _logger = logger;
+        private readonly IBlobStorageService _bservice = bservice;
+        public List<GalleryItemDTO> BlobsMetadataList { get; set; } = new();
         public List<string> BlobUrls { get; set; } = new();
-
-        public GalleryController(ILogger<GalleryController> logger, BlobStorageService bservice)
-        {
-            _logger = logger;
-            _bservice = bservice;
-        }
 
         [HttpGet]
         public async Task<IActionResult> Index()

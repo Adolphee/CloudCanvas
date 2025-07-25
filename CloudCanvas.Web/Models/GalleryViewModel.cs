@@ -6,7 +6,7 @@ namespace CloudCanvas.Web.Models
     public class GalleryViewModel
     {
         [BindProperty]
-        public required List<BlobMetaDTO> BlobsMetadata { get; set; }
+        public required List<GalleryItemDTO> BlobsMetadata { get; set; }
         public required List<string> BlobUrls { get; set; }
     }
 }

@@ -27,7 +27,7 @@ namespace CloudCanvas.Shared.Utilities
             var context = new ValidationContext(validationTarget);
             var results = new List<ValidationResult>();
             bool isValid = Validator.TryValidateObject(validationTarget, context, results, true);
-            if (!isValid) throw new InvalidArgumentException($"Argument of type {typeof(T).Name} did not pass validation. Reasons: {results.ToString()}");
+            if (!isValid) throw new InvalidArgumentException($"Argument of type {typeof(T).Name} did not pass validation. Reasons: {results.ToArray().ToString()}");
             return validationTarget;
         }
 

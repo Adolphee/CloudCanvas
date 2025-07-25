@@ -4,6 +4,7 @@ using CloudCanvas.Shared.Interfaces;
 using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.Exceptions;
 using CloudCanvas.Shared.Utilities;
+using CloudCanvas.Shared.DTOs;
 
 namespace CloudCanvas.Shared.Services
 {
@@ -90,7 +91,7 @@ namespace CloudCanvas.Shared.Services
        /// if not specified. Cannot be null or empty.</param>
        /// <returns>A task that represents the asynchronous upload operation.</returns>
        /// <exception cref="BadImageFormatException">Thrown if <paramref name="fileStream"/> is null or cannot be read.</exception>
-        public async Task UploadAsync(Stream fileStream, string filename, string containerName = BlobStorage.Containers.Uploads)
+        public async Task<BlobMetaDTO> UploadAsync(Stream fileStream, string filename, string containerName = BlobStorage.Containers.Uploads)
         {
             Validate.StringValue(nameof(filename), filename);
             Validate.StringValue(nameof(containerName), containerName);
@@ -102,6 +103,8 @@ namespace CloudCanvas.Shared.Services
                     var client = await GetOrCreateContainerClientAsync(containerName);
                     var blob = client.GetBlobClient(filename);
                     await blob.UploadAsync(fileStream, true);
+                    BlobMetaDTO dto = CCSerializer.MetaFromBlobProperties(filename, blob.Uri.ToString(), blob.GetProperties());
+                    return dto;
                 }
                 catch (Exception e) 
                 {

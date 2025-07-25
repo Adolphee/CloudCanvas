@@ -1,4 +1,5 @@
 using Azure.Storage.Blobs;
+using CloudCanvas.Shared.DTOs;
 
 namespace CloudCanvas.Shared.Interfaces;
 
@@ -8,7 +9,7 @@ namespace CloudCanvas.Shared.Interfaces;
 /// </summary>
 public interface IBlobStorageService
 {
-    public Task UploadAsync(Stream fileStream, string filename, string containerName);
+    public Task<BlobMetaDTO> UploadAsync(Stream fileStream, string filename, string containerName);
     public Task<List<string>> GetBlobUrlsAsync(string containerName);
     public Task<BlobContainerClient> GetOrCreateContainerClientAsync(string containerName, bool createIfNotExists = true);
 }

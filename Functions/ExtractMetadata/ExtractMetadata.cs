@@ -8,11 +8,12 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 namespace CloudCanvas.Functions;
 
-public class ExtractMetadata(ILogger<ExtractMetadata> logger, BlobStorageService blobSerivce, ServiceBusAdapter service)
+public class ExtractMetadata(ILogger<ExtractMetadata> logger, BlobStorageService blobSerivce, ServiceBusAdapter service, CosmosClientWrapper cosmos)
 {
     private readonly ILogger<ExtractMetadata> _logger = logger;
     private readonly IBlobStorageService _blobSerivce = blobSerivce;
     private readonly IServiceBusAdapter _sbAdapter = service;
+    private readonly ICosmosClientWrapper _cosmos = cosmos;
 
     /// <summary>
     /// Processes a blob triggered by an upload event, extracts metadata, and sends a message to a Service Bus topic.
@@ -31,13 +32,15 @@ public class ExtractMetadata(ILogger<ExtractMetadata> logger, BlobStorageService
         const string uploads = BlobStorage.Containers.Uploads;
         var bcClient = await _blobSerivce.GetOrCreateContainerClientAsync(uploads);
         var blob = bcClient.GetBlobClient(name); // There is already validation on name etc from the SDK
+        
         BlobMetaDTO metadata = CCSerializer.MetaFromBlobProperties(name, blob.Uri.ToString(), blob.GetProperties());
-        metadata.ContainerName = BlobStorage.Containers.Uploads;
         metadata.Name = name;
+        metadata.ContainerName = BlobStorage.Containers.Uploads;
         metadata.ProcessingStage = (int) BlobProcessingStage.ExtractMetadata;
         metadata.Project = "CloudCanvas"; // TODO: This should be dynamic, based on the blob name or metadata
+        metadata = await _cosmos.SaveMetadataAsync(metadata, CloudCosmos.Containers.BlobMeta);
         _logger.LogInformation("[OK] Extracted Metadata from blob: {name}. Sending Message...", name);
-
+        
         var message = MessageFactory.BuildFor(metadata) // Manual dispatch required for full control (dotnet-isolated)
             .WithSubject($"{ServiceBus.Status.MetadataExctracted} - file ready for processing.")    // Add Subject
             .AddProperty(ServiceBus.Props.EventType, ServiceBus.Subs.ExtractMetaData) // So that it makes it through subscription filters
