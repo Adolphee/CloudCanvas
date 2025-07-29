@@ -14,11 +14,11 @@ namespace CloudCanvas.Shared.Utilities
 {
     public static class Validate
     {
-        public static string StringValue(string paramName, string? paramValue, string message = "")
+        public static bool StringValue(string paramName, string? paramValue, string message = "")
         {
             if(String.IsNullOrWhiteSpace(paramValue))
             throw new InvalidArgumentException(String.IsNullOrWhiteSpace(message)?$"Argument ({paramName}) detected with Invalid value ''.": message);
-            return paramValue;
+            return true;
         }
 
         public static T Object<T>(T? validationTarget)

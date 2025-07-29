@@ -8,7 +8,8 @@ namespace CloudCanvas.Shared.DTOs
         [Required, MaxLength(100)]
         public string Name { get; set; } = default!;
         [Required, MaxLength(100)]
-        public string OriginalFileName { get; set; } = default!;
+        public string OriginalFilename { get; set; } = default!;
+        public string DisplayName { get; set; } = default!;
         [Required, MaxLength(255)]
         public string Url { get; set; } = default!;
         [Required, Range(0, 4)]

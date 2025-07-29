@@ -33,7 +33,8 @@ namespace CloudCanvas.Shared.Services
 
         public IServiceBusMessageBuilder WithSubject(string subject)
         {
-            _message.Subject = Validate.StringValue(nameof(subject),subject);
+            if(Validate.StringValue(nameof(subject), subject))
+                _message.Subject = subject;
             return this;
         }
 
