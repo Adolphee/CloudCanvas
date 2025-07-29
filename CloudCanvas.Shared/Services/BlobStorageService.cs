@@ -93,14 +93,14 @@ namespace CloudCanvas.Shared.Services
        /// if not specified. Cannot be null or empty.</param>
        /// <returns>A task that represents the asynchronous upload operation.</returns>
        /// <exception cref="BadImageFormatException">Thrown if <paramref name="fileStream"/> is null or cannot be read.</exception>
-        public async Task<BlobMetaDTO> UploadAsync(Stream fileStream, string filename, string containerName = BlobStorage.Containers.Uploads)
+        public async Task<BlobMetaDTO> UploadAsync(Stream fileStream, string filename, string containerName = BlobStorage.Containers.Uploads, string customIdentifier = null!)
         {
             Validate.StringValue(nameof(filename), filename);
             Validate.StringValue(nameof(containerName), containerName);
             if (fileStream != null)
             {
                 fileStream.Position = 0;
-                var identifier = Guid.NewGuid().ToString();
+                var identifier = !String.IsNullOrWhiteSpace(customIdentifier) ? customIdentifier: Guid.NewGuid().ToString();
                 Dictionary<string, string> meta = new();
                 meta.Add(BlobStorage.Meta.OriginalfileName, filename); // this is to enforce data consistency, convertability between BlobProperties & BlobMetaDTO
                 meta.Add(BlobStorage.Meta.UploadedBy, Guid.NewGuid().ToString()); // Idem dito, these blob metadata are not available OOTB (afaik)
