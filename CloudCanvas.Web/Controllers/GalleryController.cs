@@ -13,18 +13,19 @@ namespace CloudCanvas.Web.Controllers
     {
         private readonly ILogger<GalleryController> _logger = logger;
         private readonly IBlobStorageService _bservice = bservice;
-        public List<GalleryItemDTO> BlobsMetadataList { get; set; } = new();
-        public List<string> BlobUrls { get; set; } = new();
+        // Switched from list of urls to list of DTOs, for immediate metadata retrieval
+        // With this, I won't have to fetch further metadata
+        // -- saves me expensive calls to azure clients later
+        public List<BlobMetaDTO> Blobs { get; set; } = new();
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
             _logger.LogInformation("[GET] Processing request: Getting blob urls from {service}...", nameof(BlobStorageService));
-            BlobUrls = await _bservice.GetBlobUrlsAsync(BlobStorage.Containers.Uploads);
+            Blobs = await _bservice.GetBlobsAsync(BlobStorage.Containers.Uploads);
             _logger.LogInformation("[GET] Succesfully obtained blob urls from {service}...", nameof(BlobStorageService));
             return View(nameof(Index), new GalleryViewModel { 
-                BlobUrls = BlobUrls,
-                BlobsMetadata = BlobsMetadataList
+                Blobs = Blobs
             });
         }
 

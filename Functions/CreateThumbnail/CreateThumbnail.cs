@@ -54,26 +54,26 @@ public class CreateThumbnail(ILogger<CreateThumbnail> logger, BlobStorageService
         metadata.ProcessingStage = (int) BlobProcessingStage.CreateThumbnail;
         metadata.Thumbnails.Add(size, metadata.Url);
         metadata.LastModified = DateTime.UtcNow;
-        _logger.LogInformation("[{correlationId}][START] Creating thumbnail for {fileName} at destination: {thumbnails}/{originalFileName}.", incoming.CorrelationId, metadata.OriginalFileName, thumbnails, metadata.OriginalFileName);
+        _logger.LogInformation("[{correlationId}][START] Creating thumbnail for {fileName} at destination: {thumbnails}/{originalFileName}.", incoming.CorrelationId, metadata.OriginalFilename, thumbnails, metadata.OriginalFilename);
         try
         {
             ///TODO: Implement **better validation** on file type before CloudCanvas v1.0, 
             /// for example, what if this function receives a .pdf file? or a .mp4, .zip etc...
             var bclient = await _blobService.GetOrCreateContainerClientAsync(uploads); // original file blob container
-            var stream = await bclient.GetBlobClient(metadata.OriginalFileName).OpenReadAsync(); // download file
+            var stream = await bclient.GetBlobClient(metadata.OriginalFilename).OpenReadAsync(); // download file
             bclient = await _blobService.GetOrCreateContainerClientAsync(thumbnails); // switch to thumbnails desination container
             using var output = await ImageTool.ResizeAsync(stream, size); // Create thumbnail
-            await _blobService.UploadAsync(output, metadata.OriginalFileName!, thumbnails); //upload the thumbnail to destionation
+            await _blobService.UploadAsync(output, metadata.OriginalFilename!, thumbnails); //upload the thumbnail to destionation
         } catch (Exception e)
         {
-            _logger.LogCritical(e, "[{correlationId}][CRIT] Unable to Create {size} Thumbnail for blob {originalFilename}.\n Message ({messageId}) abandoned.", incoming.CorrelationId, size.ToString(), metadata.OriginalFileName, incoming.MessageId);
+            _logger.LogCritical(e, "[{correlationId}][CRIT] Unable to Create {size} Thumbnail for blob {originalFilename}.\n Message ({messageId}) abandoned.", incoming.CorrelationId, size.ToString(), metadata.OriginalFilename, incoming.MessageId);
             await messageActions.AbandonMessageAsync(incoming);  // Drop the ball & Run away
             throw;
         }
 
-        _logger.LogInformation("[{correlationId}][OK] Created thumbnail for blob '{blobName}' and saved to {thumbnails}/{originalFileName}.", incoming.CorrelationId, metadata.OriginalFileName, thumbnails, metadata.OriginalFileName);
+        _logger.LogInformation("[{correlationId}][OK] Created thumbnail for blob '{blobName}' and saved to {thumbnails}/{originalFileName}.", incoming.CorrelationId, metadata.OriginalFilename, thumbnails, metadata.OriginalFilename);
         var response = MessageFactory.BuildFor(metadata) // Manual dispatch required for full control (dotnet-isolated)
-            .WithSubject($"{ServiceBus.Status.ThumbnailCreated}:{thumbnails}/{metadata.OriginalFileName}.") // Add Subject
+            .WithSubject($"{ServiceBus.Status.ThumbnailCreated}:{thumbnails}/{metadata.OriginalFilename}.") // Add Subject
             .AddProperty(ServiceBus.Props.EventType, ServiceBus.Subs.CreateThumbnail) // So that it makes it through subscription filters
             .AddProperty(ServiceBus.Props.ThumbnailSize, size.ToString()) // Let's make it through even more subscription filters
             .Finalize(incoming.CorrelationId); // Finalize and return the message

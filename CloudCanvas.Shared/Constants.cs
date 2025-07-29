@@ -13,7 +13,14 @@ namespace CloudCanvas.Shared.Constants
     public abstract class BlobStorage
     {
         public const string Self = "AzureBlobStorage";
-        public const string ConnStringName = "AZURE_BSTORAGE";
+
+        public abstract class Meta
+        {
+            public const string Identifier = "identifier";
+            public const string OriginalfileName = "originalFilename";
+            public static string UploadedBy = "uploadedBy";
+            public const string DeletedOn = "deletedOn";
+        }
 
         public abstract class Containers
         {

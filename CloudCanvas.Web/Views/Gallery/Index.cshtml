@@ -2,32 +2,25 @@
 @model GalleryViewModel
 @{
     ViewData["Title"] = "Gallery Page";
-    /*
-    <!-- TODO:
-    1 -- When coming from the UploadController;
-    2 -- Receive the Model of the uploaded file;
-    3 -- Then have it be displayed first in the carousel upon arrival
-    :TODO -->
-    */
 }
 
 <div class="container w-100">
     <div id="GalleryCarousel" class="carousel slide" data-bs-ride="carousel">
         <div id="carouselIndicators" class="carousel-indicators">
-            @for (int i = 0; i < Model.BlobUrls.Count(); i++)
+            @for (int i = 0; i < Model.Blobs.Count(); i++)
             {
                 <button type="button" data-bs-target="#GalleryCarousel" data-bs-slide-to="@i" class=@(i == 0 ? "active" : "")
                     aria-current="true" aria-label="Slide @i"></button>
             }
         </div>
         <div class="carousel-inner">
-            @for (int i = 0; i < Model.BlobUrls.Count(); i++)
+            @for (int i = 0; i < Model.Blobs.Count(); i++)
             {
-                <div class="carousel-item @(i == 0 ? "active" : "")">
-                    <img src="@Model.BlobUrls[i]" class="d-block w-100" style="height: 400px;" alt="...">
+                <div id="@Model.Blobs[i].Name" class="carousel-item @(i == 0 ? "active" : "")">
+                    <img src="@Model.Blobs[i].Url" class="d-block w-100" style="height: 400px;" alt="...">
                     <div class="carousel-caption d-none d-md-block">
-                        <h5>Image Title goes here</h5>
-                        <p>lorem ipsum dolor sit amet...</p>
+                        <h5 class="carousel-title">@(String.IsNullOrWhiteSpace(Model.Blobs[i].OriginalFilename) ? "No Title" : Model.Blobs[i].OriginalFilename)</h5>
+                        <p class="carousel-description">@(String.IsNullOrWhiteSpace(Model.Blobs[i].Description) ? "No Description" : Model.Blobs[i].Description)</p>
                     </div>
                 </div>
             }
@@ -45,10 +38,20 @@
     </div>
 
     <h4>Inventory</h4>
-    <!-- #region  TODO: 
-    1 -- add Metadata overview
-    -->
-    <div id="GalleryInventory" class="d-flex flex-wrap gap-3">Gallery Loading...</div>
+    <!-- TODO: add Metadata overview -->
+    <div id="GalleryInventory" class="d-flex flex-wrap gap-3">
+        @foreach (var blob in Model.Blobs)
+        {
+            <div id="@blob.Name" class="card" style="width: 18rem;">
+                <img src="@blob.Url" class="d-block w-100" style="height: 100px;" alt="Image Loading...">
+                <div class="card-body">
+                    <h6 class="card-title">@(String.IsNullOrWhiteSpace(blob.OriginalFilename) ? "No Title" : blob.OriginalFilename)</h6>
+                    <p class="card-text">@(String.IsNullOrWhiteSpace(blob.Description) ? "No Description": blob.Description)</p>
+                </div>
+                <div class="card-footer">@(String.IsNullOrWhiteSpace(blob.UserId) ? "Anonymous User": blob.UserId)</div>
+            </div>
+        }
+    </div>
 </div>
 
 @section Scripts {

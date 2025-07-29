@@ -1,55 +1,62 @@
 
 var gallery = document.querySelector('#GalleryInventory');
-gallery.textContent = '';
+var carousel = document.querySelector('.carousel-inner');
 
 (async function main() {
     try {
-        const response = await fetch("http://localhost:7071/api/GetBlobs");
+        const response = await fetch("http://localhost:7071/api/photos");
         if (!response.ok) throw new Error(`Error: ${response.status}`);
         const metadata = await response.json();
-        metadata.forEach(card => addCard(card));
+        updateGalleryItems(metadata);
     } catch (error) {
         // TODO: better error handling; alert, prompt for page reload or JS retry
         console.error("Failed to fetch metadata:", error.message);
     }
 })();
 
-function addCard(item) {
-    // I could have pasted HTML here but this slower, 
-    // more boilerplate method is the safest(think of XSS attack)
-    var newCard = document.createElement('div');
-    newCard.classList.add('card');
-    newCard.style = 'width: 18rem;';
+function updateGalleryItems(metadata) {
+    metadata.forEach(metaCard => {
+        var oldCard = gallery.querySelector(`div:has(img[src="${metaCard.url}"])`);
+        var carouselItem = carousel.querySelector(`div:has(img[src="${metaCard.url}"])`);
+        if (oldCard != undefined) {
+            updateCardMetadata(oldCard, metaCard)
+        }
+        if (carouselItem != undefined) {
+            updateCarouselItemMetadata(carouselItem, metaCard);
+        }
+    });
+}
 
-    // Image
-    var img = document.createElement('img');
-    img.src = item.url;
-    img.className = 'd-block w-100';
-    img.style.height = '100px';
+function updateGalleryItemByIdentifier(metadata) {
+    metadata.forEach(metaCard => {
+        var oldCard = gallery.querySelector(`#${metaCard.identifier}`);
+        var carouselItem = carousel.querySelector(`div:has(img[src="${metaCard.url}"])`);
+        if (oldCard != undefined) {
+            updateCardMetadata(oldCard, metaCard)
+        }
+        if (carouselItem != undefined) {
+            updateCarouselItemMetadata(carouselItem, metaCard);
+        }
+    });
+}
 
-    // Body
-    var body = document.createElement('div');
-    body.className = 'card-body';
+function updateCardMetadata(viewCard, cardMeta, withFooter = true) {
+    var title = viewCard.querySelector('.card-title');
+    title.textContent = cardMeta.originalFilename || 'No Title';
 
-    var title = document.createElement('h6');
-    title.className = 'card-title';
-    title.textContent = item.name ?? 'No Title';
+    var description = viewCard.querySelector('.card-text');
+    description.textContent = cardMeta.description || 'No Description';
 
-    var description = document.createElement('p');
-    description.className = 'card-text';
-    description.textContent = item.description ?? 'No Description';
+    if (withFooter) {
+        var footer = viewCard.querySelector('.card-footer');
+        footer.textContent = cardMeta.userId || 'Anonymous User';
+    }
+}
 
-    body.appendChild(title);
-    body.appendChild(description);
+function updateCarouselItemMetadata(viewCard, cardMeta) {
+    var title = viewCard.querySelector('.carousel-title');
+    title.textContent = cardMeta.originalFilename || 'No Title';
 
-    // Footer
-    var footer = document.createElement('div');
-    footer.className = 'card-footer';
-    footer.textContent = item.userId ?? 'Anonymous User';
-
-    // Append everything
-    newCard.appendChild(img);
-    newCard.appendChild(body);
-    newCard.appendChild(footer);
-    gallery.appendChild(newCard);
+    var description = viewCard.querySelector('.carousel-description');
+    description.textContent = cardMeta.description || 'No Description';
 }
