@@ -55,12 +55,10 @@ namespace CloudCanvas.Shared.Services
             return result;
         }
 
-
-
         public async Task<List<T>> ListBlobsAsync<T>(string containerName) where T: CosmosDocumentBase
         {
             var con = GetContainer(containerName);
-            var items = con.GetItemQueryIterator<T>(new QueryDefinition("Select * from c"));
+            var items = con.GetItemQueryIterator<T>(new QueryDefinition("Select * from c where IS_DEFINED(c.deletedOn) AND IS_NULL(c.deletedOn)"));
             var res = new List<T>();
             while (items.HasMoreResults)
             {
@@ -70,21 +68,22 @@ namespace CloudCanvas.Shared.Services
             return res;
         }
 
-        public async Task<bool> DeleteBlobAsync(BlobMetaDTO meta, string containerName)
+        public async Task<bool> DeleteDocumentAsync<T>(T meta, string containerName = CloudCosmos.Containers.BlobMeta) 
+            where T: MetadataDocumentBase
         {
-            Validate.StringValue(nameof(containerName), containerName);
-            var con = GetContainer(containerName);
-            var result = await con.DeleteItemAsync<BlobMetaDTO>(meta.Id, new PartitionKey(meta.UserId));
+            var container = GetContainer(containerName);
+            var result = await container.DeleteItemAsync<BlobMetaDTO>(meta.Id, new PartitionKey(meta.UserId));
             return result == null;
         }
 
-        public async Task<BlobMetaDTO> SingleAsync(string documentId, string userId, string containerName)
+        public async Task<T> SingleAsync<T>(string documentId, string userId, string containerName = CloudCosmos.Containers.BlobMeta)
+            where T: MetadataDocumentBase
         {
             Validate.StringValue(nameof(containerName), containerName);
             Validate.StringValue(nameof(userId), userId);
             Validate.StringValue(nameof(documentId), documentId);
-            var con = GetContainer(containerName);
-            var blob = await con.ReadItemAsync<BlobMetaDTO>(documentId, new PartitionKey(userId));
+            var container = GetContainer(containerName);
+            var blob = await container.ReadItemAsync<T>(documentId, new PartitionKey(userId));
             if (blob == null) throw new CosmosDocumentNotFoundException
             {
                 ContainerName = containerName,

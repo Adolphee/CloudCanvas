@@ -33,10 +33,12 @@ namespace CloudCanvas.Shared.Interfaces
         /// <typeparam name="T">The type of items to retrieve from the container.</typeparam>
         /// <param name="containerName">The name of the container to query. Must not be null or empty.</param>
         /// <returns>An <see cref="Container"/> The specified container. Returns an empty collection if the container is empty or does not exist.</returns>
-        Task<bool> DeleteBlobAsync(BlobMetaDTO metaDTO, string containerName = CloudCosmos.Containers.BlobMeta);
+        Task<bool> DeleteDocumentAsync<T>(T metaDTO, string containerName) where T: MetadataDocumentBase;
+
+        //Task<bool> SoftDeleteItemAsync<T>(T meta, string containerName) where T : MetadataDocumentBase;
 
         Task<List<T>> ListBlobsAsync<T>(string containerName) where T: CosmosDocumentBase;
 
-        Task<BlobMetaDTO> SingleAsync(string documentId, string userId, string containerName = CloudCosmos.Containers.BlobMeta);
+        Task<T> SingleAsync<T>(string documentId, string userId, string containerName) where T: MetadataDocumentBase;
     }
 }

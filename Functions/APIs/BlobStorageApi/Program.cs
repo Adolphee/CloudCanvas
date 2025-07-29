@@ -1,4 +1,6 @@
+using Azure.Storage.Blobs;
 using CloudCanvas.Shared.Constants;
+using CloudCanvas.Shared.Interfaces;
 using CloudCanvas.Shared.Services;
 using CloudCanvas.Shared.Utilities;
 using Microsoft.Azure.Cosmos;
@@ -22,6 +24,14 @@ builder.Services.AddSingleton(cc =>
             PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
         }
     });
+});
+
+builder.Services.AddTransient<BlobStorageService>();
+builder.Services.AddSingleton(bc =>
+{
+    var CosmosConnString = Environment.GetEnvironmentVariable(Secrets.MNSTRG);
+    Validate.StringValue(nameof(CosmosConnString), CosmosConnString);
+    return new BlobServiceClient(CosmosConnString);
 });
 builder.Services
     .AddApplicationInsightsTelemetryWorkerService()

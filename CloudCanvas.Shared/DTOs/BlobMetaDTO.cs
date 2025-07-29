@@ -12,7 +12,7 @@ namespace CloudCanvas.Shared.DTOs
     public class BlobMetaDTO: GalleryItemDTO
     {
         public bool HasLegalHold { get; internal set; }
-        public IDictionary<string, string>? Metadata { get; set; } // any additional/custom metadata
+        public IDictionary<string, string> Metadata { get; set; } = new Dictionary<string, string>(); // any additional/custom metadata
         public DateTimeOffset CopyCompletedOn { get; set; } = new();
         public string? CopyStatusDescription { get; set; }
         public string? CopyId { get; set; }

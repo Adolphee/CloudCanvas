@@ -20,25 +20,37 @@ namespace CloudCanvas.Shared.Utilities
         /// <remarks>This method maps the properties of a blob, as represented by <see
         /// cref="BlobProperties"/>,  to a <see cref="BlobMetaDTO"/> object for further processing or use in the
         /// application.</remarks>
-        /// <param name="originalFileName">The original name of the file before it was uploaded to the blob storage.</param>
+        /// <param name="identifier">The original name of the file before it was uploaded to the blob storage.</param>
         /// <param name="blobUrl">The URL of the blob in the storage system.</param>
         /// <param name="props">The properties of the blob, including metadata, content details, and versioning information.</param>
         /// <returns>A <see cref="BlobMetaDTO"/> object containing metadata and properties of the blob, such as its URL, 
         /// original file name, content details, and other relevant attributes.</returns>
-        public static BlobMetaDTO MetaFromBlobProperties(string originalFileName, string blobUrl, BlobProperties props)
+        public static BlobMetaDTO MetaFromBlobProperties(string identifier, string blobUrl, BlobProperties props)
         {
-            Validate.StringValue(nameof(originalFileName), originalFileName, $"Missing {nameof(originalFileName)} and/or {nameof(blobUrl)}. Unable to link metadata to blob.");
+            Validate.StringValue(nameof(identifier), identifier, $"Missing {nameof(identifier)} and/or {nameof(blobUrl)}. Unable to link metadata to blob.");
+            bool deleted = false;
+            DateTimeOffset result = DateTimeOffset.MinValue;
+                if (props.Metadata.Keys.Contains(BlobStorage.Meta.DeletedOn))
+                {
+                    try
+                    {
+                        deleted = DateTimeOffset.TryParse(props.Metadata[BlobStorage.Meta.DeletedOn], out result);
+                    }
+                    catch (Exception) {}  // swallowing this because it tells us deletedOn wasn't set so we can proceed as planned
+                }
+           
             return new BlobMetaDTO
             {
-                UserId = Guid.NewGuid().ToString(), // This is just a placeholder for when I introduce auth
+                Id = identifier,
+                UserId = props.Metadata[BlobStorage.Meta.UploadedBy], // This is just a placeholder for when I introduce auth
                 Url = blobUrl,
-                OriginalFileName = originalFileName,
+                OriginalFilename = props.Metadata[BlobStorage.Meta.OriginalfileName],
                 CreatedOn = props.CreatedOn,
                 ContainerName = BlobStorage.Containers.Uploads,
-                ProcessingStage = (int) BlobProcessingStage.ExtractMetadata,
+                ProcessingStage = (int)BlobProcessingStage.UploadSuccessful,
                 Metadata = props.Metadata,
                 Thumbnails = new Dictionary<ThumbnailSize, string>(),
-                Name = originalFileName,
+                Name = identifier,
                 Description = String.Empty, // future A.I. implementation will further process and fill in this description
                 Tags = new List<string>(), // future A.I. implementation will further process and fill in these tags
                 TagCount = props.TagCount,
@@ -59,6 +71,7 @@ namespace CloudCanvas.Shared.Utilities
                 CopyCompletedOn = props.CopyCompletedOn,
                 IsLatestVersion = props.IsLatestVersion,
                 VersionId = props.VersionId,
+                DeletedOn = deleted? result: null //only assign 'result' when it has been altered succesfully and deleted = true
             };  
         }
 
@@ -69,20 +82,20 @@ namespace CloudCanvas.Shared.Utilities
         /// Tries to deserialize a structured string into an object of a given type.
         /// </summary>
         /// <typeparam name="T">The type of the object to try and create.</typeparam>
-        /// <param name="blobMetadataDto"></param>
+        /// <param name="blobMetadataJson"></param>
         /// <returns></returns>
         /// <exception cref="CCSerializationException">When the operation fails</exception>
-        public static T Deserialize<T>(string blobMetadataDto)
+        public static T Deserialize<T>(string blobMetadataJson)
         {
             try
             {
-                Validate.StringValue(nameof(blobMetadataDto), blobMetadataDto);
-                T? dto = JsonSerializer.Deserialize<T>(blobMetadataDto, _options);
+                Validate.StringValue(nameof(blobMetadataJson), blobMetadataJson);
+                T? dto = JsonSerializer.Deserialize<T>(blobMetadataJson, _options);
                 return Validate.Object(dto);
             }
             catch (InvalidArgumentException e)
             {
-                throw new CCSerializationException($"Invalid argument '{nameof(blobMetadataDto)}' provided with value: '{blobMetadataDto}'.", e);
+                throw new CCSerializationException($"Invalid argument '{nameof(blobMetadataJson)}' provided with value: '{blobMetadataJson}'.", e);
             }
         }
     }

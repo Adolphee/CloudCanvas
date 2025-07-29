@@ -11,5 +11,7 @@ public interface IBlobStorageService
 {
     public Task<BlobMetaDTO> UploadAsync(Stream fileStream, string filename, string containerName);
     public Task<List<string>> GetBlobUrlsAsync(string containerName);
-    public Task<BlobContainerClient> GetOrCreateContainerClientAsync(string containerName, bool createIfNotExists = true);
+    public Task<List<BlobMetaDTO>> GetBlobsAsync(string containerName);
+    public Task<BlobContainerClient> GetOrCreateContainerClientAsync(string containerName, bool createIfNotExists);
+    public Task<bool> DeleteAsync(string containerName, string blobName);
 }
