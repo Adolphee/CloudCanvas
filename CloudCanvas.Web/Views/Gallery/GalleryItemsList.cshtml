@@ -4,9 +4,12 @@
 @model GalleryViewModel
 @{
     ViewData["Title"] = "Gallery Page";
+    var thumbnailSize = ImageTool.GetPixelSize(ThumbnailSize.small)+"px";
 }
 
 <div class="container w-100">
+
+    @await Html.PartialAsync("_Carousel", Model.Blobs)
     <table class="table table-striped table-hover caption-top">
         <caption>
             List of photos
@@ -16,11 +19,11 @@
             <tr>
                 <th scope="col">Uploaded On</th>
                 <th scope="col">Thumbnail</th>
-                <th scope="col">Title</th>
-                <th scope="col">Caption</th>
+                <th scope="col">Title</th> 
+                <th scope="col" class="col-3">Caption</th>
                 <th scope="col">Size</th>
                 <th scope="col">Uploaded by</th>
-                <th scope="col">Gallery</th>
+               <!-- <th scope="col">Gallery</th> -->
                 <th scope="col">Action</th>
 
             </tr>
@@ -33,7 +36,7 @@
                     <td>
                         @if (blob.Thumbnails.Count() > 0)
                         {
-                            <img src="@blob.Thumbnails[ThumbnailSize.small]" style="height: '@ImageTool.GetPixelSize(ThumbnailSize.small)px;'" alt="@blob.Description" />
+                            <img src="@blob.Thumbnails[ThumbnailSize.small]" style="height: @thumbnailSize; width: @thumbnailSize;" alt="@blob.Description" />
                         } else
                         {
                             <img src="https://placehold.jp/50x50.png" />
@@ -43,7 +46,7 @@
                     <td>@(String.IsNullOrWhiteSpace(blob.Description) ? "No description" : blob.Description)</td>
                     <td>@(blob.ContentLength / 1024) Kb</td>
                     <td>@(String.IsNullOrWhiteSpace(blob.UploadedBy) ? "Anonymous user" : blob.UploadedBy)</td>
-                    <td>@(String.IsNullOrWhiteSpace(blob.GalleryName) ? "Default (Public) Gallery" : blob.GalleryName)</td>
+                    <!-- <td>@(String.IsNullOrWhiteSpace(blob.GalleryName) ? "Default (Public) Gallery" : blob.GalleryName)</td>  -->
                     <th scope="row">
                         <button type="button" class="btn col-6" data-bs-toggle="modal" data-bs-target="#Modal-@(blob.Id.Replace("-", String.Empty).Substring(0, 6))">
                             Edit
@@ -85,7 +88,7 @@
                                 </div>
                             </div>
                         </div>
-                        <button type="button" class="btn dtn-danger col-6">Delete</button>
+                        <button type="button" class="btn dtn-danger col-4"><i class="bi bi-trash"></i></button>
                     </th>
                 </tr>
             }
