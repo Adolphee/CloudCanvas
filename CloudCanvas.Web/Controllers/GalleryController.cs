@@ -9,10 +9,10 @@ using CloudCanvas.Shared.Utilities;
 namespace CloudCanvas.Web.Controllers
 {
     [Route("[controller]")]
-    public class GalleryController(ILogger<GalleryController> logger, BlobStorageService bservice) : Controller
+    public class GalleryController(ILogger<GalleryController> logger, CosmosClientWrapper cosmos_wrapper) : Controller
     {
         private readonly ILogger<GalleryController> _logger = logger;
-        private readonly IBlobStorageService _bservice = bservice;
+        private readonly ICosmosClientWrapper _cosmos = cosmos_wrapper;
         // Switched from list of urls to list of DTOs, for immediate metadata retrieval
         // With this, I won't have to fetch further metadata
         // -- saves me expensive calls to azure clients later
@@ -22,9 +22,20 @@ namespace CloudCanvas.Web.Controllers
         public async Task<IActionResult> Index()
         {
             _logger.LogInformation("[GET] Processing request: Getting blob urls from {service}...", nameof(BlobStorageService));
-            Blobs = await _bservice.GetBlobsAsync(BlobStorage.Containers.Uploads);
+            Blobs = await _cosmos.ListBlobsAsync<BlobMetaDTO>(CloudCosmos.Containers.BlobMeta);
             _logger.LogInformation("[GET] Succesfully obtained blob urls from {service}...", nameof(BlobStorageService));
-            return View(nameof(Index), new GalleryViewModel { 
+            return View("GalleryItemsList", new GalleryViewModel { 
+                Blobs = Blobs
+            });
+        }
+
+        [HttpGet("edit/{identifier}")]
+        public async Task<IActionResult> Edit()
+        {
+            _logger.LogInformation("[GET] Processing request: Getting blob urls from {service}...", nameof(BlobStorageService));
+            Blobs = await _cosmos.ListBlobsAsync<BlobMetaDTO>(CloudCosmos.Containers.BlobMeta);
+            _logger.LogInformation("[GET] Succesfully obtained blob urls from {service}...", nameof(BlobStorageService));
+            return View("GalleryItemsList", new GalleryViewModel { 
                 Blobs = Blobs
             });
         }
