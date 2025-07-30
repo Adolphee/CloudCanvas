@@ -34,7 +34,7 @@ namespace CloudCanvas.Shared.Utilities
             ThumbnailSize size = (ThumbnailSize)index;
             return size;
         }
-        private static int GetPixelSize(ThumbnailSize tnSize)
+        public static int GetPixelSize(ThumbnailSize tnSize)
         {
             switch (tnSize)
             {

@@ -50,6 +50,7 @@ namespace CloudCanvas.Shared.Utilities
                 ProcessingStage = (int)BlobProcessingStage.UploadSuccessful,
                 Metadata = props.Metadata,
                 Thumbnails = new Dictionary<ThumbnailSize, string>(),
+                UploadedBy = props.Metadata[BlobStorage.Meta.UploadedBy],
                 Name = identifier,
                 Description = String.Empty, // future A.I. implementation will further process and fill in this description
                 Tags = new List<string>(), // future A.I. implementation will further process and fill in these tags
