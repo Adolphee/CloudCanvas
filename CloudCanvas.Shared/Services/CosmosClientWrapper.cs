@@ -16,6 +16,15 @@ namespace CloudCanvas.Shared.Services
             _client = client;
         }
 
+        public async Task<GalleryItemDTO> PatchItemAsync(string identifier, string userId, IReadOnlyList<PatchOperation> ops)
+        {
+            Validate.StringValue(nameof(identifier), identifier);
+            Validate.StringValue(nameof(userId), userId);
+            var container = GetContainer(CloudCosmos.Containers.BlobMeta);
+            var metadata = await container.PatchItemAsync<GalleryItemDTO>(id: identifier, partitionKey: new PartitionKey(userId), patchOperations: ops);
+            return metadata;
+        }
+
         /// <summary>
         /// Asynchronously saves the specified object to the given Cosmos DB container.
         /// </summary>
@@ -37,8 +46,9 @@ namespace CloudCanvas.Shared.Services
             Validate.Object(metadata);
             var container = _client.GetContainer(CloudCosmos.Sql, containerName);
             ItemResponse<T> result;
-            if (overWrite) result = await container.ReplaceItemAsync(metadata, metadata.Id, new PartitionKey(metadata.UserId));
-            else result = await container.UpsertItemAsync(metadata, new PartitionKey(metadata.UserId));
+            var partitionKey = new PartitionKey(metadata.UserId);
+            if (overWrite) result = await container.ReplaceItemAsync(metadata, metadata.Id, partitionKey);
+            else result = await container.CreateItemAsync(metadata, partitionKey);
             return result.Resource;
         }
 
