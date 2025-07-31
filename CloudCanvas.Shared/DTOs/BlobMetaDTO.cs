@@ -1,4 +1,6 @@
 ﻿using Azure.Storage.Blobs.Models;
+using CloudCanvas.Shared.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace CloudCanvas.Shared.DTOs
 {
@@ -11,6 +13,21 @@ namespace CloudCanvas.Shared.DTOs
     /// storage context.</remarks>
     public class BlobMetaDTO: GalleryItemDTO
     {
+        [Required, MaxLength(255)]
+        public BlobType BlobType { get; set; }
+        [Required, MaxLength(100)]
+        public string Name { get; set; } = default!;
+        [Required]
+        public string OriginalFilename { get; set; } = default!;
+        [Required]
+        public string ContainerName { get; set; } = default!;
+        [Required, Range(0, 4)]
+        public int ProcessingStage { get; set; }
+        public string? ContentEncoding { get; set; }
+        public List<string> Tags { get; set; } = new(); // for future A.I. integration for auto-tagging
+        public string? ContentType { get; set; }
+        public long TagCount { get; set; }
+        public string? ContentLanguage { get; set; }
         public bool HasLegalHold { get; internal set; }
         public IDictionary<string, string> Metadata { get; set; } = new Dictionary<string, string>(); // any additional/custom metadata
         public DateTimeOffset CopyCompletedOn { get; set; } = new();
