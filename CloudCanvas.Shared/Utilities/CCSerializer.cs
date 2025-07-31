@@ -38,8 +38,7 @@ namespace CloudCanvas.Shared.Utilities
                     }
                     catch (Exception) {}  // swallowing this because it tells us deletedOn wasn't set so we can proceed as planned
                 }
-           
-            return new BlobMetaDTO
+            return Validate.Object(new BlobMetaDTO
             {
                 Id = identifier,
                 UserId = props.Metadata[BlobStorage.Meta.UploadedBy], // This is just a placeholder for when I introduce auth
@@ -72,8 +71,8 @@ namespace CloudCanvas.Shared.Utilities
                 CopyCompletedOn = props.CopyCompletedOn,
                 IsLatestVersion = props.IsLatestVersion,
                 VersionId = props.VersionId,
-                DeletedOn = deleted? result: null //only assign 'result' when it has been altered succesfully and deleted = true
-            };  
+                DeletedOn = deleted ? result : null //only assign 'result' when it has been altered succesfully and deleted = true
+            });
         }
 
         public static string Serialize<T>(T target) => JsonSerializer.Serialize(Validate.Object(target), _options);

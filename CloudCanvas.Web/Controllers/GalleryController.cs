@@ -29,17 +29,6 @@ namespace CloudCanvas.Web.Controllers
             });
         }
 
-        [HttpGet("edit/{identifier}")]
-        public async Task<IActionResult> Edit()
-        {
-            _logger.LogInformation("[GET] Processing request: Getting blob urls from {service}...", nameof(BlobStorageService));
-            Blobs = await _cosmos.ListBlobsAsync<BlobMetaDTO>(CloudCosmos.Containers.BlobMeta);
-            _logger.LogInformation("[GET] Succesfully obtained blob urls from {service}...", nameof(BlobStorageService));
-            return View("GalleryItemsList", new GalleryViewModel { 
-                Blobs = Blobs
-            });
-        }
-
         [HttpGet("gallery/error")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

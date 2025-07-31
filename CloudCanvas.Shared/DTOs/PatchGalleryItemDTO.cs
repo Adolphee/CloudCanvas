@@ -25,6 +25,6 @@ namespace CloudCanvas.Shared.DTOs
         [JsonPropertyName("galleryName")]
         public string? GalleryName { get; set; }
         [JsonPropertyName("userTags")]
-        public List<string>? UserTags { get; set; } = default!;
+        public List<string>? UserTags { get; set; } = new();
     }
 }

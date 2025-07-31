@@ -5,6 +5,7 @@ namespace CloudCanvas.Shared.DTOs
 {
     public class GalleryItemDTO: PatchGalleryItemDTO
     {
+        [Required]
         public string Url { get; set; } = default!;
         public Dictionary<ThumbnailSize, string> Thumbnails { get; set; } = new(); // BlobUrls for the thumbnails
         public string? UploadedBy { get; set; }

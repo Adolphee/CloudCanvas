@@ -44,9 +44,7 @@ namespace CloudCanvas.Web.Controllers
             // 2. use the BlobSorageService to persist
             var meta = await _service.UploadAsync(file.OpenReadStream(), file.FileName, uploadsContainer);
             // I am already saving what I can to CosmosDB, so that the frontend can access it immediately
-            // Functions will take care of any further updates, while for now the user gets the bare
-            meta.Id = meta.Name;
-            meta.ProcessingStage = (int) BlobProcessingStage.UploadSuccessful;
+            // Functions will take care of any further updates, while for now the end user gets the latest relavant data for them
             await _cosmos.SaveMetadataAsync(meta, CloudCosmos.Containers.BlobMeta);
             // 3. redirect to gallery
             return RedirectToAction("Index", "Gallery");

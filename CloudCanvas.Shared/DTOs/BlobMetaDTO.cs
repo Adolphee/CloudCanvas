@@ -13,8 +13,6 @@ namespace CloudCanvas.Shared.DTOs
     /// storage context.</remarks>
     public class BlobMetaDTO: GalleryItemDTO
     {
-        [Required, MaxLength(255)]
-        public BlobType BlobType { get; set; }
         [Required, MaxLength(100)]
         public string Name { get; set; } = default!;
         [Required]
@@ -24,6 +22,7 @@ namespace CloudCanvas.Shared.DTOs
         [Required, Range(0, 4)]
         public int ProcessingStage { get; set; }
         public string? ContentEncoding { get; set; }
+        public BlobType BlobType { get; set; }
         public List<string> Tags { get; set; } = new(); // for future A.I. integration for auto-tagging
         public string? ContentType { get; set; }
         public long TagCount { get; set; }
