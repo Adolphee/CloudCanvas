@@ -17,7 +17,7 @@ namespace CloudCanvas.Shared.Constants
         public abstract class Meta
         {
             public const string Identifier = "identifier";
-            public const string OriginalfileName = "originalFilename";
+            public const string OriginalFilename = "originalFilename";
             public static string UploadedBy = "uploadedBy";
             public const string DeletedOn = "deletedOn";
         }

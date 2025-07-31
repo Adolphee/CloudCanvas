@@ -44,7 +44,7 @@ namespace CloudCanvas.Shared.Utilities
                 Id = identifier,
                 UserId = props.Metadata[BlobStorage.Meta.UploadedBy], // This is just a placeholder for when I introduce auth
                 Url = blobUrl,
-                OriginalFilename = props.Metadata[BlobStorage.Meta.OriginalfileName],
+                OriginalFilename = props.Metadata[BlobStorage.Meta.OriginalFilename],
                 CreatedOn = props.CreatedOn,
                 ContainerName = BlobStorage.Containers.Uploads,
                 ProcessingStage = (int)BlobProcessingStage.UploadSuccessful,

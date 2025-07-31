@@ -102,7 +102,7 @@ namespace CloudCanvas.Shared.Services
                 fileStream.Position = 0;
                 var identifier = !String.IsNullOrWhiteSpace(customIdentifier) ? customIdentifier: Guid.NewGuid().ToString();
                 Dictionary<string, string> meta = new();
-                meta.Add(BlobStorage.Meta.OriginalfileName, filename); // this is to enforce data consistency, convertability between BlobProperties & BlobMetaDTO
+                meta.Add(BlobStorage.Meta.OriginalFilename, filename); // this is to enforce data consistency, convertability between BlobProperties & BlobMetaDTO
                 meta.Add(BlobStorage.Meta.UploadedBy, Guid.NewGuid().ToString()); // Idem dito, these blob metadata are not available OOTB (afaik)
                 try
                 {
