@@ -20,13 +20,13 @@
                     <div class="mb-3 row">
                         <label for="@(Model.Id)-title" class="col-sm-2 col-form-label">Title:</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="@(Model.Id)-title">
+                            <input type="text" class="form-control" id="@(Model.Id)-title" value="@(Model.DisplayName ?? Model.OriginalFilename)">
                         </div>
                     </div>
                     <div class="mb-3 row">
                         <label for="@(Model.Id)-caption" class="col-sm-2 col-form-label">Caption:</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="@(Model.Id)-caption">
+                            <input type="text" class="form-control" id="@(Model.Id)-caption" value="@Model.Description" placeholder="Describe what's happening in this picture...'">
                         </div>
                     </div>
                 </form>
