@@ -3,6 +3,12 @@ var gallery = document.querySelector('#GalleryInventory');
 var carousel = document.querySelector('.carousel-inner');
 
 (async function main() {
+    await axios(api)
+    .then(response => {
+        metadata = response.data;
+        metadata.forEach(async item => await configureModals(item));
+    });
+})();
     try {
         const response = await fetch("http://localhost:7071/api/photos");
         if (!response.ok) throw new Error(`Error: ${response.status}`);
