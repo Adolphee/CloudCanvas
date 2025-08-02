@@ -38,18 +38,24 @@ namespace CloudCanvas.Shared.Utilities
                     }
                     catch (Exception) {}  // swallowing this because it tells us deletedOn wasn't set so we can proceed as planned
                 }
+
+            // TODO: uploadedBy / userID will be implemented with the Auth milestone
+            var uploadedBy = props.Metadata.ContainsKey(BlobStorage.Meta.UploadedBy) ? 
+                         props.Metadata[BlobStorage.Meta.UploadedBy] : Guid.NewGuid().ToString();
+            var oFilename = props.Metadata.ContainsKey(BlobStorage.Meta.OriginalFilename) ? 
+                                   props.Metadata[BlobStorage.Meta.OriginalFilename] : identifier;
             return Validate.Object(new BlobMetaDTO
             {
                 Id = identifier,
-                UserId = props.Metadata[BlobStorage.Meta.UploadedBy], // This is just a placeholder for when I introduce auth
+                UserId = uploadedBy, // This is just a placeholder for when I introduce auth
                 Url = blobUrl,
-                OriginalFilename = props.Metadata[BlobStorage.Meta.OriginalFilename],
+                OriginalFilename = oFilename,
                 CreatedOn = props.CreatedOn,
                 ContainerName = BlobStorage.Containers.Uploads,
-                ProcessingStage = (int)BlobProcessingStage.UploadSuccessful,
+                ProcessingStage = (int)BlobProcessingStage.UploadSuccessful, // TOFIX: this is misleading when this method is not 
                 Metadata = props.Metadata,
                 Thumbnails = new Dictionary<ThumbnailSize, string>(),
-                UploadedBy = props.Metadata[BlobStorage.Meta.UploadedBy],
+                UploadedBy = uploadedBy,
                 Name = identifier,
                 Description = String.Empty, // future A.I. implementation will further process and fill in this description
                 Tags = new List<string>(), // future A.I. implementation will further process and fill in these tags
@@ -93,7 +99,7 @@ namespace CloudCanvas.Shared.Utilities
                 T? dto = JsonSerializer.Deserialize<T>(blobMetadataJson, _options);
                 return Validate.Object(dto);
             }
-            catch (InvalidArgumentException e)
+            catch (Exception e) when (e is JsonException || e is  InvalidArgumentException || e is NotSupportedException)
             {
                 throw new CCSerializationException($"Invalid argument '{nameof(blobMetadataJson)}' provided with value: '{blobMetadataJson}'.", e);
             }
