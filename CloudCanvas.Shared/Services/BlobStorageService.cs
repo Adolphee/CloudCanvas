@@ -123,6 +123,22 @@ namespace CloudCanvas.Shared.Services
             }
         }
 
+        public async Task<BlobMetaDTO> GetBlobMetaAsync(string identifier, string fromContainer)
+        {
+            var container = await GetOrCreateContainerClientAsync(fromContainer);
+            var bclient = container.GetBlobClient(identifier);
+            var props = await bclient.GetPropertiesAsync();
+            return CCSerializer.MetaFromBlobProperties(identifier, bclient.Uri.ToString(), props);
+        }
+
+        public async Task<BlobMetaDTO> AddMetadataAsync(BlobMetaDTO blob, string key, string value)
+        {
+            blob.Metadata[key] = value;
+            var bclient = await GetOrCreateContainerClientAsync(blob.ContainerName);
+            await bclient.GetBlobClient(blob.Name).SetMetadataAsync(blob.Metadata);
+            return blob;
+        }
+
         public async Task<List<BlobMetaDTO>> GetBlobsAsync(string containerName)
         {
             var container = _client.GetBlobContainerClient(containerName);
@@ -138,16 +154,16 @@ namespace CloudCanvas.Shared.Services
         }
         
 
-        public async Task<bool> DeleteAsync(string containerName, string blobName)
+        public async Task<bool> DeleteAsync(string containerName, string identifier)
         {
-            var bclient = _client.GetBlobContainerClient(containerName).GetBlobClient(blobName);
+            var bclient = _client.GetBlobContainerClient(containerName).GetBlobClient(identifier);
             try
             {
                 return await bclient.DeleteIfExistsAsync();
             } 
             catch (Exception e) when (e is RequestFailedException|| e is AggregateException)
             {
-                _logger.LogError(e, "Failed to delete blob with name/identifier '{name}' from container '{container}'", blobName, containerName);
+                _logger.LogError(e, "Failed to delete blob with name/identifier '{name}' from container '{container}'", identifier, containerName);
                 return false;
             }
         }
