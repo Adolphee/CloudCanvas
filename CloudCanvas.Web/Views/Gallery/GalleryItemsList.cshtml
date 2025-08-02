@@ -51,11 +51,11 @@
                             <i class="bi bi-pencil-fill"></i>
                         </button>
                         <!-- GalleryItem Edit Modal -->
-                        @await Html.PartialAsync("_EditMetadataForm", blob)
-                        <button type="button" class="btn dtn-danger col-4" data-bs-toggle="modal" data-bs-target="#Del-@(blob.Id.Replace("-", String.Empty).Substring(0, 6))">
+                        <partial name="Modals/_EditMetadataForm" model="blob" />
+                        <button type="button" class="btn dtn-danger col-4" data-bs-toggle="modal" data-bs-target="#Del-@blob.Id">
                             <i class="bi bi-trash-fill"></i>
                         </button>
-                        @await Html.PartialAsync("_DeleteGalleryItem", blob)
+                        <partial name="Modals/_DeleteGalleryItem" model="blob" />
                     </th>
                 </tr>
             }
