@@ -54,7 +54,7 @@ namespace CloudCanvas.Shared.Constants
 
         public abstract class Status
         {
-            public const string MetadataExctracted = "Metadata Exctracted";
+            public const string NewBlobDetected = "New Blob Detected";
             public const string ThumbnailCreated = "Thumbnail Created";
             public const string ImageResized = "Image Resized";
             public const string MetadataPersisted = "Metadata Persisted";
