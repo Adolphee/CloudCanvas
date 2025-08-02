@@ -13,6 +13,10 @@
     {
       "library": "bootstrap-icons@1.13.1",
       "destination": "wwwroot/lib/bootstrap-icons/"
+    },
+    {
+      "library": "axios@1.11.0",
+      "destination": "wwwroot/lib/axios/"
     }
   ]
 }
