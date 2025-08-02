@@ -4,6 +4,8 @@ using CloudCanvas.Shared.Exceptions;
 using CloudCanvas.Shared.Interfaces;
 using CloudCanvas.Shared.Utilities;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
+using System.Net;
 
 namespace CloudCanvas.Shared.Services
 {
@@ -16,12 +18,12 @@ namespace CloudCanvas.Shared.Services
             _client = client;
         }
 
-        public async Task<GalleryItemDTO> PatchItemAsync(string identifier, string userId, IReadOnlyList<PatchOperation> ops)
+        public async Task<T> PatchItemAsync<T>(string identifier, string userId, string containerName, IReadOnlyList<PatchOperation> ops) where T : MetadataDocumentBase
         {
             Validate.StringValue(nameof(identifier), identifier);
             Validate.StringValue(nameof(userId), userId);
-            var container = GetContainer(CloudCosmos.Containers.BlobMeta);
-            var metadata = await container.PatchItemAsync<GalleryItemDTO>(id: identifier, partitionKey: new PartitionKey(userId), patchOperations: ops);
+            var container = GetContainer(containerName);
+            var metadata = await container.PatchItemAsync<T>(id: identifier, partitionKey: new PartitionKey(userId), patchOperations: ops);
             return metadata;
         }
 
@@ -52,6 +54,20 @@ namespace CloudCanvas.Shared.Services
             return result.Resource;
         }
 
+        public async Task<bool> DocumentExistsAsync(string containerName, string id, string partitionKey)
+        {
+            var container = GetContainer(containerName);
+            try
+            {
+                await container.ReadItemAsync<BlobMetaDTO>(id, new PartitionKey(partitionKey));
+                return true;
+            }
+            catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            {
+                return false;
+            }
+        }
+
         public Container GetContainer(string containerName)
         {
             Validate.StringValue(nameof(containerName), containerName);
@@ -68,11 +84,12 @@ namespace CloudCanvas.Shared.Services
         public async Task<List<T>> ListBlobsAsync<T>(string containerName) where T: CosmosDocumentBase
         {
             var con = GetContainer(containerName);
-            var items = con.GetItemQueryIterator<T>(new QueryDefinition("Select * from c where IS_DEFINED(c.deletedOn) AND IS_NULL(c.deletedOn)"));
+            var queryable = con.GetItemLinqQueryable<T>().Where(x => x.DeletedOn == null);
             var res = new List<T>();
-            while (items.HasMoreResults)
+            using var iterator = queryable.ToFeedIterator();
+            while (iterator.HasMoreResults)
             {
-                var resItems = await items.ReadNextAsync();
+                var resItems = await iterator.ReadNextAsync();
                 res.AddRange(resItems.ToList());
             }
             return res;
