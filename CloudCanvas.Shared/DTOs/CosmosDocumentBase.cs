@@ -15,6 +15,7 @@ namespace CloudCanvas.Shared.DTOs
         public string Id { get; set; } = default!;
 
         // soft deletes; null = not deleted
+        [JsonIgnore]
         public DateTimeOffset? DeletedOn { get; set; } = null; 
     }
 }
