@@ -54,7 +54,7 @@ namespace CloudCanvas.Shared.Services
             return result.Resource;
         }
 
-        public async Task<bool> DocumentExistsAsync(string containerName, string id, string partitionKey)
+        public async Task<bool> MetaExistsAsync(string containerName, string id, string partitionKey)
         {
             var container = GetContainer(containerName);
             try

@@ -40,7 +40,7 @@ namespace CloudCanvas.Shared.Interfaces
         Task<List<T>> ListBlobsAsync<T>(string containerName) where T: CosmosDocumentBase;
 
         Task<T> SingleAsync<T>(string documentId, string userId, string containerName) where T: MetadataDocumentBase;
-        Task<bool> DocumentExistsAsync(string containerName, string id, string partitionKey);
+        Task<bool> MetaExistsAsync(string containerName, string id, string partitionKey);
         Container GetContainer(string containerName);
         Task<T> PatchItemAsync<T>(string identifier, string userId, string containerName, IReadOnlyList<PatchOperation> ops) where T : MetadataDocumentBase;
     }
