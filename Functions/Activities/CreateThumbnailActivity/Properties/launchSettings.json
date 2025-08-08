@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "CreateThumbnailActivity": {
-      "commandName": "Project",
-      "commandLineArgs": "--port 7296",
-      "launchBrowser": false
-    }
-  }
-}
