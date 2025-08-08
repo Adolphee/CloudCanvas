@@ -19,6 +19,7 @@ namespace CloudCanvas.Shared.Constants
             public const string Identifier = "identifier";
             public const string OriginalFilename = "originalFilename";
             public static string UploadedBy = "uploadedBy";
+            public static string CompletedOn = "completedOn";
             public const string DeletedOn = "deletedOn";
         }
 
@@ -58,6 +59,7 @@ namespace CloudCanvas.Shared.Constants
             public const string ThumbnailCreated = "Thumbnail Created";
             public const string ImageResized = "Image Resized";
             public const string MetadataPersisted = "Metadata Persisted";
+            public const string OrchestrationFinished = "Thumbnail Orchestration Concluded. Metadata updated.";
         }
     }
 
