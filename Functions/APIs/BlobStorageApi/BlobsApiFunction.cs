@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Runtime.CompilerServices;
 
-namespace BlobStorageApi;
+namespace CloudCanvas.Functions.Api.BlobStorageApi;
 
 public class BlobsApiFunction
 {
