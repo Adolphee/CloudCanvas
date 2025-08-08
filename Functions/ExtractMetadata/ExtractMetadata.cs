@@ -13,9 +13,9 @@ namespace CloudCanvas.Functions;
 public class ExtractMetadata(ILogger<ExtractMetadata> logger, BlobStorageService blobSerivce, ServiceBusAdapter service, CosmosClientWrapper cosmos)
 {
     private readonly ILogger<ExtractMetadata> _logger = logger;
-    private readonly IBlobStorageService _blobSerivce = blobSerivce;
-    private readonly IServiceBusAdapter _sbAdapter = service;
-    private readonly ICosmosClientWrapper _cosmos = cosmos;
+    private readonly BlobStorageService _blobSerivce = blobSerivce;
+    private readonly ServiceBusAdapter _sbAdapter = service;
+    private readonly CosmosClientWrapper _cosmos = cosmos;
 
     /// <summary>
     /// Processes a blob triggered by an upload event, extracts metadata, and sends a message to a Service Bus topic.
@@ -29,12 +29,12 @@ public class ExtractMetadata(ILogger<ExtractMetadata> logger, BlobStorageService
     [Function(nameof(ExtractMetadata))]
     public async Task Run([BlobTrigger(BlobStorage.Containers.Uploads + "/{identifier}", Connection = Secrets.MNSTRG)] Stream input, string identifier)
     {
-        Validate.StringValue(nameof(identifier), identifier); // No use moving forward withouth is identifier
-        _logger.LogInformation("Function Start - Extracting metadata from blob: {identifier}", identifier);
+        string correlationId = Guid.NewGuid().ToString();
         const string uploads = BlobStorage.Containers.Uploads;
+        _logger.LogInformation("{correlationId} Function Start - Extracting metadata from blob: {container}/{identifier}", correlationId, uploads, identifier);
+        
         var bcClient = await _blobSerivce.GetOrCreateContainerClientAsync(uploads);
         var blob = bcClient.GetBlobClient(identifier); // There is already validation on identifier etc from the SDK
-
         try
         {
             BlobMetaDTO metadata = CCSerializer.MetaFromBlobProperties(identifier, blob.Uri.ToString(), blob.GetProperties());
@@ -42,26 +42,24 @@ public class ExtractMetadata(ILogger<ExtractMetadata> logger, BlobStorageService
             {
                 metadata = await _cosmos.SaveMetadataAsync(metadata, CloudCosmos.Containers.BlobMeta);
             }
-            var message = BuildSBMessage(metadata);
+            var message = BuildSBMessage(metadata, correlationId);
             var responseMessageId = await _sbAdapter.SendAsync(ServiceBus.Topics.FileUpdates, message); // Send the message and call it a day
-            _logger.LogInformation("{correlationId} Sent Message '{messageId}' to topic '{topic}': {subject}", message.CorrelationId, responseMessageId, ServiceBus.Topics.FileUpdates, message.Subject);
+            _logger.LogInformation("{correlationId} Metadata Extracted. Sent Message '{messageId}' to topic '{topic}': {subject}", message.CorrelationId, responseMessageId, ServiceBus.Topics.FileUpdates, message.Subject);
         }
-        catch (Exception)
+        catch (Exception e)
         {
-
+            _logger.LogError(e, "{correlationId} Failed to extract metadata from blob: {container}/{identifier}", correlationId, uploads, identifier);
             throw;
         }
-        _logger.LogInformation("Extracted Metadata from blob: {identifier}", identifier);
-        
     }
 
-    private ServiceBusMessage BuildSBMessage(BlobMetaDTO metadata)
+    private ServiceBusMessage BuildSBMessage(BlobMetaDTO metadata, string correlationId)
     {
         return MessageFactory.BuildFor(metadata) // Manual dispatch required for full control (dotnet-isolated)
-            .WithSubject($"{ServiceBus.Status.NewBlobDetected} - file ready for processing")    // Add Subject
+            .WithSubject($"{ServiceBus.Status.NewBlobDetected} - Ready for processing")    // Add Subject
             .AddProperty(ServiceBus.Props.EventType, ServiceBus.Subs.ExtractMetaData) // So that it makes it through subscription filters
             .AddProperty(ServiceBus.Props.ThumbnailSize, (int)ThumbnailSize.small) // BuildFor thumbnail generation, later used by orchestrators to fan-out differet sizes
-            .SetCorrelationId(Guid.NewGuid().ToString()) // Set a new CorrelationId for this message, as the first in the chain
-            .Finalize(); // Finalize and return the message ---> TODO: add custom (meaningful & descriptive) message ID builder, like {eventType}-{blobName}-{timestamp}
+            .SetCorrelationId(correlationId) // Set a new CorrelationId for this message, as the first in the chain
+            .Finalize(); // Finalize and return the message ---> bonus: add custom (meaningful & descriptive) message ID builder, like {eventType}-{blobName}-{timestamp}
     }
 }
