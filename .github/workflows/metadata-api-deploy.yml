@@ -5,7 +5,7 @@ on:
       - main
     paths:
       - 'Functions/APIs/BlobsMetadataAPI/**'
-      - '.github/workflows/persist-metadata-deploy.yml'
+      - '.github/workflows/metadata-api-deploy.yml'
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
