@@ -1,0 +1,42 @@
+name: Build and Deploy Metadata API Function
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'Functions/APIs/BlobsMetadataAPI/**'
+      - '.github/workflows/persist-metadata-deploy.yml'
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout Code'
+        uses: actions/checkout@v4
+      - name: 'Setup .NET 8'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: 'Cache or Download Nuget Packages'
+        id: cache-nuget-packages
+        uses: actions/cache@v4
+        with:
+          path: '~/.nuget/packages'
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/**.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+            nuget-
+      - name: 'Check if NuGet Cache was restored'
+        if: steps.cache-nuget-packages.outputs.cache-hit == false
+        run: echo "No cache hit — restoring packages from NuGet.org"
+      - name: 'Restore Dependencies'
+        run: dotnet restore Functions/APIs/BlobsMetadataAPI/BlobsMetadataAPI.csproj --configuraton Release
+      - name: 'Build'
+        run: dotnet build Functions/APIs/BlobsMetadataAPI/BlobsMetadataAPI.csproj --configuration Release --no-restore
+      - name: 'Publish'
+        run: dotnet publish Functions/APIs/BlobsMetadataAPI/BlobsMetadataAPI.csproj
+      - name: 'Deploy to Azure Functions App'
+        uses: azure/functions-action@v1
+        with:
+          app-name: ${{ secrets.APP_NAME_C }}
+          publish-profile: ${{ secrets.PP_C }}
+          package: ./publish
