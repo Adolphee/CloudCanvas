@@ -23,6 +23,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Legacy", "Legacy", "{02EA68
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlobsMetadataAPI", "Functions\APIs\BlobsMetadataAPI\BlobsMetadataAPI.csproj", "{6D6FAC03-442E-86F9-FC56-DF5FC46B7D20}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Pipelines", "Pipelines", "{1F61AA08-0663-4270-8B1C-09BFC2F940BE}"
+	ProjectSection(SolutionItems) = preProject
+		metadata-api-deploy.yml = metadata-api-deploy.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
