@@ -1,0 +1,79 @@
+trigger:
+  branches:
+    include: [ azure-pipelines ]
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+- group: lib-metadata-api
+
+steps:
+- checkout: self
+
+# Setup .NET SDK
+- task: UseDotNet@2
+  displayName: 'Setup .NET SDK'
+  inputs:
+    packageType: 'sdk'
+    version: '$(DOTNET_VERSION)'
+
+# Cache NuGet
+- task: Cache@2
+  displayName: 'Cache NuGet packages'
+  inputs:
+    key: 'nuget | "$(Agent.OS)" | **/*.csproj'
+    restoreKeys: |
+      nuget | "$(Agent.OS)"
+      nuget
+    path: '$(NUGET_PACKAGES)'
+
+# Build & publish API Function
+- task: DotNetCoreCLI@2
+  displayName: 'Restore'
+  inputs:
+    command: 'restore'
+    projects: 'Functions/APIs/BlobsMetadataAPI/BlobsMetadataAPI.csproj'
+    feedsToUse: 'select'
+    vstsFeed: 'ac6df6af-daff-43d5-ac13-3e6097ca4f18'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Build'
+  inputs:
+    command: 'build'
+    projects: 'Functions/APIs/BlobsMetadataAPI/BlobsMetadataAPI.csproj'
+    arguments: '--configuration Release --no-restore'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Publish'
+  inputs:
+    command: 'publish'
+    projects: 'Functions/APIs/BlobsMetadataAPI/BlobsMetadataAPI.csproj'
+    arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)/publish --no-build'
+
+# (Optional) Set app settings to Key Vault *references* so CI never sees values
+- task: AzureCLI@2
+  displayName: 'Configure KV references on Function App'
+  inputs:
+    azureSubscription: '$(SERVICE_CONN)'
+    scriptType: bash
+    scriptLocation: inlineScript
+    inlineScript: |
+      az functionapp config appsettings set \
+        --name "$(APP_NAME)" \
+        --resource-group "$(RESOURCE_GROUP)" \
+        --settings \
+          "AzureWebJobsStorage=@Microsoft.KeyVault(SecretUri=$(AZWJS_SECRET_URI))" \
+          "MNSTRG=@Microsoft.KeyVault(SecretUri=$(MNSTRG))" \
+          "MTSTRG=@Microsoft.KeyVault(SecretUri=$(MTSTRG))" \
+          "FUMSGO=@Microsoft.KeyVault(SecretUri=$(FUMSGO))" \
+          "FUMSGI=@Microsoft.KeyVault(SecretUri=$(FUMSGI))"
+
+# Deploy zip package (no publish profile needed)
+- task: AzureFunctionApp@1
+  displayName: 'Deploy to Azure Function App'
+  inputs:
+    azureSubscription: '$(SERVICE_CONN)'
+    appType: 'functionAppLinux'
+    appName: '$(APP_NAME)'
+    package: '$(Build.ArtifactStagingDirectory)/publish'
