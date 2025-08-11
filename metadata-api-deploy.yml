@@ -3,7 +3,7 @@ trigger:
     include: [ azure-pipelines ]
 
 pool:
-  vmImage: 'ubuntu-latest'
+  name: Default
 
 variables:
 - group: lib-metadata-api
@@ -55,7 +55,7 @@ steps:
 - task: AzureCLI@2
   displayName: 'Configure KV references on Function App'
   inputs:
-    azureSubscription: '$(SERVICE_CONN)'
+    azureSubscription: "$(AZURE_SUB)"
     scriptType: bash
     scriptLocation: inlineScript
     inlineScript: |
@@ -73,7 +73,7 @@ steps:
 - task: AzureFunctionApp@1
   displayName: 'Deploy to Azure Function App'
   inputs:
-    azureSubscription: '$(SERVICE_CONN)'
+    azureSubscription: '$(AZURE_SUB)'
     appType: 'functionAppLinux'
     appName: '$(APP_NAME)'
     package: '$(Build.ArtifactStagingDirectory)/publish'
