@@ -22,7 +22,7 @@ steps:
 - task: Cache@2
   displayName: 'Cache NuGet packages'
   inputs:
-    key: 'nuget | "$(Agent.OS)" | **/*.csproj'
+    key: 'nuget | "$(Agent.OS)" | **/BlobsMetadataAPI.csproj'
     restoreKeys: |
       nuget | "$(Agent.OS)"
       nuget
@@ -33,7 +33,7 @@ steps:
   displayName: 'Restore'
   inputs:
     command: 'restore'
-    projects: 'Functions/APIs/BlobsMetadataAPI/BlobsMetadataAPI.csproj'
+    projects: "$(PROJECT_PATH)"
     feedsToUse: 'select'
     vstsFeed: 'ac6df6af-daff-43d5-ac13-3e6097ca4f18'
 
@@ -41,14 +41,14 @@ steps:
   displayName: 'Build'
   inputs:
     command: 'build'
-    projects: 'Functions/APIs/BlobsMetadataAPI/BlobsMetadataAPI.csproj'
+    projects: "$(PROJECT_PATH)"
     arguments: '--configuration Release --no-restore'
 
 - task: DotNetCoreCLI@2
   displayName: 'Publish'
   inputs:
     command: 'publish'
-    projects: 'Functions/APIs/BlobsMetadataAPI/BlobsMetadataAPI.csproj'
+    projects: "$(PROJECT_PATH)"
     arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)/publish --no-build'
 
 # (Optional) Set app settings to Key Vault *references* so CI never sees values
