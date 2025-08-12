@@ -83,5 +83,4 @@ steps:
       az functionapp deployment source config-zip \
         --resource-group "$(RESOURCE_GROUP)" \
         --name "$(APP_NAME)" \
-        --storage-account "$(FUNCSA)" \
         --src "$(Build.ArtifactStagingDirectory)/app.zip"
