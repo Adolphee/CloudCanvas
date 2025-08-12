@@ -71,16 +71,10 @@ steps:
           "AzureWebJobsStorage=@Microsoft.KeyVault(SecretUri=$(AZWJS))"
 
 # Deploy zip package (no publish profile needed)
-- task: AzureCLI@2
-  displayName: 'Zip deploy'
+- task: AzureFunctionApp@1
+  displayName: 'Deploy to Azure Function App'
   inputs:
     azureSubscription: '$(AZURE_SUB)'
-    scriptType: bash
-    scriptLocation: inlineScript
-    inlineScript: |
-      cd "$(Build.ArtifactStagingDirectory)/publish"
-      zip -r ../app.zip .
-      az functionapp deployment source config-zip \
-        --resource-group "$(RESOURCE_GROUP)" \
-        --name "$(APP_NAME)" \
-        --src "$(Build.ArtifactStagingDirectory)/app.zip"
+    appType: 'functionAppLinux'
+    appName: '$(APP_NAME)'
+    package: '$(Build.ArtifactStagingDirectory)/publish'
