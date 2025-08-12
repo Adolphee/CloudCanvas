@@ -63,12 +63,11 @@ steps:
         --name "$(APP_NAME)" \
         --resource-group "$(RESOURCE_GROUP)" \
         --settings \
-          "AzureWebJobsStorage=@Microsoft.KeyVault(SecretUri=$(AzureWebJobsStorage))" \
+          "AzureWebJobsStorage=@Microsoft.KeyVault(SecretUri=$(AZWJS_SECRET_URI))" \
           "MNSTRG=@Microsoft.KeyVault(SecretUri=$(MNSTRG))" \
           "MTSTRG=@Microsoft.KeyVault(SecretUri=$(MTSTRG))" \
           "FUMSGO=@Microsoft.KeyVault(SecretUri=$(FUMSGO))" \
-          "FUMSGI=@Microsoft.KeyVault(SecretUri=$(FUMSGI))" \
-          "FUNCSA=@Microsoft.KeyVault(SecretUri=$(FUNCSA))"
+          "FUMSGI=@Microsoft.KeyVault(SecretUri=$(FUMSGI))"
 
 # Deploy zip package (no publish profile needed)
 - task: AzureFunctionApp@1
