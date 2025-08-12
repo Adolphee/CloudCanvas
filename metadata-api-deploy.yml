@@ -51,7 +51,8 @@ steps:
     publishWebProjects: false
     arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)/publish --no-build'
 
-# (Optional) Set app settings to Key Vault *references* so CI never sees values
+# Set app settings to Key Vault *references* so CI never sees values
+
 - task: AzureCLI@2
   displayName: 'Configure KV references on Function App'
   inputs:
@@ -63,17 +64,23 @@ steps:
         --name "$(APP_NAME)" \
         --resource-group "$(RESOURCE_GROUP)" \
         --settings \
-          "AzureWebJobsStorage=@Microsoft.KeyVault(SecretUri=$(AZWJS_SECRET_URI))" \
           "MNSTRG=@Microsoft.KeyVault(SecretUri=$(MNSTRG))" \
           "MTSTRG=@Microsoft.KeyVault(SecretUri=$(MTSTRG))" \
           "FUMSGO=@Microsoft.KeyVault(SecretUri=$(FUMSGO))" \
-          "FUMSGI=@Microsoft.KeyVault(SecretUri=$(FUMSGI))"
+          "FUMSGI=@Microsoft.KeyVault(SecretUri=$(FUMSGI))" \
+          "AzureWebJobsStorage=@Microsoft.KeyVault(SecretUri=$(AZWJS))"
 
 # Deploy zip package (no publish profile needed)
-- task: AzureFunctionApp@1
-  displayName: 'Deploy to Azure Function App'
+- task: AzureCLI@2
+  displayName: 'Zip deploy'
   inputs:
     azureSubscription: '$(AZURE_SUB)'
-    appType: 'functionAppLinux'
-    appName: '$(APP_NAME)'
-    package: '$(Build.ArtifactStagingDirectory)/publish'
+    scriptType: bash
+    scriptLocation: inlineScript
+    inlineScript: |
+      cd "$(Build.ArtifactStagingDirectory)/publish"
+      zip -r ../app.zip .
+      az functionapp deployment source config-zip \
+        --resource-group "$(RESOURCE_GROUP)" \
+        --name "$(APP_NAME)" \
+        --src "$(Build.ArtifactStagingDirectory)/app.zip"
