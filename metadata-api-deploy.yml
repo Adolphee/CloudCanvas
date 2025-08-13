@@ -68,13 +68,61 @@ steps:
           "MTSTRG=@Microsoft.KeyVault(SecretUri=$(MTSTRG))" \
           "FUMSGO=@Microsoft.KeyVault(SecretUri=$(FUMSGO))" \
           "FUMSGI=@Microsoft.KeyVault(SecretUri=$(FUMSGI))" \
-          "AzureWebJobsStorage=@Microsoft.KeyVault(SecretUri=$(AZWJS))"
+          "AzureWebJobsStorage=@Microsoft.KeyVault(SecretUri=$(AZWJS))" \
+          "FUNCTIONS_WORKER_RUNTIME=$(RUNTIME)"
 
-# Deploy zip package (no publish profile needed)
-- task: AzureFunctionApp@1
-  displayName: 'Deploy to Azure Function App'
+- task: AzureCLI@2
+  displayName: 'Zip deploy via AAD (no keys)'
   inputs:
     azureSubscription: '$(AZURE_SUB)'
-    appType: 'functionAppLinux'
-    appName: '$(APP_NAME)'
-    package: '$(Build.ArtifactStagingDirectory)/publish'
+    scriptType: bash
+    scriptLocation: inlineScript
+    inlineScript: |
+      set -e
+
+      # === CHANGE THESE TWO NAMES ===
+      ACC='$(FUNCSA)'
+      CNTR='function-releases'
+
+      APPZIP='$(Build.ArtifactStagingDirectory)/app.zip'
+      PUBDIR='$(Build.ArtifactStagingDirectory)/publish'
+      BLOB="metadata-api-func/app-$(Build.BuildId).zip"
+
+      # zip the publish output
+      cd "$PUBDIR"
+      zip -qr "$APPZIP" .
+
+      # create container if missing (AAD login; no keys)
+      az storage container create \
+        --account-name "$ACC" \
+        --name "$CNTR" \
+        --auth-mode login 1>/dev/null
+
+      # upload with AAD
+      az storage blob upload \
+        --account-name "$ACC" \
+        --container-name "$CNTR" \
+        --name "$BLOB" \
+        --file "$APPZIP" \
+        --overwrite \
+        --auth-mode login 1>/dev/null
+
+      # user‑delegation SAS (no account key needed)
+      EXP=$(date -u -v+7d +%Y-%m-%dT%H:%MZ 2>/dev/null || date -u -d '+7 days' +%Y-%m-%dT%H:%MZ)
+      SAS=$(az storage blob generate-sas \
+        --account-name "$ACC" \
+        --container-name "$CNTR" \
+        --name "$BLOB" \
+        --permissions r \
+        --expiry "$EXP" \
+        --as-user -o tsv)
+
+      URL="https://${ACC}.blob.core.windows.net/${CN}/${BLOB}?${SAS}"
+
+      # Tell Functions to run from that package URL
+      az functionapp config appsettings set \
+        --resource-group "$(RESOURCE_GROUP)" \
+        --name "$(APP_NAME)" \
+        --settings WEBSITE_RUN_FROM_PACKAGE="$URL" 1>/dev/null
+
+      echo "Run-from-package set to: $URL"
