@@ -92,14 +92,14 @@ steps:
       cd "$PUBDIR"
       zip -qr "$APPZIP" .
 
-        echo "-------> Trying to create container: $CNTR"
+        # echo "-------> Trying to create container: $CNTR"
       # create container if missing (AAD login; no keys)
       az storage container create \
         --account-name "$ACC" \
         --name "$CNTR" \
         --auth-mode login 1>/dev/null
         
-        echo "-------> uploading blob: $BLOB"
+        # echo "-------> uploading blob: $BLOB"
 
       # upload with AAD
       az storage blob upload \
@@ -123,7 +123,7 @@ steps:
         --auth-mode login 1>/dev/null)
 
       URL="https://${ACC}.blob.core.windows.net/${CN}/${BLOB}?${SAS}"
-        echo "-------> setting function app settings, SAS: $SAS"
+        # echo "-------> setting function app settings..."
 
       # Tell Functions to run from that package URL
       az functionapp config appsettings set \
