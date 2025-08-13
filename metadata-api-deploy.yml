@@ -119,13 +119,13 @@ steps:
         --name "$BLOB" \
         --permissions r \
         --expiry "$EXP" \
-        -o tsv \
-        --auth-mode login 1>/dev/null)
-
+        --as-user -o tsv \
+        --auth-mode login)
+      echo "-------> EXPIRY: $EXP"
       if [ -z "$SAS" ]; then
         echo "-------> SAS generation FAILED"; exit 1
       fi
-      echo "SAS length: ${#SAS}"
+      echo "-------> SAS length: ${#SAS}"
       URL="https://${ACC}.blob.core.windows.net/${CN}/${BLOB}?${SAS}"
       
       echo "-------> setting function app settings..."
@@ -137,3 +137,4 @@ steps:
         --settings WEBSITE_RUN_FROM_PACKAGE="$URL" 1>/dev/null
 
         echo "-------> Run-from-package set to: $URL"
+
