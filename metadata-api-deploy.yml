@@ -92,14 +92,14 @@ steps:
       cd "$PUBDIR"
       zip -qr "$APPZIP" .
 
-        echo "Trying to create container: $CNTR"
+        echo "-------> Trying to create container: $CNTR"
       # create container if missing (AAD login; no keys)
       az storage container create \
         --account-name "$ACC" \
         --name "$CNTR" \
         --auth-mode login 1>/dev/null
         
-        echo "uploading blob: $BLOB"
+        echo "-------> uploading blob: $BLOB"
 
       # upload with AAD
       az storage blob upload \
@@ -109,7 +109,7 @@ steps:
         --file "$APPZIP" \
         --overwrite \
         --auth-mode login 1>/dev/null
-        echo "Generating SAS token with exp: $EXP"
+        echo "-------> Generating SAS token with exp: $EXP"
 
       # user‑delegation SAS (no account key needed)
       EXP=$(date -u -v+7d +%Y-%m-%dT%H:%MZ 2>/dev/null || date -u -d '+7 days' +%Y-%m-%dT%H:%MZ)
@@ -119,11 +119,11 @@ steps:
         --name "$BLOB" \
         --permissions r \
         --expiry "$EXP" \
-        --as-user -o tsv
+        --as-user -o tsv \
         --auth-mode login 1>/dev/null)
 
       URL="https://${ACC}.blob.core.windows.net/${CN}/${BLOB}?${SAS}"
-        echo "setting function app settings, SAS: $SAS"
+        echo "-------> setting function app settings, SAS: $SAS"
 
       # Tell Functions to run from that package URL
       az functionapp config appsettings set \
@@ -131,4 +131,4 @@ steps:
         --name "$(APP_NAME)" \
         --settings WEBSITE_RUN_FROM_PACKAGE="$URL" 1>/dev/null
 
-        echo "Run-from-package set to: $URL"
+        echo "-------> Run-from-package set to: $URL"
