@@ -119,7 +119,8 @@ steps:
         --name "$BLOB" \
         --permissions r \
         --expiry "$EXP" \
-        --as-user -o tsv)
+        --as-user -o tsv \
+        --sas-token $SAS)
 
       URL="https://${ACC}.blob.core.windows.net/${CN}/${BLOB}?${SAS}"
         echo "setting function app settings, SAS: $SAS"
