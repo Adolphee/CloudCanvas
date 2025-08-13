@@ -119,15 +119,16 @@ steps:
         --name "$BLOB" \
         --permissions r \
         --expiry "$EXP" \
-        --as-user -o tsv \
+        -o tsv \
         --auth-mode login 1>/dev/null)
 
       if [ -z "$SAS" ]; then
         echo "-------> SAS generation FAILED"; exit 1
       fi
-      
+      echo "SAS length: ${#SAS}"
       URL="https://${ACC}.blob.core.windows.net/${CN}/${BLOB}?${SAS}"
-        # echo "-------> setting function app settings..."
+      
+      echo "-------> setting function app settings..."
 
       # Tell Functions to run from that package URL
       az functionapp config appsettings set \
