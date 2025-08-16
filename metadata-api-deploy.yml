@@ -109,7 +109,7 @@ steps:
         --file "$APPZIP" \
         --overwrite \
         --as-user -o tsv \
-        --auth-mode login 1>/dev/null
+        --auth-mode login
         
       echo "-------> EXPIRY: $EXP"
       if [ -z "$SAS" ]; then
