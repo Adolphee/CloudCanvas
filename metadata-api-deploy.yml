@@ -108,8 +108,7 @@ steps:
         --name "$BLOB" \
         --file "$APPZIP" \
         --overwrite \
-        --as-user -o tsv \
-        --auth-mode login
+        --auth-mode login 1>/dev/null
         
       echo "-------> EXPIRY: $EXP"
       if [ -z "$SAS" ]; then
