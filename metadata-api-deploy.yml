@@ -69,7 +69,7 @@ steps:
           "FUMSGO=@Microsoft.KeyVault(SecretUri=$(FUMSGO))" \
           "FUMSGI=@Microsoft.KeyVault(SecretUri=$(FUMSGI))" \
           "AzureWebJobsStorage=@Microsoft.KeyVault(SecretUri=$(AZWJS))" \
-          "FUNCTIONS_WORKER_RUNTIME=$(RUNTIME)"
+          'FUNCTIONS_WORKER_RUNTIME="$(RUNTIME)"'
 
 - task: AzureCLI@2
   displayName: 'Zip deploy via AAD (no keys)'
