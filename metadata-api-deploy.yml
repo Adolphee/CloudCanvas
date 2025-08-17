@@ -69,7 +69,7 @@ steps:
           "FUMSGO=@Microsoft.KeyVault(SecretUri=$(FUMSGO))" \
           "FUMSGI=@Microsoft.KeyVault(SecretUri=$(FUMSGI))" \
           "AzureWebJobsStorage=@Microsoft.KeyVault(SecretUri=$(AZWJS))" \
-          'FUNCTIONS_WORKER_RUNTIME="$(RUNTIME)"'
+          "FUNCTIONS_WORKER_RUNTIME=$(RUNTIME)"
 
 - task: AzureCLI@2
   displayName: 'Zip deploy via AAD (no keys)'
@@ -109,6 +109,18 @@ steps:
         --file "$APPZIP" \
         --overwrite \
         --auth-mode login 1>/dev/null
+        # echo "-------> Generating SAS token with exp: $EXP"
+      
+      # user‑delegation SAS (no account key needed)
+      EXP=$(date -u -v+7d +%Y-%m-%dT%H:%MZ 2>/dev/null || date -u -d '+7 days' +%Y-%m-%dT%H:%MZ)
+      SAS=$(az storage blob generate-sas \
+        --account-name "$ACC" \
+        --container-name "$CNTR" \
+        --name "$BLOB" \
+        --permissions r \
+        --expiry "$EXP" \
+        --as-user -o tsv \
+        --auth-mode login)
         
       echo "-------> EXPIRY: $EXP"
       if [ -z "$SAS" ]; then
@@ -117,7 +129,7 @@ steps:
       echo "-------> SAS length: ${#SAS}"
       URL="https://${ACC}.blob.core.windows.net/${CN}/${BLOB}?${SAS}"
       
-      echo "-------> setting function app settings...: ${#SAS}"
+      echo "-------> setting function app settings..."
 
       # Tell Functions to run from that package URL
       az functionapp config appsettings set \
@@ -126,4 +138,3 @@ steps:
         --settings WEBSITE_RUN_FROM_PACKAGE="$URL" 1>/dev/null
 
         echo "-------> Run-from-package set to: $URL"
-
