@@ -26,11 +26,12 @@ steps:
     restoreKeys: |
       nuget | "$(Agent.OS)"
       nuget
-    path: '$(NUGET_PACKAGES)'
+    path: '$(HOME)/.nuget/packages'
 
 # Build & publish API Function
 - task: DotNetCoreCLI@2
   displayName: 'Restore'
+  condition: ne(variables['NugetCache.cacheHit'], 'true')
   inputs:
     command: 'restore'
     projects: "$(PROJECT_PATH)"
