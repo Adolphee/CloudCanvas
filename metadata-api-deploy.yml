@@ -61,7 +61,7 @@ steps:
     scriptLocation: inlineScript
     inlineScript: |
       
-      echo "-------> FUMSGI: SecretUri=$(FUMSGI)"
+      echo "-------> FUMSGI: SecretUri=$(AZWJS)"
       az functionapp config appsettings set \
         --name "$(APP_NAME)" \
         --resource-group "$(RESOURCE_GROUP)" \
