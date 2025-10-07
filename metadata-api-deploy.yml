@@ -26,7 +26,13 @@ steps:
     restoreKeys: |
       nuget | "$(Agent.OS)"
       nuget
-    path: '$(HOME)/.nuget/packages'
+    path: '$(NUGET_PACKAGES)'
+
+- script: |
+    echo "Contents of $(NUGET_PACKAGES):"
+    du -sh $(HOME)/.nuget/packages || true
+    ls -la $(HOME)/.nuget/packages || true
+  displayName: 'Debug NuGet Package Folder'
 
 # Build & publish API Function
 - task: DotNetCoreCLI@2
@@ -36,6 +42,9 @@ steps:
     command: 'restore'
     projects: "$(PROJECT_PATH)"
     feedsToUse: 'select'
+    arguments: '--packages $(NUGET_PACKAGES)'
+
+
 
 - task: DotNetCoreCLI@2
   displayName: 'Build'
