@@ -60,6 +60,8 @@ steps:
     scriptType: bash
     scriptLocation: inlineScript
     inlineScript: |
+      
+      echo "-------> FUMSGI: SecretUri=$(FUMSGI)"
       az functionapp config appsettings set \
         --name "$(APP_NAME)" \
         --resource-group "$(RESOURCE_GROUP)" \
@@ -100,7 +102,6 @@ steps:
         --auth-mode login 1>/dev/null
         
         # echo "-------> uploading blob: $BLOB"
-
       # upload with AAD
       az storage blob upload \
         --account-name "$ACC" \
@@ -137,4 +138,4 @@ steps:
         --name "$(APP_NAME)" \
         --settings WEBSITE_RUN_FROM_PACKAGE="$URL" 1>/dev/null
 
-        echo "-------> Run-from-package set to: $URL"
+        echo "-------> Run-from-package set to: $URL"a
