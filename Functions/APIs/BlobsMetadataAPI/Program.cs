@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Azure.Storage.Blobs;
 using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.Interfaces;
@@ -15,23 +16,27 @@ builder.ConfigureFunctionsWebApplication();
 builder.Services.AddTransient<CosmosClientWrapper>();
 builder.Services.AddSingleton(cc =>
 {
-    var CosmosConnString = Environment.GetEnvironmentVariable(Secrets.MTSTRG);
-    Validate.StringValue(nameof(CosmosConnString), CosmosConnString);
-    return new CosmosClient(CosmosConnString, new CosmosClientOptions
+    var accountEndpoint = Environment.GetEnvironmentVariable(CloudCosmos.Uri);
+    Validate.StringValue(nameof(accountEndpoint), accountEndpoint);
+
+    var credential = new DefaultAzureCredential();
+    var cosmosClient = new CosmosClient(accountEndpoint, credential, new CosmosClientOptions
     {
-        SerializerOptions  = new CosmosSerializationOptions
+        SerializerOptions = new CosmosSerializationOptions
         {
             PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
         }
-    });
+    }); ;
+    return cosmosClient;
 });
 
 builder.Services.AddTransient<BlobStorageService>();
 builder.Services.AddSingleton(bc =>
 {
-    var CosmosConnString = Environment.GetEnvironmentVariable(Secrets.MNSTRG);
-    Validate.StringValue(nameof(CosmosConnString), CosmosConnString);
-    return new BlobServiceClient(CosmosConnString);
+    var endpoint = Environment.GetEnvironmentVariable(BlobStorage.Uri);
+    Validate.StringValue(nameof(endpoint), endpoint);
+    var credential = new DefaultAzureCredential();
+    return new BlobServiceClient(new Uri(endpoint!), credential);
 });
 builder.Services
     .AddApplicationInsightsTelemetryWorkerService()

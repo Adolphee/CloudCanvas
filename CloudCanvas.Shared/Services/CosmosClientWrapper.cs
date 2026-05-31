@@ -62,7 +62,7 @@ namespace CloudCanvas.Shared.Services
                 await container.ReadItemAsync<BlobMetaDTO>(id, new PartitionKey(partitionKey));
                 return true;
             }
-            catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            catch (CosmosException) //when (ex.StatusCode == HttpStatusCode.NotFound)
             {
                 return false;
             }

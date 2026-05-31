@@ -1,4 +1,5 @@
 
+using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.Interfaces;
@@ -17,20 +18,17 @@ builder.Services.AddSingleton<CosmosClientWrapper>(); // Inject custom Cosmos wr
 builder.Services.AddTransient<ServiceBusAdapter>(); // Inject my Service Bus Adapter
 builder.Services.AddSingleton<IServiceBusClientFactory>(sp => 
 {   // This factory should dynamically return the right ServiceBus client (listen vs read)
-    var senderConnectionString = Environment.GetEnvironmentVariable(Secrets.FUMSGO);
-    var listenerConnectionString = Environment.GetEnvironmentVariable(Secrets.FUMSGI);
-    Validate.StringValue(nameof(senderConnectionString), senderConnectionString);     // Quick Validation even in startup, Fail-Fast principle
-    Validate.StringValue(nameof(listenerConnectionString), listenerConnectionString);
-    var sender = new ServiceBusClient(senderConnectionString);
-    var listener = new ServiceBusClient(listenerConnectionString);
-    return new SBClientFactory(sender, listener);   // If it throws at this point, I leave it up to AppInsights and Telemetry
+    var endpoint = Environment.GetEnvironmentVariable(ServiceBus.Uri);
+    Validate.StringValue(nameof(endpoint), endpoint);     // Quick Validation even in startup, Fail-Fast principle
+    var client = new ServiceBusClient(endpoint, new DefaultAzureCredential());
+    return new SBClientFactory(client);   // If it throws at this point, I leave it up to AppInsights and Telemetry
 });
 
 builder.Services.AddSingleton(sp =>
 {
-    var cosmosConnectionString = Environment.GetEnvironmentVariable(Secrets.MTSTRG);
-    Validate.StringValue(nameof(cosmosConnectionString), cosmosConnectionString);
-    return new CosmosClient(cosmosConnectionString, 
+    var endpoint = Environment.GetEnvironmentVariable(CloudCosmos.Uri);
+    Validate.StringValue(nameof(endpoint), endpoint);
+    return new CosmosClient(endpoint, new DefaultAzureCredential(),
         new CosmosClientOptions {
         SerializerOptions = new CosmosSerializationOptions
         {

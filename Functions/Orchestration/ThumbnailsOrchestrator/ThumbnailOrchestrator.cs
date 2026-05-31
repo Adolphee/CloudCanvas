@@ -20,6 +20,7 @@ public class ThumbnailOrchestrator
         var thumbnails = new Dictionary<ThumbnailSize, Task<string>>();
         var sizes = new[] { ThumbnailSize.xsmall, ThumbnailSize.small, ThumbnailSize.medium };
         var thumb_req = new ThumbnailActivityRequest(req.Blob, req.CorrelationId, context.InstanceId);
+
         // fan-out
         foreach (var tsize in sizes) 
         {
@@ -30,6 +31,7 @@ public class ThumbnailOrchestrator
         var results = await Task.WhenAll(thumbnails.Values); 
         logger.LogInformation("{correlationId} Fan-out/Fan-in completed. instanceId: {instanceId}, blobId: {identifier}",
             req.CorrelationId, context.InstanceId, req.Blob.Name);
+
         // add thumbnails
         foreach ((var size, var url) in thumbnails) 
         {

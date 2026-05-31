@@ -29,7 +29,7 @@ public class BlobsApiFunction
     }
 
     [Function(name: "GetAllBlobs")]
-    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Function, "get", Route = "photos")] HttpRequest req)
+    public async Task<IActionResult> Get([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "photos")] HttpRequest req)
     {
         try
         {
@@ -47,7 +47,7 @@ public class BlobsApiFunction
 
 
     [Function(name: "GetSingleBlob")]
-    public async Task<IActionResult> GetSingle([HttpTrigger(AuthorizationLevel.Function, "get", Route = "photos/{identifier}")] HttpRequest req, string identifier, string userId)
+    public async Task<IActionResult> GetSingle([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "photos/{identifier}")] HttpRequest req, string identifier, string userId)
     {
         try
         {
@@ -64,7 +64,7 @@ public class BlobsApiFunction
     }
 
     [Function(name: "SaveBlob")]
-    public async Task<IActionResult> Post([HttpTrigger(AuthorizationLevel.Function, "post", "put", Route = "photos")] HttpRequest req)
+    public async Task<IActionResult> Post([HttpTrigger(AuthorizationLevel.Anonymous, "post", "put", Route = "photos")] HttpRequest req)
     {
         _logger.LogInformation("Incoming {req.Method} Request at '{route}'.", req.Method, req.RouteValues);
         using var reader = new StreamReader(req.Body);
@@ -85,7 +85,7 @@ public class BlobsApiFunction
     }
 
     [Function(name: "PatchBlobMetadata")]
-    public async Task<IActionResult> Patch([HttpTrigger(AuthorizationLevel.Function, "patch", Route = "photos/{identifier}")] HttpRequest req, string identifier)
+    public async Task<IActionResult> Patch([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = "photos/{identifier}")] HttpRequest req, string identifier)
     {
         _logger.LogInformation("{req.Method} Request for blob '{identifier}'.", req.Method, identifier);
         using var reader = new StreamReader(req.Body);
@@ -112,7 +112,7 @@ public class BlobsApiFunction
 
 
     [Function(name: "SoftDeleteBlob")]
-    public async Task<IActionResult> Delete([HttpTrigger(AuthorizationLevel.Function, "delete", Route = "photos/{identifier}")] HttpRequest req, string identifier)
+    public async Task<IActionResult> Delete([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "photos/{identifier}")] HttpRequest req, string identifier)
     {
         _logger.LogInformation("Soft-delete requested. Method: {req.Method}, blobId: '{identifier}'", req.Method, identifier);
         BlobMetaDTO blob = await _bservice.GetBlobMetaAsync(identifier, BlobStorage.Containers.Uploads);
