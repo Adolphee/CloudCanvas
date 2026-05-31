@@ -3,7 +3,7 @@ trigger:
     include: [ azure-pipelines ]
 
 pool:
-  vmImage: 'ubuntu-latest'
+  name: Default
 
 variables:
 - group: lib-metadata-api
@@ -22,58 +22,130 @@ steps:
 - task: Cache@2
   displayName: 'Cache NuGet packages'
   inputs:
-    key: 'nuget | "$(Agent.OS)" | **/*.csproj'
+    key: 'nuget | "$(Agent.OS)" | **/BlobsMetadataAPI.csproj'
     restoreKeys: |
       nuget | "$(Agent.OS)"
       nuget
     path: '$(NUGET_PACKAGES)'
 
+- script: |
+    echo "Contents of $(NUGET_PACKAGES):"
+    du -sh $(HOME)/.nuget/packages || true
+    ls -la $(HOME)/.nuget/packages || true
+  displayName: 'Debug NuGet Package Folder'
+
 # Build & publish API Function
 - task: DotNetCoreCLI@2
   displayName: 'Restore'
+  condition: ne(variables['NugetCache.cacheHit'], 'true')
   inputs:
     command: 'restore'
-    projects: 'Functions/APIs/BlobsMetadataAPI/BlobsMetadataAPI.csproj'
+    projects: "$(PROJECT_PATH)"
     feedsToUse: 'select'
-    vstsFeed: 'ac6df6af-daff-43d5-ac13-3e6097ca4f18'
+    arguments: '--packages $(NUGET_PACKAGES)'
+
+
 
 - task: DotNetCoreCLI@2
   displayName: 'Build'
   inputs:
     command: 'build'
-    projects: 'Functions/APIs/BlobsMetadataAPI/BlobsMetadataAPI.csproj'
+    projects: "$(PROJECT_PATH)"
     arguments: '--configuration Release --no-restore'
 
 - task: DotNetCoreCLI@2
   displayName: 'Publish'
   inputs:
     command: 'publish'
-    projects: 'Functions/APIs/BlobsMetadataAPI/BlobsMetadataAPI.csproj'
+    projects: "$(PROJECT_PATH)"
+    publishWebProjects: false
     arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)/publish --no-build'
 
-# (Optional) Set app settings to Key Vault *references* so CI never sees values
+# Set app settings to Key Vault *references* so CI never sees values
+
 - task: AzureCLI@2
   displayName: 'Configure KV references on Function App'
   inputs:
-    azureSubscription: '$(SERVICE_CONN)'
+    azureSubscription: "$(AZURE_SUB)"
     scriptType: bash
     scriptLocation: inlineScript
     inlineScript: |
+      
+      echo "-------> FUMSGI: SecretUri=$(AZWJS)"
       az functionapp config appsettings set \
         --name "$(APP_NAME)" \
         --resource-group "$(RESOURCE_GROUP)" \
         --settings \
-          "AzureWebJobsStorage=@Microsoft.KeyVault(SecretUri=$(AZWJS_SECRET_URI))" \
           "MNSTRG=@Microsoft.KeyVault(SecretUri=$(MNSTRG))" \
           "MTSTRG=@Microsoft.KeyVault(SecretUri=$(MTSTRG))" \
           "FUMSGO=@Microsoft.KeyVault(SecretUri=$(FUMSGO))" \
-          "FUMSGI=@Microsoft.KeyVault(SecretUri=$(FUMSGI))"
+          "FUMSGI=@Microsoft.KeyVault(SecretUri=$(FUMSGI))" \
+          "AzureWebJobsStorage=@Microsoft.KeyVault(SecretUri=$(AZWJS))" \
+          "FUNCTIONS_WORKER_RUNTIME=$(RUNTIME)"
 
-# Deploy zip package (no publish profile needed)
-- task: AzureFunctionApp@1
-  displayName: 'Deploy to Azure Function App'
+- task: AzureCLI@2
+  displayName: 'Zip deploy via AAD (no keys)'
   inputs:
-    azureSubscription: '$(SERVICE_CONN)'
-    appType: 'functionAppLinux'
-    appName: '$(APP_NAME)'
-    package: '$(Build.ArtifactStagingDirectory)/publish'
+    azureSubscription: '$(AZURE_SUB)'
+    scriptType: bash
+    scriptLocation: inlineScript
+    inlineScript: |
+      set -e
+
+      # === CHANGE THESE TWO NAMES ===
+      ACC='$(FUNCSA)'
+      CNTR='function-releases'
+
+      APPZIP='$(Build.ArtifactStagingDirectory)/app.zip'
+      PUBDIR='$(Build.ArtifactStagingDirectory)/publish'
+      BLOB="metadata-api-func/app-$(Build.BuildId).zip"
+
+      # zip the publish output
+      cd "$PUBDIR"
+      zip -qr "$APPZIP" .
+
+        # echo "-------> Trying to create container: $CNTR"
+      # create container if missing (AAD login; no keys)
+      az storage container create \
+        --account-name "$ACC" \
+        --name "$CNTR" \
+        --auth-mode login 1>/dev/null
+        
+        # echo "-------> uploading blob: $BLOB"
+      # upload with AAD
+      az storage blob upload \
+        --account-name "$ACC" \
+        --container-name "$CNTR" \
+        --name "$BLOB" \
+        --file "$APPZIP" \
+        --overwrite \
+        --auth-mode login 1>/dev/null
+        # echo "-------> Generating SAS token with exp: $EXP"
+      
+      # user‑delegation SAS (no account key needed)
+      EXP=$(date -u -v+7d +%Y-%m-%dT%H:%MZ 2>/dev/null || date -u -d '+7 days' +%Y-%m-%dT%H:%MZ)
+      SAS=$(az storage blob generate-sas \
+        --account-name "$ACC" \
+        --container-name "$CNTR" \
+        --name "$BLOB" \
+        --permissions r \
+        --expiry "$EXP" \
+        --as-user -o tsv \
+        --auth-mode login)
+        
+      echo "-------> EXPIRY: $EXP"
+      if [ -z "$SAS" ]; then
+        echo "-------> SAS generation FAILED"; exit 1
+      fi
+      echo "-------> SAS length: ${#SAS}"
+      URL="https://${ACC}.blob.core.windows.net/${CN}/${BLOB}?${SAS}"
+      
+      echo "-------> setting function app settings..."
+
+      # Tell Functions to run from that package URL
+      az functionapp config appsettings set \
+        --resource-group "$(RESOURCE_GROUP)" \
+        --name "$(APP_NAME)" \
+        --settings WEBSITE_RUN_FROM_PACKAGE="$URL" 1>/dev/null
+
+        echo "-------> Run-from-package set to: $URL"a
