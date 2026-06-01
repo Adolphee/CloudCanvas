@@ -1,4 +1,6 @@
-﻿using CloudCanvas.Shared.DTOs;
+﻿using CloudCanvas.Shared.Constants;
+using CloudCanvas.Shared.DTOs;
+using Microsoft.Azure.Cosmos;
 
 namespace CloudCanvas.Shared.Interfaces
 {
@@ -20,7 +22,7 @@ namespace CloudCanvas.Shared.Interfaces
         /// <param name="obj">The object to be saved. Cannot be <see langword="null"/>.</param>
         /// <param name="containerName">The name of the container where the object will be saved. Cannot be <see langword="null"/> or empty.</param>
         /// <returns>A task that represents the asynchronous save operation. The task result contains the saved object.</returns>
-        public Task<T> SaveMetadataAsync<T>(T obj, string containerName) where T : MetadataDocumentBase;
+        Task<T> SaveMetadataAsync<T>(T obj, string containerName, bool overWrite = false) where T : MetadataDocumentBase;
 
         /// <summary>
         /// Retrieves a collection of items of the specified type from the given container.
@@ -30,8 +32,16 @@ namespace CloudCanvas.Shared.Interfaces
         /// issues.</remarks>
         /// <typeparam name="T">The type of items to retrieve from the container.</typeparam>
         /// <param name="containerName">The name of the container to query. Must not be null or empty.</param>
-        /// <returns>An <see cref="IEnumerable{T}"/> containing the items of type <typeparamref name="T"/>  retrieved from the
-        /// specified container. Returns an empty collection if the container is empty or does not exist.</returns>
-        public IEnumerable<T> QueryContainer<T>(string containerName) where T : MetadataDocumentBase;
+        /// <returns>An <see cref="Container"/> The specified container. Returns an empty collection if the container is empty or does not exist.</returns>
+        Task<bool> DeleteDocumentAsync<T>(T metaDTO, string containerName) where T: MetadataDocumentBase;
+
+        //Task<bool> SoftDeleteItemAsync<T>(T meta, string containerName) where T : MetadataDocumentBase;
+
+        Task<List<T>> ListBlobsAsync<T>(string containerName) where T: CosmosDocumentBase;
+
+        Task<T> SingleAsync<T>(string documentId, string userId, string containerName) where T: MetadataDocumentBase;
+        Task<bool> MetaExistsAsync(string containerName, string id, string partitionKey);
+        Container GetContainer(string containerName);
+        Task<T> PatchItemAsync<T>(string identifier, string userId, string containerName, IReadOnlyList<PatchOperation> ops) where T : MetadataDocumentBase;
     }
 }

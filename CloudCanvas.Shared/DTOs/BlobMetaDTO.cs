@@ -1,4 +1,6 @@
 ﻿using Azure.Storage.Blobs.Models;
+using CloudCanvas.Shared.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace CloudCanvas.Shared.DTOs
 {
@@ -9,33 +11,32 @@ namespace CloudCanvas.Shared.DTOs
     /// metadata,  content properties, and various operational states such as copy status, encryption details,  and
     /// access tier. It is designed to encapsulate all relevant data for managing and interacting  with blobs in a
     /// storage context.</remarks>
-    [Serializable]
-    public class BlobMetaDTO: MetadataDocumentBase
+    public class BlobMetaDTO: GalleryItemDTO
     {
-        public string? OriginalFileName { get; set; }
-        public string? BlobUrl { get; set; }
-        public string? ProcessingStage { get; set; }
-        public string? UploadedBy { get; set; }
-        public string? Project { get; set; }
-        public List<string>? Tags { get; set; } // for future A.I. integration for auto-tagging
-        public DateTimeOffset LastModified { get; set; }
-        public DateTimeOffset CreatedOn { get; set; }
-        public IDictionary<string, string>? Metadata { get; set; } // any additional/custom metadata
+        [Required, MaxLength(100)]
+        public string Name { get; set; } = default!;
+        [Required]
+        public string ContainerName { get; set; } = default!;
+        [Required, Range(0, 4)]
+        public int ProcessingStage { get; set; }
+        public string? ContentEncoding { get; set; }
         public BlobType BlobType { get; set; }
-        public DateTimeOffset CopyCompletedOn { get; set; }
+        public List<string> Tags { get; set; } = new(); // for future A.I. integration for auto-tagging
+        public string? ContentType { get; set; }
+        public long TagCount { get; set; }
+        public string? ContentLanguage { get; set; }
+        public bool HasLegalHold { get; internal set; }
+        public IDictionary<string, string> Metadata { get; set; } = new Dictionary<string, string>(); // any additional/custom metadata
+        public DateTimeOffset CopyCompletedOn { get; set; } = new();
         public string? CopyStatusDescription { get; set; }
         public string? CopyId { get; set; }
         public string? CopyProgress { get; set; }
-        public string? SourceUrl { get; set; }
-        public CopyStatus CopyStatus { get; set; }
+        public string? CopySourceUrl { get; set; }
+        public CopyStatus? CopyStatus { get; set; }
         public bool IsIncrementalCopy { get; set; }
         public string? DestinationSnapshot { get; set; }
-        public long ContentLength { get; set; }
-        public string? ContentType { get; set; }
         public string? ETag { get; set; }
-        public string? ContentEncoding { get; set; }
         public string? ContentDisposition { get; set; }
-        public string? ContentLanguage { get; set; }
         public string? CacheControl { get; set; }
         public long BlobSequenceNumber { get; set; }
         public string? AcceptRanges { get; set; }
@@ -49,14 +50,10 @@ namespace CloudCanvas.Shared.DTOs
         public DateTimeOffset AccessTierChangedOn { get; set; }
         public string? VersionId { get; set; }
         public bool IsLatestVersion { get; set; }
-        public long TagCount { get; set; }
         public DateTimeOffset ExpiresOn { get; set; }
         public bool IsSealed { get; set; }
         public RehydratePriority RehydratePriority { get; set; }
-
         public DateTimeOffset LastAccessed { get; set; }
-
-        public bool HasLegalHold { get; internal set; }
 
     }
 }

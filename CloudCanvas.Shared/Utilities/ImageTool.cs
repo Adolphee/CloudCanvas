@@ -34,13 +34,13 @@ namespace CloudCanvas.Shared.Utilities
             ThumbnailSize size = (ThumbnailSize)index;
             return size;
         }
-        private static int GetPixelSize(ThumbnailSize tnSize)
+        public static int GetPixelSize(ThumbnailSize tnSize)
         {
             switch (tnSize)
             {
-                case ThumbnailSize.XSmall: return 25;
-                case ThumbnailSize.Small: return 50;
-                case ThumbnailSize.Medium: return 75;
+                case ThumbnailSize.xsmall: return 25;
+                case ThumbnailSize.small: return 50;
+                case ThumbnailSize.medium: return 75;
                 default: return 50;
             }
         }

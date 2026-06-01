@@ -4,6 +4,9 @@ using CloudCanvas.Shared.Interfaces;
 using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.Exceptions;
 using CloudCanvas.Shared.Utilities;
+using CloudCanvas.Shared.DTOs;
+using Azure.Storage.Blobs.Models;
+using Azure;
 
 namespace CloudCanvas.Shared.Services
 {
@@ -39,7 +42,7 @@ namespace CloudCanvas.Shared.Services
         /// for the container without creating it.</param>
         /// <returns>A <see cref="BlobContainerClient"/> instance for the specified container.</returns>
         /// <exception cref="BlobContainerClientInitializationFailedException">Thrown if an error occurs while initializing the <see cref="BlobContainerClient"/>.</exception>
-        public async Task<BlobContainerClient> GetOrCreateContainerClientAsync(string containerName, bool createIfNotExists = true)
+        public async Task<BlobContainerClient> GetOrCreateContainerClientAsync(string containerName, bool createIfNotExists = false)
         {
             Validate.StringValue(nameof(containerName),containerName);
             try
@@ -90,18 +93,24 @@ namespace CloudCanvas.Shared.Services
        /// if not specified. Cannot be null or empty.</param>
        /// <returns>A task that represents the asynchronous upload operation.</returns>
        /// <exception cref="BadImageFormatException">Thrown if <paramref name="fileStream"/> is null or cannot be read.</exception>
-        public async Task UploadAsync(Stream fileStream, string filename, string containerName = BlobStorage.Containers.Uploads)
+        public async Task<BlobMetaDTO> UploadAsync(Stream fileStream, string filename, string containerName = BlobStorage.Containers.Uploads, string customIdentifier = null!)
         {
             Validate.StringValue(nameof(filename), filename);
             Validate.StringValue(nameof(containerName), containerName);
             if (fileStream != null)
             {
                 fileStream.Position = 0;
+                var identifier = !String.IsNullOrWhiteSpace(customIdentifier) ? customIdentifier: Guid.NewGuid().ToString();
+                Dictionary<string, string> meta = new();
+                meta.Add(BlobStorage.Meta.OriginalFilename, filename); // this is to enforce data consistency, convertability between BlobProperties & BlobMetaDTO
+                meta.Add(BlobStorage.Meta.UploadedBy, Guid.NewGuid().ToString()); // Idem dito, these blob metadata are not available OOTB (afaik)
                 try
                 {
                     var client = await GetOrCreateContainerClientAsync(containerName);
-                    var blob = client.GetBlobClient(filename);
-                    await blob.UploadAsync(fileStream, true);
+                    var blob = client.GetBlobClient(identifier);
+                    var info = await blob.UploadAsync(fileStream, new BlobUploadOptions { Metadata = meta });
+                    BlobMetaDTO dto = CCSerializer.MetaFromBlobProperties(identifier, blob.Uri.ToString(), blob.GetProperties());
+                    return dto;
                 }
                 catch (Exception e) 
                 {
@@ -111,6 +120,51 @@ namespace CloudCanvas.Shared.Services
             } else
             {
                 throw new BadImageFormatException($"Unable to read file: {filename} from container {containerName}.");
+            }
+        }
+
+        public async Task<BlobMetaDTO> GetBlobMetaAsync(string identifier, string fromContainer)
+        {
+            var container = await GetOrCreateContainerClientAsync(fromContainer);
+            var bclient = container.GetBlobClient(identifier);
+            var props = await bclient.GetPropertiesAsync();
+            return CCSerializer.MetaFromBlobProperties(identifier, bclient.Uri.ToString(), props);
+        }
+
+        public async Task<BlobMetaDTO> AddMetadataAsync(BlobMetaDTO blob, string key, string value)
+        {
+            blob.Metadata[key] = value;
+            var bclient = await GetOrCreateContainerClientAsync(blob.ContainerName);
+            await bclient.GetBlobClient(blob.Name).SetMetadataAsync(blob.Metadata);
+            return blob;
+        }
+
+        public async Task<List<BlobMetaDTO>> GetBlobsAsync(string containerName)
+        {
+            var container = _client.GetBlobContainerClient(containerName);
+            var blobItems = container.GetBlobsAsync();
+            List<BlobMetaDTO> results = new();
+            await foreach(var item in blobItems)
+            {
+               var blob = container.GetBlobClient(item.Name);
+                BlobMetaDTO meta = CCSerializer.MetaFromBlobProperties(blob.Name, blob.Uri.ToString(), await blob.GetPropertiesAsync());
+                results.Add(meta);
+            }
+            return results;
+        }
+        
+
+        public async Task<bool> DeleteAsync(string containerName, string identifier)
+        {
+            var bclient = _client.GetBlobContainerClient(containerName).GetBlobClient(identifier);
+            try
+            {
+                return await bclient.DeleteIfExistsAsync();
+            } 
+            catch (Exception e) when (e is RequestFailedException|| e is AggregateException)
+            {
+                _logger.LogError(e, "Failed to delete blob with name/identifier '{name}' from container '{container}'", identifier, containerName);
+                return false;
             }
         }
     }

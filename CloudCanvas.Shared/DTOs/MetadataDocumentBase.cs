@@ -13,6 +13,6 @@ namespace CloudCanvas.Shared.DTOs
     {
         [Required]
         [JsonPropertyName("userId")]
-        public string UserId { get; set; } = Guid.NewGuid().ToString();
+        public string UserId { get; set; } = Guid.NewGuid().ToString(); // should be overwritten for more structured Id's
     }
 }

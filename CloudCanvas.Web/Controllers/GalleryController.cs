@@ -3,27 +3,30 @@ using CloudCanvas.Shared.Services;
 using CloudCanvas.Web.Models;
 using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.Interfaces;
+using CloudCanvas.Shared.DTOs;
+using CloudCanvas.Shared.Utilities;
 
 namespace CloudCanvas.Web.Controllers
 {
     [Route("[controller]")]
-    public class GalleryController : Controller
+    public class GalleryController(ILogger<GalleryController> logger, CosmosClientWrapper cosmos_wrapper) : Controller
     {
-        private readonly ILogger<GalleryController> _logger;
-        private readonly IBlobStorageService _service;
-        public List<string> ImageLinks { get; set; } = new List<string>();
-
-        public GalleryController(ILogger<GalleryController> logger, BlobStorageService service)
-        {
-            _logger = logger;
-            _service = service;
-        }
+        private readonly ILogger<GalleryController> _logger = logger;
+        private readonly ICosmosClientWrapper _cosmos = cosmos_wrapper;
+        // Switched from list of urls to list of DTOs, for immediate metadata retrieval
+        // With this, I won't have to fetch further metadata
+        // -- saves me expensive calls to azure clients later
+        public List<BlobMetaDTO> Blobs { get; set; } = new();
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            ImageLinks = await _service.GetBlobUrlsAsync(BlobStorage.Containers.Uploads);
-            return View(nameof(Index), new GalleryViewModel { ImageLinks = ImageLinks });
+            _logger.LogInformation("[GET] Processing request: Getting blob urls from {service}...", nameof(BlobStorageService));
+            Blobs = await _cosmos.ListBlobsAsync<BlobMetaDTO>(CloudCosmos.Containers.BlobMeta);
+            _logger.LogInformation("[GET] Succesfully obtained blob urls from {service}...", nameof(BlobStorageService));
+            return View("GalleryItemsList", new GalleryViewModel { 
+                Blobs = Blobs
+            });
         }
 
         [HttpGet("gallery/error")]

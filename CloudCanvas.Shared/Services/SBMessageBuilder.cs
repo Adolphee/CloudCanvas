@@ -14,7 +14,7 @@ namespace CloudCanvas.Shared.Services
         }
 
         public SBMessageBuilder(string payload)
-        {
+        {   
             Validate.StringValue(nameof(payload), payload);
             _message = new ServiceBusMessage(payload);
         }
@@ -33,7 +33,8 @@ namespace CloudCanvas.Shared.Services
 
         public IServiceBusMessageBuilder WithSubject(string subject)
         {
-            _message.Subject = Validate.StringValue(nameof(subject),subject);
+            if(Validate.StringValue(nameof(subject), subject))
+                _message.Subject = subject;
             return this;
         }
 
@@ -45,16 +46,15 @@ namespace CloudCanvas.Shared.Services
 
         public IServiceBusMessageBuilder AddProperty(string propertyName, object propertyValue)
         {
-            Validate.Object(propertyValue);
             Validate.StringValue(nameof(propertyName), propertyName);
+            Validate.Object(propertyValue);
             _message.ApplicationProperties[propertyName] = propertyValue;
             return this;
         }
 
-        public ServiceBusMessage Finalize(string? correlationId = null)
+        public ServiceBusMessage Finalize(string? messageId = null)
         {
-            SetCorrelationId(correlationId);
-            _message.MessageId = Guid.NewGuid().ToString();
+            _message.MessageId = messageId ?? Guid.NewGuid().ToString();
             return _message;
         }
 

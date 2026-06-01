@@ -5,6 +5,18 @@
     {
       "library": "bootstrap@5.3.2",
       "destination": "wwwroot/lib/bootstrap/"
+    },
+    {
+      "library": "jquery@3.7.1",
+      "destination": "wwwroot/lib/jquery/"
+    },
+    {
+      "library": "bootstrap-icons@1.13.1",
+      "destination": "wwwroot/lib/bootstrap-icons/"
+    },
+    {
+      "library": "axios@1.11.0",
+      "destination": "wwwroot/lib/axios/"
     }
   ]
 }

@@ -11,7 +11,7 @@ namespace CloudCanvas.Shared.Interfaces
     /// the configuration and lifecycle of the clients.</remarks>
     public interface IServiceBusClientFactory
     {
-        public ServiceBusClient GetListenClient();
-        public ServiceBusClient GetSendClient();
+        public ServiceBusSender GetSendClient(string topic);
+        public ServiceBusReceiver GetListenClient(string topic);
     }
 }

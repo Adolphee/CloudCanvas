@@ -6,8 +6,8 @@ namespace CloudCanvas.Shared.Interfaces
     {
         IServiceBusMessageBuilder WithSubject(string subject);
         IServiceBusMessageBuilder AddProperty(string key, object value);
-        IServiceBusMessageBuilder SetCorrelationId(string? correlationId = null);
+        IServiceBusMessageBuilder SetCorrelationId(string correlationId);
         IServiceBusMessageBuilder AddProperties(IDictionary<string, object> props);
-        ServiceBusMessage Finalize(string? correlationId = null);
+        ServiceBusMessage Finalize(string? messageId = null);
     }
 }

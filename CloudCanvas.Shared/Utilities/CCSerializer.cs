@@ -1,10 +1,9 @@
 ﻿using Azure.Storage.Blobs.Models;
 using CloudCanvas.Shared.DTOs;
-using CloudCanvas.Shared.Interfaces;
 using System.Text.Json;
-using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.Exceptions;
-using System.Text.Json.Serialization;
+using CloudCanvas.Shared.Enums;
+using CloudCanvas.Shared.Constants;
 
 namespace CloudCanvas.Shared.Utilities
 {
@@ -21,71 +20,88 @@ namespace CloudCanvas.Shared.Utilities
         /// <remarks>This method maps the properties of a blob, as represented by <see
         /// cref="BlobProperties"/>,  to a <see cref="BlobMetaDTO"/> object for further processing or use in the
         /// application.</remarks>
-        /// <param name="originalFileName">The original name of the file before it was uploaded to the blob storage.</param>
+        /// <param name="identifier">The original name of the file before it was uploaded to the blob storage.</param>
         /// <param name="blobUrl">The URL of the blob in the storage system.</param>
         /// <param name="props">The properties of the blob, including metadata, content details, and versioning information.</param>
         /// <returns>A <see cref="BlobMetaDTO"/> object containing metadata and properties of the blob, such as its URL, 
         /// original file name, content details, and other relevant attributes.</returns>
-        public static BlobMetaDTO FromBlobProperties(string originalFileName, string blobUrl, BlobProperties props)
+        public static BlobMetaDTO MetaFromBlobProperties(string identifier, string blobUrl, BlobProperties props)
         {
-            if(String.IsNullOrEmpty(originalFileName) || String.IsNullOrEmpty(blobUrl))
-            {
-                throw new CCSerializationException($"Missing {nameof(originalFileName)} and/or {nameof(blobUrl)}. Unable to link metadata to blob.");
-            }
+            Validate.StringValue(nameof(identifier), identifier, $"Missing {nameof(identifier)} and/or {nameof(blobUrl)}. Unable to link metadata to blob.");
+            bool deleted = false;
+            DateTimeOffset result = DateTimeOffset.MinValue;
+                if (props.Metadata.Keys.Contains(BlobStorage.Meta.DeletedOn))
+                {
+                    try
+                    {
+                        deleted = DateTimeOffset.TryParse(props.Metadata[BlobStorage.Meta.DeletedOn], out result);
+                    }
+                    catch (Exception) {}  // swallowing this because it tells us deletedOn wasn't set so we can proceed as planned
+                }
 
-            BlobMetaDTO meta = new BlobMetaDTO();
-            meta.UserId = Guid.NewGuid().ToString(); // This is just a placeholder for when I introduce auth
-            meta.BlobUrl = blobUrl;
-            meta.OriginalFileName = originalFileName;
-            meta.CreatedOn = props.CreatedOn;
-            meta.Metadata = props.Metadata;
-            meta.ContentType = props.ContentType;
-            meta.ContentLength = props.ContentLength;
-            meta.CopyCompletedOn = props.CopyCompletedOn;
-            meta.TagCount = props.TagCount;
-            meta.ETag = props.ETag.ToString().Trim('\"');
-            meta.SourceUrl = props.CopySource?.ToString();
-            meta.ProcessingStage = ServiceBus.Subs.ExtractMetaData;
-            meta.CreatedOn = props.CreatedOn;
-            meta.ExpiresOn = props.ExpiresOn;
-            meta.ContentLanguage = props.ContentLanguage;
-            meta.ContentEncoding = props.ContentEncoding;
-            meta.ContentDisposition = props.ContentDisposition;
-            meta.ContentLength = props.ContentLength;
-            meta.IsLatestVersion = props.IsLatestVersion;
-            meta.VersionId = props.VersionId;
-            meta.CopyId = props.CopyId;
-            meta.LastAccessed = props.LastAccessed;
-            meta.LastModified = props.LastModified;
-            meta.IsLatestVersion = props.IsLatestVersion;
-            meta.Tags = new List<string>(); // future A.I. implementation will further process and fill in these tags
-            meta.BlobType = props.BlobType;
-            meta.CopyProgress = props.CopyProgress;
-            meta.CopyStatus = props.CopyStatus;
-            return meta;
+            // TODO: uploadedBy / userID will be implemented with the Auth milestone
+            var uploadedBy = props.Metadata.ContainsKey(BlobStorage.Meta.UploadedBy) ? 
+                         props.Metadata[BlobStorage.Meta.UploadedBy] : Guid.NewGuid().ToString();
+            var oFilename = props.Metadata.ContainsKey(BlobStorage.Meta.OriginalFilename) ? 
+                                   props.Metadata[BlobStorage.Meta.OriginalFilename] : identifier;
+            return Validate.Object(new BlobMetaDTO
+            {
+                Id = identifier,
+                UserId = uploadedBy, // This is just a placeholder for when I introduce auth
+                Url = blobUrl,
+                OriginalFilename = oFilename,
+                CreatedOn = props.CreatedOn,
+                ContainerName = BlobStorage.Containers.Uploads,
+                ProcessingStage = (int)BlobProcessingStage.UploadSuccessful, // TOFIX: this is misleading when this method is not 
+                Metadata = props.Metadata,
+                Thumbnails = new Dictionary<ThumbnailSize, string>(),
+                UploadedBy = uploadedBy,
+                Name = identifier,
+                Description = String.Empty, // future A.I. implementation will further process and fill in this description
+                Tags = new List<string>(), // future A.I. implementation will further process and fill in these tags
+                TagCount = props.TagCount,
+                BlobType = props.BlobType,
+                ETag = props.ETag.ToString().Trim('\"'),
+                LastAccessed = props.LastAccessed,
+                LastModified = props.LastModified,
+                ExpiresOn = props.ExpiresOn,
+                ContentType = props.ContentType,
+                ContentLength = props.ContentLength,
+                ContentLanguage = props.ContentLanguage,
+                ContentEncoding = props.ContentEncoding,
+                ContentDisposition = props.ContentDisposition,
+                CopyId = props.CopyId,
+                CopyStatus = props.CopyStatus,
+                CopyProgress = props.CopyProgress,
+                CopySourceUrl = props.CopySource?.ToString() ?? String.Empty,
+                CopyCompletedOn = props.CopyCompletedOn,
+                IsLatestVersion = props.IsLatestVersion,
+                VersionId = props.VersionId,
+                DeletedOn = deleted ? result : null //only assign 'result' when it has been altered succesfully and deleted = true
+            });
         }
 
         public static string Serialize<T>(T target) => JsonSerializer.Serialize(Validate.Object(target), _options);
-        public static T FromBinaryData<T>(BinaryData blobMetadataDto) => Deserialize<T>(blobMetadataDto.ToString());
+        public static T MetaFromBinaryData<T>(BinaryData blobMetadataDto) => Deserialize<T>(blobMetadataDto.ToString());
         
         /// <summary>
         /// Tries to deserialize a structured string into an object of a given type.
         /// </summary>
         /// <typeparam name="T">The type of the object to try and create.</typeparam>
-        /// <param name="blobMetadataDto"></param>
+        /// <param name="blobMetadataJson"></param>
         /// <returns></returns>
         /// <exception cref="CCSerializationException">When the operation fails</exception>
-        public static T Deserialize<T>(string blobMetadataDto)
+        public static T Deserialize<T>(string blobMetadataJson)
         {
             try
             {
-                Validate.StringValue(nameof(blobMetadataDto), blobMetadataDto);
-                T? dto = JsonSerializer.Deserialize<T>(blobMetadataDto, _options);
+                Validate.StringValue(nameof(blobMetadataJson), blobMetadataJson);
+                T? dto = JsonSerializer.Deserialize<T>(blobMetadataJson, _options);
                 return Validate.Object(dto);
             }
-            catch (InvalidArgumentException e)
+            catch (Exception e) when (e is JsonException || e is  InvalidArgumentException || e is NotSupportedException)
             {
-                throw new CCSerializationException($"Invalid object '{blobMetadataDto}' provided.", e);
+                throw new CCSerializationException($"Invalid argument '{nameof(blobMetadataJson)}' provided with value: '{blobMetadataJson}'.", e);
             }
         }
     }

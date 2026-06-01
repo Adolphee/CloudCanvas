@@ -12,6 +12,10 @@ namespace CloudCanvas.Shared.DTOs
     {
         [Required]
         [JsonPropertyName("id")]
-        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string Id { get; set; } = default!;
+
+        // soft deletes; null = not deleted
+        [JsonIgnore]
+        public DateTimeOffset? DeletedOn { get; set; } = null; 
     }
 }

@@ -36,45 +36,59 @@ public class CreateThumbnail(ILogger<CreateThumbnail> logger, BlobStorageService
     public async Task Run(
         [ServiceBusTrigger(ServiceBus.Topics.FileUpdates, ServiceBus.Subs.CreateThumbnail, Connection = Secrets.FUMSGI)]
         ServiceBusReceivedMessage incoming,
-        ServiceBusMessageActions messageActions, ThumbnailSize size = ThumbnailSize.Small)
+        ServiceBusMessageActions messageActions)
     {
-        _logger.LogInformation("Function {functionName} started & wired up successfully. Looking for a job...", nameof(CreateThumbnail));
-        try { Validate.SBMessageSize(incoming, _maxMessageLength); }
-        catch (MessageTooLargeException e) // Unexpectedly larg? considered unsafe, discard
-        {
-            _logger.LogWarning(e, "[{correlationId}] Message '{messageId}' too large. Size: {messageLength}/{maxMessageLength} Bytes. DLQ Material -> Skipping...", incoming.CorrelationId, incoming.MessageId, e.ActualMessageSize, e.MaxMessageSize);
-            await messageActions.DeadLetterMessageAsync(incoming); // Skip and throw awway
-            throw;
-        }
-        const string thumbnails = BlobStorage.Containers.Thumbnails;
-        const string uploads = BlobStorage.Containers.Uploads;
-        int intSize = (int) incoming.ApplicationProperties[ServiceBus.Props.ThumbnailSize];
-        var metadata = CCSerializer.FromBinaryData<BlobMetaDTO>(incoming.Body);
-        ThumbnailSize altSize = ImageTool.GetThumbnailSize(intSize);
-        _logger.LogInformation("[{correlationId}][START] Creating thumbnail for {fileName} at destination: {thumbnails}/{originalFileName}.", incoming.CorrelationId, metadata.OriginalFileName, thumbnails, metadata.OriginalFileName);
+        _logger.LogInformation("{correlationId} Request to create thumbnail. Inspecting message {messageId}...", incoming.CorrelationId, incoming.MessageId);
+        if (!await ValidateReceivedMessage(incoming, messageActions)) return; // DLQ + skip if not valid 
+        const string destination = BlobStorage.Containers.Thumbnails;
+        var size = (ThumbnailSize)incoming.ApplicationProperties[ServiceBus.Props.ThumbnailSize];
+        BlobMetaDTO metadata = GetPreconfiguredDTO(incoming);
+        _logger.LogInformation("{correlationId} Validated thumbnail request for blob {fileName}", incoming.CorrelationId, metadata.Name);
         try
         {
             ///TODO: Implement **better validation** on file type before CloudCanvas v1.0, 
             /// for example, what if this function receives a .pdf file? or a .mp4, .zip etc...
-            var bclient = await _blobService.GetOrCreateContainerClientAsync(uploads); // original file blob container
-            var stream = await bclient.GetBlobClient(metadata.OriginalFileName).OpenReadAsync(); // download file
-            bclient = await _blobService.GetOrCreateContainerClientAsync(thumbnails); // switch to thumbnails desination container
-            using var output = await ImageTool.ResizeAsync(stream, size); // Create thumbnail
-            await _blobService.UploadAsync(output, metadata.OriginalFileName!, thumbnails); //upload the thumbnail to destionation
+            var bclient = await _blobService.GetOrCreateContainerClientAsync(metadata.ContainerName); // original file blob container
+            var stream = await bclient.GetBlobClient(metadata.Name).OpenReadAsync(); // download file
+            using var thumbnail = await ImageTool.ResizeAsync(stream, size); // Create thumbnail
+            BlobMetaDTO thumbnailMeta = await _blobService.UploadAsync(thumbnail, metadata.OriginalFilename, destination, $"{metadata.Name}_{size.ToString()}"); 
+            metadata.Thumbnails.Add(size, thumbnailMeta.Url);
+            _logger.LogInformation("{correlationId} {size} Thumbnail created and saved to {thumbnails}/{blobName}.", incoming.CorrelationId, size.ToString(), destination, metadata.Name);
         } catch (Exception e)
         {
-            _logger.LogCritical(e, "[{correlationId}][CRIT] Unable to Create {size} Thumbnail for blob {originalFilename}.\n Message ({messageId}) abandoned.", incoming.CorrelationId, size.ToString(), metadata.OriginalFileName, incoming.MessageId);
             await messageActions.AbandonMessageAsync(incoming);  // Drop the ball & Run away
-            throw;
+            _logger.LogError(e, "{correlationId} Failed to Create {size} Thumbnail for blob {originalFilename}.\n Message ({messageId}) abandoned.", incoming.CorrelationId, size.ToString(), metadata.OriginalFilename, incoming.MessageId);
+            return;
+
         }
 
-        _logger.LogInformation("[{correlationId}][OK] Created thumbnail for blob '{blobName}' and saved to {thumbnails}/{originalFileName}.", incoming.CorrelationId, metadata.OriginalFileName, thumbnails, metadata.OriginalFileName);
         var response = MessageFactory.BuildFor(metadata) // Manual dispatch required for full control (dotnet-isolated)
-            .WithSubject($"{ServiceBus.Status.ThumbnailCreated}:{thumbnails}/{metadata.OriginalFileName}.") // Add Subject
+            .WithSubject($"{ServiceBus.Status.ThumbnailCreated}:{destination}/{metadata.OriginalFilename}.") // Add Subject
             .AddProperty(ServiceBus.Props.EventType, ServiceBus.Subs.CreateThumbnail) // So that it makes it through subscription filters
             .AddProperty(ServiceBus.Props.ThumbnailSize, size.ToString()) // Let's make it through even more subscription filters
             .Finalize(incoming.CorrelationId); // Finalize and return the message
         await _sbAdapter.SendAsync(ServiceBus.Topics.FileUpdates, response); // Send the message and call it a day
-        _logger.LogInformation("[{correlationId}][DONE] Sent Message '{messageId}' to topic '{topic}': {subject}", response.CorrelationId, response.MessageId, ServiceBus.Topics.FileUpdates, response.Subject);
+        _logger.LogInformation("{correlationId} Sent Message '{messageId}' to topic '{topic}': {subject}", response.CorrelationId, response.MessageId, ServiceBus.Topics.FileUpdates, response.Subject);
+    }
+
+    private BlobMetaDTO GetPreconfiguredDTO(ServiceBusReceivedMessage incoming)
+    {
+        var metadata = CCSerializer.MetaFromBinaryData<BlobMetaDTO>(incoming.Body);
+        // Add thumbnail related metadata
+        metadata.ProcessingStage = (int)BlobProcessingStage.CreateThumbnail;
+        metadata.LastModified = DateTime.UtcNow;
+        return metadata;
+    }
+
+    private async Task<bool> ValidateReceivedMessage(ServiceBusReceivedMessage incoming, ServiceBusMessageActions messageActions)
+    {
+        try { Validate.SBMessageSize(incoming, _maxMessageLength); }
+        catch (MessageTooLargeException e) // Unexpectedly larg? considered unsafe, discard
+        {
+            _logger.LogWarning(e, "{correlationId} Message '{messageId}' too large. Size: {messageLength}/{maxMessageLength} Bytes. DLQ Material -> Skipping...", incoming.CorrelationId, incoming.MessageId, e.ActualMessageSize, e.MaxMessageSize);
+            await messageActions.DeadLetterMessageAsync(incoming, deadLetterReason: nameof(MessageTooLargeException), deadLetterErrorDescription: e.Message); // Skip and throw awway
+            return false;
+        }
+        return true;
     }
 }
