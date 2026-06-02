@@ -13,6 +13,9 @@ namespace CloudCanvas.Shared.Constants
     public abstract class BlobStorage
     {
         public const string Self = "AzureBlobStorage";
+        public const string Uri = "BlobStorageUri";
+        public const string ManagedIdentity = "BSManagedIdentity";
+        public const string BSConnection = "BSConnectionString";
 
         public abstract class Meta
         {
@@ -34,6 +37,8 @@ namespace CloudCanvas.Shared.Constants
 
     public abstract class ServiceBus
     {
+        public const string Uri = "ServiceBusUri";
+        public const string ManagedIdentity = "SBManagedIdentity";
         public abstract class Topics
         {
             public const string FileUpdates = "file-updates";
@@ -66,6 +71,7 @@ namespace CloudCanvas.Shared.Constants
     public abstract class CloudCosmos
     {
         public const string Sql = "cloudcosmos_sql";
+        public const string Uri = "CosmosEndpointURI";
         public abstract class Containers {
             public const string BlobMeta = "blob_metadata";
         }

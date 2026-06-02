@@ -1,4 +1,5 @@
 ﻿using Azure.Messaging.ServiceBus;
+using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.Interfaces;
 
 namespace CloudCanvas.Shared.Services
@@ -11,16 +12,27 @@ namespace CloudCanvas.Shared.Services
     /// asynchronously.</remarks>
     public class SBClientFactory : IServiceBusClientFactory
     {
-        private readonly ServiceBusClient _sendClient;
-        private readonly ServiceBusClient _listenClient;
+        private readonly ServiceBusClient _client;
+        private ServiceBusSender? _sendClient;
+        private ServiceBusReceiver? _listenClient;
 
-        public SBClientFactory(ServiceBusClient senderClient, ServiceBusClient listenerClient)
+        public SBClientFactory(ServiceBusClient client)
         {
-            _sendClient = senderClient;
-            _listenClient = listenerClient;
+            _client = client;
         }
 
-        public ServiceBusClient GetListenClient() => _listenClient;
-        public ServiceBusClient GetSendClient() => _sendClient;
+        public ServiceBusSender GetSendClient(string topic)
+        {
+            if(_sendClient == null)
+                _sendClient = _client.CreateSender(topic);
+            return _sendClient;
+        }
+
+        public ServiceBusReceiver GetListenClient(string topic)
+        {
+            if(_listenClient == null)
+                _listenClient = _client.CreateReceiver(topic);
+            return _listenClient;
+        }
     }
 }

@@ -27,7 +27,7 @@ public class ExtractMetadata(ILogger<ExtractMetadata> logger, BlobStorageService
     /// <param identifier="identifier">The identifier of the uploaded blob.</param>
     /// <returns>A <see cref="ServiceBusMessageDTO"/> containing the event details, subject, and extracted metadata.</returns>
     [Function(nameof(ExtractMetadata))]
-    public async Task Run([BlobTrigger(BlobStorage.Containers.Uploads + "/{identifier}", Connection = Secrets.MNSTRG)] Stream input, string identifier)
+    public async Task Run([BlobTrigger(BlobStorage.Containers.Uploads + "/{identifier}", Connection = BlobStorage.BSConnection)] Stream input, string identifier)
     {
         string correlationId = Guid.NewGuid().ToString();
         const string uploads = BlobStorage.Containers.Uploads;

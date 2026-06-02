@@ -1,12 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 	<PackageId>CloudCanvas.Shared</PackageId>
 	<Authors>https://www.linkedin.com/in/adolphemk</Authors>
-	<Version>0.5.0</Version>
+	<Version>0.6.0</Version>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	<Description>
 		The shared kernel of CloudCanvas — a durable substrate of logic, contracts, and infrastructure boundaries 
 		that form the connective tissue between independently deployed function apps. 
@@ -14,11 +15,13 @@
 		This package enables a philosophy of separation through precision, and cooperation through clearly defined contracts. 
 		It is the backbone of CloudCanvas’ orchestration-aware, event-driven architecture.
 	</Description>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
 	<PackageTags>CloudCanvas;AzureFunctions;Shared;DTO;CQRS;EventDriven;ServiceBus;CosmosDB;BlobStorage</PackageTags>
 	<RepositoryUrl>https://github.com/adolphee/cloudcanvas</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
+	<None Include="README.md" Pack="true" PackagePath="\"/>
     <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.20.1" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.25.0" />
     <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.52.1" />

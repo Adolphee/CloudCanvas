@@ -12,6 +12,7 @@ namespace CloudCanvas.Shared.Services
     public class CosmosClientWrapper : ICosmosClientWrapper
     {
         private readonly CosmosClient _client;
+        private Container? _container;
 
         public CosmosClientWrapper(CosmosClient client)
         {
@@ -22,8 +23,8 @@ namespace CloudCanvas.Shared.Services
         {
             Validate.StringValue(nameof(identifier), identifier);
             Validate.StringValue(nameof(userId), userId);
-            var container = GetContainer(containerName);
-            var metadata = await container.PatchItemAsync<T>(id: identifier, partitionKey: new PartitionKey(userId), patchOperations: ops);
+            _container = GetContainer(containerName);
+            var metadata = await _container.PatchItemAsync<T>(id: identifier, partitionKey: new PartitionKey(userId), patchOperations: ops);
             return metadata;
         }
 
@@ -62,23 +63,30 @@ namespace CloudCanvas.Shared.Services
                 await container.ReadItemAsync<BlobMetaDTO>(id, new PartitionKey(partitionKey));
                 return true;
             }
-            catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            catch (CosmosException) //when (ex.StatusCode == HttpStatusCode.NotFound)
             {
                 return false;
             }
         }
 
-        public Container GetContainer(string containerName)
+        public Container GetContainer(string containerId)
         {
-            Validate.StringValue(nameof(containerName), containerName);
-            var result = _client.GetContainer(CloudCosmos.Sql, containerName);
-            if (result == null) throw new CosmosContainerNotFoundException($"Container Not Found: '{containerName}'")
+            Validate.StringValue(nameof(containerId), containerId);
+            if(_container != null && _container.Id == containerId) return _container;
+            // At this point, either _container is null or it's not the one we want, so we get it from the client
+            try
             {
-                ContainerName = containerName,
-                DatabaseName = CloudCosmos.Sql
-            };
-
-            return result;
+                _container = _client.GetContainer(CloudCosmos.Sql, containerId);
+            }
+            catch (Exception e)
+            {   // Custom exception wrapped around the original, for more context
+                throw new CosmosContainerNotFoundException($"Container Not Found: '{containerId}'", e)
+                {
+                    ContainerName = containerId,
+                    DatabaseName = CloudCosmos.Sql
+                };
+            }
+            return _container;
         }
 
         public async Task<List<T>> ListBlobsAsync<T>(string containerName) where T: CosmosDocumentBase

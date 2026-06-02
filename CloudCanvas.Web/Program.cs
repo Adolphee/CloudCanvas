@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Azure.Storage.Blobs;
 using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.Interfaces;
@@ -12,17 +13,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddTransient<BlobStorageService>();
 builder.Services.AddSingleton(bsc =>
 {
-    var blobStorageConnectionString = Environment.GetEnvironmentVariable(Secrets.MNSTRG);
-    Validate.StringValue(nameof(blobStorageConnectionString), blobStorageConnectionString);
-    return new BlobServiceClient(blobStorageConnectionString);
+    var endpoint = Environment.GetEnvironmentVariable(BlobStorage.Uri);
+    Validate.StringValue(nameof(endpoint), endpoint);
+    return new BlobServiceClient(new Uri(endpoint!), new DefaultAzureCredential());
 });
 
 builder.Services.AddTransient<CosmosClientWrapper>();
 builder.Services.AddSingleton(cc =>
 {
-    var CosmosConnString = Environment.GetEnvironmentVariable(Secrets.MTSTRG);
-    Validate.StringValue(nameof(CosmosConnString), CosmosConnString);
-    return new CosmosClient(CosmosConnString, new CosmosClientOptions
+    var endpoint = Environment.GetEnvironmentVariable(CloudCosmos.Uri);
+    Validate.StringValue(nameof(endpoint), endpoint);
+    return new CosmosClient(endpoint,new DefaultAzureCredential(), new CosmosClientOptions
     {
         SerializerOptions = new CosmosSerializationOptions
         {

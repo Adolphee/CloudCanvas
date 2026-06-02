@@ -32,19 +32,15 @@ namespace CloudCanvas.Shared.Services
         /// <returns>A task that represents the asynchronous send operation.</returns>
         public async Task<string> SendAsync(string topic, ServiceBusMessage msg)
         {
-            var sender = _factory.GetSendClient().CreateSender(topic);
+            var sender = _factory.GetSendClient(topic);
             try
             {
                 await sender.SendMessageAsync(msg);
                 return msg.MessageId;
-            } catch(ServiceBusException)
+            } catch(ServiceBusException e)
             {
-                _logger.LogError("Failed to send message '{messageId}' to topic: '{topic}'.", msg.MessageId, topic);
+                _logger.LogError(e, "Failed to send message '{messageId}' to topic: '{topic}'.", msg.MessageId, topic);
                 throw;
-            }
-            finally
-            {
-                await sender.DisposeAsync();
             }
         }
 
@@ -64,7 +60,7 @@ namespace CloudCanvas.Shared.Services
         /// name="maxBatchSize"/>.</exception>
         public async Task SendBatchAsync(string topic, List<ServiceBusMessage> messages, int maxBatchSize = 1)
         {
-            var sender = _factory.GetSendClient().CreateSender(topic);
+            var sender = _factory.GetSendClient(topic);
             using var messageBatch = await sender.CreateMessageBatchAsync();
 
             foreach (var message in messages)
@@ -83,7 +79,6 @@ namespace CloudCanvas.Shared.Services
                 _logger.LogError(e, "MessageBatch (count: {batchSize}) failed to send.", messageBatch.Count);
                 throw;
             }
-            finally { await sender.DisposeAsync(); }
         }
 
     }

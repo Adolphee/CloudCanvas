@@ -15,7 +15,7 @@ public class ThumbnailOrchestrationStarter
 
     [Function(nameof(ThumbnailOrchestrationStarter))]
     public async Task<string?> Run(
-        [ServiceBusTrigger(ServiceBus.Topics.FileUpdates, ServiceBus.Subs.CreateThumbnail, Connection = Secrets.FUMSGI)]
+        [ServiceBusTrigger(ServiceBus.Topics.FileUpdates, ServiceBus.Subs.CreateThumbnail, Connection = ServiceBus.ManagedIdentity)]
         ServiceBusReceivedMessage incoming,
         ServiceBusMessageActions messageActions,
         [DurableClient] DurableTaskClient client,
