@@ -13,8 +13,8 @@ namespace CloudCanvas.Shared.Services
     public class SBClientFactory : IServiceBusClientFactory
     {
         private readonly ServiceBusClient _client;
-        private ServiceBusSender _sendClient;
-        private ServiceBusReceiver _listenClient;
+        private ServiceBusSender? _sendClient;
+        private ServiceBusReceiver? _listenClient;
 
         public SBClientFactory(ServiceBusClient client)
         {

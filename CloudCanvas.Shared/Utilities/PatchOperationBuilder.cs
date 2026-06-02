@@ -7,6 +7,7 @@ namespace CloudCanvas.Shared.Utilities
 {
     public static class PatchOperationBuilder
     {
+        // This class basically determines which GalleryItem properties can be modified by the user 
         public static IReadOnlyList<PatchOperation> For(PatchGalleryItemDTO metadata, bool enableSoftDelte = false)
         {
             Validate.Object(metadata);

@@ -12,7 +12,7 @@ namespace CloudCanvas.Shared.Services
     public class CosmosClientWrapper : ICosmosClientWrapper
     {
         private readonly CosmosClient _client;
-        private Container _container;
+        private Container? _container;
 
         public CosmosClientWrapper(CosmosClient client)
         {

@@ -88,7 +88,7 @@ public class BlobsApiFunction
     public async Task<IActionResult> Patch([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = "photos/{identifier}")] HttpRequest req, string identifier)
     {
         _logger.LogInformation("{req.Method} Request for blob '{identifier}'.", req.Method, identifier);
-        using var reader = new StreamReader(req.Body);
+        using var reader = new StreamReader(req.Body); // I've serialized the DTO object in the req.body
         var stream = await reader.ReadToEndAsync();
         try
         {
