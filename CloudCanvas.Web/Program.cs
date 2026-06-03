@@ -6,8 +6,18 @@ using CloudCanvas.Shared.Services;
 using CloudCanvas.Shared.Utilities;
 using Microsoft.Azure.Cosmos;
 using System.Collections;
+using CloudCanvas.Web.Data;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+var connectionString = builder.Configuration.GetConnectionString("CCDBContext") ?? throw new InvalidOperationException("Connection string 'CCDBContext' not found.");
+builder.Services.AddRazorPages();
+
+builder.Services.AddDbContext<CCDBContext>(options => options.UseSqlServer(connectionString));
+
+builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddEntityFrameworkStores<CCDBContext>();
 
 // Add services to the container.
 builder.Services.AddTransient<BlobStorageService>();
@@ -48,8 +58,9 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
+app.UseAuthentication();
 app.UseAuthorization();
+app.MapRazorPages();
 
 app.MapControllerRoute(
     name: "default",

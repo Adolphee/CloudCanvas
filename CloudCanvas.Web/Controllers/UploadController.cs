@@ -5,6 +5,7 @@ using CloudCanvas.Shared.Interfaces;
 using CloudCanvas.Shared.Services;
 using CloudCanvas.Shared.Utilities;
 using CloudCanvas.Web.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -16,7 +17,7 @@ namespace CloudCanvas.Web.Controllers
         private readonly IBlobStorageService _service = service;
         private readonly ICosmosClientWrapper _cosmos = cosmos;
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public IActionResult Index()
         {
             return View();

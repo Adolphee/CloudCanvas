@@ -24,9 +24,13 @@
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.13.1" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.25.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\CloudCanvas.Shared\CloudCanvas.Shared.csproj" />
+    <PackageReference Include="CloudCanvas.Shared" Version="0.6.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.27" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.27" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.16">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.16" />
   </ItemGroup>
 </Project>
