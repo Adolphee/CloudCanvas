@@ -5,6 +5,7 @@ using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.Interfaces;
 using CloudCanvas.Shared.DTOs;
 using CloudCanvas.Shared.Utilities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CloudCanvas.Web.Controllers
 {
@@ -18,7 +19,7 @@ namespace CloudCanvas.Web.Controllers
         // -- saves me expensive calls to azure clients later
         public List<BlobMetaDTO> Blobs { get; set; } = new();
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public async Task<IActionResult> Index()
         {
             _logger.LogInformation("[GET] Processing request: Getting blob urls from {service}...", nameof(BlobStorageService));

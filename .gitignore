@@ -279,3 +279,4 @@ __blobstorage__
 /CloudCanvas.Web/Properties/launchSettings.json
 /CloudCanvas.Web/Properties/launchSettings.json
 *.json
+/CloudCanvas.Web/appsettings.Development.json
