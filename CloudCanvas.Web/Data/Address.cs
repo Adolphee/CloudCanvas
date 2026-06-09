@@ -14,7 +14,7 @@ namespace CloudCanvas.Web.Data
         public string? Country { get; private set; }
 
         public string? UserId { get; private set; }
-        public List<ApplicationUser> Inhabitants { get; private set; }
+        public List<ApplicationUser> Inhabitants { get; private set; } = default!;
 
         private Address() { }
 
@@ -26,11 +26,6 @@ namespace CloudCanvas.Web.Data
 
         public void UpdateAddress(string street, string house, string pcode, string city)
         {
-            Validate.StringValue(nameof(street), street);
-            Validate.StringValue(nameof(house), house ?? string.Empty);
-            Validate.StringValue(nameof(pcode), pcode);
-            Validate.StringValue(nameof(city), city);
-
             Street = street.Trim();
             HouseNumber = house?.Trim() ?? string.Empty;
             PostalCode = pcode.Trim().ToUpperInvariant();

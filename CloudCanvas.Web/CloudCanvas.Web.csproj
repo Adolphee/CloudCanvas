@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <Folder Include="Models/Domain/" />
+    <Folder Include="Utilities\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,10 +28,14 @@
     <PackageReference Include="CloudCanvas.Shared" Version="0.6.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.27" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.27" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.16">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.27">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.16" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.27" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.27">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 </Project>

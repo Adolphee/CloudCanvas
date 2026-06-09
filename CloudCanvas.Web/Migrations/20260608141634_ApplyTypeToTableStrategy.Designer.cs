@@ -4,6 +4,7 @@ using CloudCanvas.Web.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CloudCanvas.Web.Migrations
 {
     [DbContext(typeof(CCDBContext))]
-    partial class CCDBContextModelSnapshot : ModelSnapshot
+    [Migration("20260608141634_ApplyTypeToTableStrategy")]
+    partial class ApplyTypeToTableStrategy
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -233,18 +236,24 @@ namespace CloudCanvas.Web.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("PostId1")
-                        .IsRequired()
+                    b.Property<string>("PostId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("PostId1");
+                    b.HasIndex("PostId");
 
-                    b.ToTable("Reaction");
+                    b.HasIndex("UserId", "PostId", "Type")
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL AND [PostId] IS NOT NULL");
+
+                    b.ToTable("Reactions", (string)null);
 
                     b.UseTptMappingStrategy();
                 });
@@ -470,54 +479,49 @@ namespace CloudCanvas.Web.Migrations
                 {
                     b.HasBaseType("CloudCanvas.Web.Data.Reaction");
 
-                    b.Property<string>("PostId")
-                        .IsRequired()
+                    b.Property<string>("ApplicationUserId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
+                    b.Property<string>("PostId1")
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasIndex("PostId");
+                    b.HasIndex("ApplicationUserId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("PostId1");
 
-                    b.ToTable("Dislikes", (string)null);
+                    b.ToTable("Dislike");
                 });
 
             modelBuilder.Entity("CloudCanvas.Web.Data.EmojiReaction", b =>
                 {
                     b.HasBaseType("CloudCanvas.Web.Data.Reaction");
 
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("EmojiValue")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.HasIndex("ApplicationUserId");
 
-                    b.HasIndex("UserId");
-
-                    b.ToTable("EmojiReactions", (string)null);
+                    b.ToTable("EmojiReaction");
                 });
 
             modelBuilder.Entity("CloudCanvas.Web.Data.Like", b =>
                 {
                     b.HasBaseType("CloudCanvas.Web.Data.Reaction");
 
-                    b.Property<string>("PostId")
-                        .IsRequired()
+                    b.Property<string>("ApplicationUserId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
+                    b.Property<string>("PostId2")
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasIndex("PostId");
+                    b.HasIndex("ApplicationUserId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("PostId2");
 
-                    b.ToTable("Likes", (string)null);
+                    b.ToTable("Like");
                 });
 
             modelBuilder.Entity("CloudCanvas.Web.Data.ApplicationUser", b =>
@@ -560,11 +564,17 @@ namespace CloudCanvas.Web.Migrations
                 {
                     b.HasOne("CloudCanvas.Web.Data.Post", "Post")
                         .WithMany()
-                        .HasForeignKey("PostId1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("CloudCanvas.Web.Data.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Post");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -684,6 +694,10 @@ namespace CloudCanvas.Web.Migrations
 
             modelBuilder.Entity("CloudCanvas.Web.Data.Dislike", b =>
                 {
+                    b.HasOne("CloudCanvas.Web.Data.ApplicationUser", null)
+                        .WithMany("Dislikes")
+                        .HasForeignKey("ApplicationUserId");
+
                     b.HasOne("CloudCanvas.Web.Data.Reaction", null)
                         .WithOne()
                         .HasForeignKey("CloudCanvas.Web.Data.Dislike", "Id")
@@ -692,38 +706,28 @@ namespace CloudCanvas.Web.Migrations
 
                     b.HasOne("CloudCanvas.Web.Data.Post", null)
                         .WithMany("Dislikes")
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("CloudCanvas.Web.Data.ApplicationUser", "User")
-                        .WithMany("Dislikes")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
+                        .HasForeignKey("PostId1");
                 });
 
             modelBuilder.Entity("CloudCanvas.Web.Data.EmojiReaction", b =>
                 {
+                    b.HasOne("CloudCanvas.Web.Data.ApplicationUser", null)
+                        .WithMany("EmojiReactions")
+                        .HasForeignKey("ApplicationUserId");
+
                     b.HasOne("CloudCanvas.Web.Data.Reaction", null)
                         .WithOne()
                         .HasForeignKey("CloudCanvas.Web.Data.EmojiReaction", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("CloudCanvas.Web.Data.ApplicationUser", "User")
-                        .WithMany("EmojiReactions")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("CloudCanvas.Web.Data.Like", b =>
                 {
+                    b.HasOne("CloudCanvas.Web.Data.ApplicationUser", null)
+                        .WithMany("Likes")
+                        .HasForeignKey("ApplicationUserId");
+
                     b.HasOne("CloudCanvas.Web.Data.Reaction", null)
                         .WithOne()
                         .HasForeignKey("CloudCanvas.Web.Data.Like", "Id")
@@ -732,17 +736,8 @@ namespace CloudCanvas.Web.Migrations
 
                     b.HasOne("CloudCanvas.Web.Data.Post", null)
                         .WithMany("Likes")
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("CloudCanvas.Web.Data.ApplicationUser", "User")
-                        .WithMany("Likes")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
+                        .HasForeignKey("PostId2")
+                        .OnDelete(DeleteBehavior.NoAction);
                 });
 
             modelBuilder.Entity("CloudCanvas.Web.Data.Address", b =>

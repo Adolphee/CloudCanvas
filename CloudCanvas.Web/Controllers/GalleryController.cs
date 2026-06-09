@@ -14,27 +14,16 @@ namespace CloudCanvas.Web.Controllers
     {
         private readonly ILogger<GalleryController> _logger = logger;
         private readonly ICosmosClientWrapper _cosmos = cosmos_wrapper;
-        // Switched from list of urls to list of DTOs, for immediate metadata retrieval
-        // With this, I won't have to fetch further metadata
-        // -- saves me expensive calls to azure clients later
-        public List<BlobMetaDTO> Blobs { get; set; } = new();
 
         [HttpGet, Authorize]
         public async Task<IActionResult> Index()
         {
-            _logger.LogInformation("[GET] Processing request: Getting blob urls from {service}...", nameof(BlobStorageService));
-            Blobs = await _cosmos.ListBlobsAsync<BlobMetaDTO>(CloudCosmos.Containers.BlobMeta);
-            _logger.LogInformation("[GET] Succesfully obtained blob urls from {service}...", nameof(BlobStorageService));
+            _logger.LogInformation("[GET] Getting gallery items from {service}...", nameof(BlobStorageService));
+            var blobs = await _cosmos.ListBlobsAsync<BlobMetaDTO>(CloudCosmos.Containers.BlobMeta);
+            _logger.LogInformation("[GET] Succesfully obtained gallery items from {service}...", nameof(BlobStorageService));
             return View("GalleryItemsList", new GalleryViewModel { 
-                Blobs = Blobs
+                Blobs = blobs
             });
-        }
-
-        [HttpGet("gallery/error")]
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View("Error!");
         }
     }
 }

@@ -43,7 +43,7 @@ namespace CloudCanvas.Shared.Services
         /// <returns>The saved object as returned by Cosmos DB after the upsert operation.</returns>
         /// <exception cref="ArgumentException">Thrown if the <paramref name="metadata"/> is invalid, or if the <see cref="MetadataDocumentBase.Id"/> or <see
         /// cref="MetadataDocumentBase.UserId"/> properties are null, empty, or whitespace.</exception>
-        public async Task<T> SaveMetadataAsync<T>(T metadata, string containerName, bool overWrite = false) where T: MetadataDocumentBase
+        public async Task<T> SaveMetadataAsync<T>(T metadata, string containerName, bool overWrite = true) where T: MetadataDocumentBase
         {
             Validate.StringValue(nameof(containerName), containerName);
             Validate.Object(metadata);
