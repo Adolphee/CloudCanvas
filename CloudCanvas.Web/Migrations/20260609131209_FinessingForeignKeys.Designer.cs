@@ -12,15 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CloudCanvas.Web.Migrations
 {
     [DbContext(typeof(CCDBContext))]
-    [Migration("20260608161151_ApplyTypeToTableStrategy2")]
-    partial class ApplyTypeToTableStrategy2
+    [Migration("20260609131209_FinessingForeignKeys")]
+    partial class FinessingForeignKeys
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.16")
+                .HasAnnotation("ProductVersion", "8.0.27")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -68,17 +68,16 @@ namespace CloudCanvas.Web.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreatedOn")
+                    b.Property<DateTime?>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("DateOfBrith")
+                    b.Property<DateTime?>("DateOfBrith")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("DeletedOn")
+                    b.Property<DateTime?>("DeletedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DisplayName")
@@ -96,7 +95,7 @@ namespace CloudCanvas.Web.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("LastModified")
+                    b.Property<DateTime?>("LastModified")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("LastName")
@@ -127,7 +126,6 @@ namespace CloudCanvas.Web.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("ProPicUrl")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
@@ -164,12 +162,11 @@ namespace CloudCanvas.Web.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("OriginalPhotoId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("OriginalPhotoId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("PostId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Size")
                         .HasColumnType("int");
@@ -182,14 +179,20 @@ namespace CloudCanvas.Web.Migrations
 
                     b.HasIndex("OriginalPhotoId");
 
-                    b.HasIndex("PostId");
-
                     b.ToTable("PhotoThumbnails", (string)null);
                 });
 
             modelBuilder.Entity("CloudCanvas.Web.Data.Post", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AuthorId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("CommentsEnabled")
@@ -214,16 +217,17 @@ namespace CloudCanvas.Web.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Url")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("ApplicationUserId");
+
+                    b.HasIndex("AuthorId");
 
                     b.ToTable("Posts", (string)null);
 
@@ -232,22 +236,37 @@ namespace CloudCanvas.Web.Migrations
 
             modelBuilder.Entity("CloudCanvas.Web.Data.Reaction", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("PostId1")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("DeletedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("ModifiedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("PostId1");
+                    b.HasIndex("PostId");
 
-                    b.ToTable("Reaction");
+                    b.HasIndex("UserId", "PostId", "Type")
+                        .IsUnique();
+
+                    b.ToTable("Reactions", (string)null);
 
                     b.UseTptMappingStrategy();
                 });
@@ -393,23 +412,16 @@ namespace CloudCanvas.Web.Migrations
                 {
                     b.HasBaseType("CloudCanvas.Web.Data.Post");
 
-                    b.Property<string>("ApplicationUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("PostId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("PostId1")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid?>("PostId1")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Text")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
-
-                    b.HasIndex("ApplicationUserId");
 
                     b.HasIndex("PostId");
 
@@ -422,20 +434,14 @@ namespace CloudCanvas.Web.Migrations
                 {
                     b.HasBaseType("CloudCanvas.Web.Data.Post");
 
-                    b.Property<string>("ApplicationUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DisplayName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.PrimitiveCollection<string>("UserTags")
+                    b.Property<string>("UserTags")
                         .HasColumnType("nvarchar(max)");
-
-                    b.HasIndex("ApplicationUserId");
 
                     b.ToTable("Galleries", (string)null);
                 });
@@ -444,12 +450,8 @@ namespace CloudCanvas.Web.Migrations
                 {
                     b.HasBaseType("CloudCanvas.Web.Data.Post");
 
-                    b.Property<string>("ApplicationUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("GalleryId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid?>("GalleryId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("OriginalFilename")
                         .IsRequired()
@@ -458,69 +460,13 @@ namespace CloudCanvas.Web.Migrations
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
-                    b.PrimitiveCollection<string>("UserTags")
+                    b.Property<string>("UserTags")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.HasIndex("ApplicationUserId");
 
                     b.HasIndex("GalleryId");
 
                     b.ToTable("Photos", (string)null);
-                });
-
-            modelBuilder.Entity("CloudCanvas.Web.Data.Dislike", b =>
-                {
-                    b.HasBaseType("CloudCanvas.Web.Data.Reaction");
-
-                    b.Property<string>("PostId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasIndex("PostId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Dislikes", (string)null);
-                });
-
-            modelBuilder.Entity("CloudCanvas.Web.Data.EmojiReaction", b =>
-                {
-                    b.HasBaseType("CloudCanvas.Web.Data.Reaction");
-
-                    b.Property<string>("EmojiValue")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("EmojiReactions", (string)null);
-                });
-
-            modelBuilder.Entity("CloudCanvas.Web.Data.Like", b =>
-                {
-                    b.HasBaseType("CloudCanvas.Web.Data.Reaction");
-
-                    b.Property<string>("PostId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasIndex("PostId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Likes", (string)null);
                 });
 
             modelBuilder.Entity("CloudCanvas.Web.Data.ApplicationUser", b =>
@@ -535,25 +481,25 @@ namespace CloudCanvas.Web.Migrations
             modelBuilder.Entity("CloudCanvas.Web.Data.PhotoThumbnail", b =>
                 {
                     b.HasOne("CloudCanvas.Web.Data.Photo", "OriginalPhoto")
-                        .WithMany()
+                        .WithMany("Thumbnails")
                         .HasForeignKey("OriginalPhotoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("CloudCanvas.Web.Data.Photo", null)
-                        .WithMany("Thumbnails")
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("OriginalPhoto");
                 });
 
             modelBuilder.Entity("CloudCanvas.Web.Data.Post", b =>
                 {
-                    b.HasOne("CloudCanvas.Web.Data.ApplicationUser", "Author")
+                    b.HasOne("CloudCanvas.Web.Data.ApplicationUser", null)
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("CloudCanvas.Web.Data.ApplicationUser", "Author")
+                        .WithMany("Posts")
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Author");
@@ -563,11 +509,19 @@ namespace CloudCanvas.Web.Migrations
                 {
                     b.HasOne("CloudCanvas.Web.Data.Post", "Post")
                         .WithMany()
-                        .HasForeignKey("PostId1")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("CloudCanvas.Web.Data.ApplicationUser", "User")
+                        .WithMany("Reactions")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Post");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -623,41 +577,27 @@ namespace CloudCanvas.Web.Migrations
 
             modelBuilder.Entity("CloudCanvas.Web.Data.Comment", b =>
                 {
-                    b.HasOne("CloudCanvas.Web.Data.ApplicationUser", null)
-                        .WithMany("Comments")
-                        .HasForeignKey("ApplicationUserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
                     b.HasOne("CloudCanvas.Web.Data.Post", null)
                         .WithOne()
                         .HasForeignKey("CloudCanvas.Web.Data.Comment", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CloudCanvas.Web.Data.Post", "TargetPost")
+                    b.HasOne("CloudCanvas.Web.Data.Post", "Post")
                         .WithMany()
                         .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired()
-                        .HasConstraintName("CommentToPostId");
+                        .IsRequired();
 
                     b.HasOne("CloudCanvas.Web.Data.Post", null)
                         .WithMany("Comments")
-                        .HasForeignKey("PostId1")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .HasForeignKey("PostId1");
 
-                    b.Navigation("TargetPost");
+                    b.Navigation("Post");
                 });
 
             modelBuilder.Entity("CloudCanvas.Web.Data.Gallery", b =>
                 {
-                    b.HasOne("CloudCanvas.Web.Data.ApplicationUser", null)
-                        .WithMany("Galleries")
-                        .HasForeignKey("ApplicationUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("CloudCanvas.Web.Data.Post", null)
                         .WithOne()
                         .HasForeignKey("CloudCanvas.Web.Data.Gallery", "Id")
@@ -667,85 +607,15 @@ namespace CloudCanvas.Web.Migrations
 
             modelBuilder.Entity("CloudCanvas.Web.Data.Photo", b =>
                 {
-                    b.HasOne("CloudCanvas.Web.Data.ApplicationUser", null)
-                        .WithMany("Photos")
-                        .HasForeignKey("ApplicationUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("CloudCanvas.Web.Data.Gallery", null)
                         .WithMany("Photos")
-                        .HasForeignKey("GalleryId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .HasForeignKey("GalleryId");
 
                     b.HasOne("CloudCanvas.Web.Data.Post", null)
                         .WithOne()
                         .HasForeignKey("CloudCanvas.Web.Data.Photo", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("CloudCanvas.Web.Data.Dislike", b =>
-                {
-                    b.HasOne("CloudCanvas.Web.Data.Reaction", null)
-                        .WithOne()
-                        .HasForeignKey("CloudCanvas.Web.Data.Dislike", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CloudCanvas.Web.Data.Post", null)
-                        .WithMany("Dislikes")
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("CloudCanvas.Web.Data.ApplicationUser", "User")
-                        .WithMany("Dislikes")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("CloudCanvas.Web.Data.EmojiReaction", b =>
-                {
-                    b.HasOne("CloudCanvas.Web.Data.Reaction", null)
-                        .WithOne()
-                        .HasForeignKey("CloudCanvas.Web.Data.EmojiReaction", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CloudCanvas.Web.Data.ApplicationUser", "User")
-                        .WithMany("EmojiReactions")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("CloudCanvas.Web.Data.Like", b =>
-                {
-                    b.HasOne("CloudCanvas.Web.Data.Reaction", null)
-                        .WithOne()
-                        .HasForeignKey("CloudCanvas.Web.Data.Like", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CloudCanvas.Web.Data.Post", null)
-                        .WithMany("Likes")
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("CloudCanvas.Web.Data.ApplicationUser", "User")
-                        .WithMany("Likes")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("CloudCanvas.Web.Data.Address", b =>
@@ -755,26 +625,14 @@ namespace CloudCanvas.Web.Migrations
 
             modelBuilder.Entity("CloudCanvas.Web.Data.ApplicationUser", b =>
                 {
-                    b.Navigation("Comments");
+                    b.Navigation("Posts");
 
-                    b.Navigation("Dislikes");
-
-                    b.Navigation("EmojiReactions");
-
-                    b.Navigation("Galleries");
-
-                    b.Navigation("Likes");
-
-                    b.Navigation("Photos");
+                    b.Navigation("Reactions");
                 });
 
             modelBuilder.Entity("CloudCanvas.Web.Data.Post", b =>
                 {
                     b.Navigation("Comments");
-
-                    b.Navigation("Dislikes");
-
-                    b.Navigation("Likes");
                 });
 
             modelBuilder.Entity("CloudCanvas.Web.Data.Gallery", b =>
