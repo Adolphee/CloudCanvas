@@ -22,6 +22,7 @@ builder.Services.AddSingleton(cc =>
     var credential = new DefaultAzureCredential();
     var cosmosClient = new CosmosClient(accountEndpoint, credential, new CosmosClientOptions
     {
+        ConnectionMode = ConnectionMode.Gateway,
         SerializerOptions = new CosmosSerializationOptions
         {
             PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase

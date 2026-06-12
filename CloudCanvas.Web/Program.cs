@@ -19,7 +19,6 @@ builder.Services.AddDbContext<CCDBContext>(options => options.UseSqlServer(conne
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<CCDBContext>();
 
-// Add services to the container.
 builder.Services.AddTransient<BlobStorageService>();
 builder.Services.AddSingleton(bsc =>
 {
@@ -35,6 +34,7 @@ builder.Services.AddSingleton(cc =>
     Validate.StringValue(nameof(endpoint), endpoint);
     return new CosmosClient(endpoint,new DefaultAzureCredential(), new CosmosClientOptions
     {
+        ConnectionMode = ConnectionMode.Gateway,
         SerializerOptions = new CosmosSerializationOptions
         {
             PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
@@ -46,11 +46,11 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    // The default HSTS value is 30 days. TODO: change this for production scenarios
     app.UseHsts();
 }
 

@@ -31,6 +31,7 @@ builder.Services.AddSingleton(bsc =>
     Validate.StringValue(nameof(endpoint), endpoint);
     return new CosmosClient(endpoint, new DefaultAzureCredential(), new CosmosClientOptions
     {
+        ConnectionMode = ConnectionMode.Gateway,
         SerializerOptions = new CosmosSerializationOptions
         {
             PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
