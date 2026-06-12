@@ -10,7 +10,6 @@ using CloudCanvas.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 
 namespace CloudCanvas.Web.Controllers
 {
@@ -32,10 +31,9 @@ namespace CloudCanvas.Web.Controllers
         {
             var currentUser = await _userMgr.GetUserAsync(User);
             var file = userUpload.File;
-            var uploadsContainer = BlobStorage.Containers.Uploads;
+            var containerName = BlobStorage.Containers.Uploads; // this is only UI Accessible so defaut destination is uploads
             var properties = BlobStorageService.SetOriginalMetadata(file.FileName, currentUser!.Id);
-
-            _logger.LogInformation("Received file '{fileName}', uploading to '{containerName}'", file.FileName, uploadsContainer);
+            _logger.LogInformation("Received file '{fileName}', uploading to '{containerName}'", file.FileName, containerName);
             
             var meta =await _service.UploadAsync(file, properties); 
             if (meta != null) { meta.UserId = currentUser!.Id; meta.UploadedBy = currentUser.Id; }

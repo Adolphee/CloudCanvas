@@ -39,19 +39,18 @@ namespace CloudCanvas.Shared.Utilities
                     catch (Exception) {}  // swallowing this because it tells us deletedOn wasn't set so we can proceed as planned
                 }
 
-            // TODO: uploadedBy / userID will be implemented with the Auth milestone
-            var uploadedBy = props.Metadata.ContainsKey(BlobStorage.Meta.UploadedBy) ? 
-                         props.Metadata[BlobStorage.Meta.UploadedBy] : Guid.NewGuid().ToString();
-            var oFilename = props.Metadata.ContainsKey(BlobStorage.Meta.OriginalFilename) ? 
-                                   props.Metadata[BlobStorage.Meta.OriginalFilename] : identifier;
+            // TODO: uploadedBy / userID will be implemented with the Auth milestone --> Done
+            var uploadedBy = props.Metadata[BlobStorage.Meta.UploadedBy] ?? null;
+            var oFilename = props.Metadata[BlobStorage.Meta.OriginalFilename] ?? identifier;
+            var containerName = props.Metadata["container"] ?? BlobStorage.Containers.Uploads;
             return Validate.Object(new BlobMetaDTO
             {
                 Id = identifier,
-                UserId = uploadedBy, // This is just a placeholder for when I introduce auth
+                UserId = uploadedBy,
                 Url = blobUrl,
                 OriginalFilename = oFilename,
                 CreatedOn = props.CreatedOn,
-                ContainerName = BlobStorage.Containers.Uploads,
+                ContainerName = containerName,
                 ProcessingStage = (int)BlobProcessingStage.UploadSuccessful, // TOFIX: this is misleading when this method is not 
                 Metadata = props.Metadata,
                 Thumbnails = new Dictionary<ThumbnailSize, string>(),

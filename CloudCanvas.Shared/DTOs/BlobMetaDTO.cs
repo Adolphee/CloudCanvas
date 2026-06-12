@@ -15,8 +15,6 @@ namespace CloudCanvas.Shared.DTOs
     {
         [Required, MaxLength(100)]
         public string Name { get; set; } = default!;
-        [Required]
-        public string ContainerName { get; set; } = default!;
         [Required, Range(0, 4)]
         public int ProcessingStage { get; set; }
         public string? ContentEncoding { get; set; }

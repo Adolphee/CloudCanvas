@@ -5,7 +5,7 @@ namespace CloudCanvas.Web.Utilities
 {
     public static class BlobExtensions
     {
-        public static Photo Convert(this BlobMetaDTO dto, ApplicationUser user)
+        public static Photo Convert(this GalleryItemDTO dto, ApplicationUser user)
         {
             var photo = new Photo
             {

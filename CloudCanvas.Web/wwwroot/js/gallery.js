@@ -38,7 +38,7 @@ async function saveGalleryItem(item) {
 async function deleteItemAsync(item) {
     var id = item.id;
     var userId = item.userId;
-    var request = { method: "delete", body: { id: id, userId: userId } };
+    var request = { method: "delete", body: JSON.stringify(buildPayload(item)) };
     const response = await fetch(api + id, request);
     if (!response.ok) throw new Error(`Error: ${response.status}`);
 }
@@ -87,7 +87,8 @@ function buildPayload(dataset) {
 function collectDataset(btn) {
     return {
         "id": btn.currentTarget.dataset.identifier,
-        "userId" : btn.currentTarget.dataset.userId
+        "userId": btn.currentTarget.dataset.userId,
+        "container": btn.currentTarget.dataset.container
     }
 }
 

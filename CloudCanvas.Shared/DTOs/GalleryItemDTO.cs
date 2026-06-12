@@ -1,4 +1,5 @@
 ﻿using Azure.Storage.Blobs.Models;
+using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.Enums;
 using System.ComponentModel.DataAnnotations;
 namespace CloudCanvas.Shared.DTOs

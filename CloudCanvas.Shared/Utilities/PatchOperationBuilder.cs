@@ -12,6 +12,8 @@ namespace CloudCanvas.Shared.Utilities
         {
             Validate.Object(metadata);
             var ops = new List<PatchOperation>();
+            if (!String.IsNullOrWhiteSpace(metadata.ContainerName))
+                ops.Add(PatchOperation.Add($"/containerName", metadata.ContainerName));
             if (!String.IsNullOrWhiteSpace(metadata.DisplayName))
                 ops.Add(PatchOperation.Add($"/displayName", metadata.DisplayName));
             if (!String.IsNullOrWhiteSpace(metadata.GalleryName))

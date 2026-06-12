@@ -115,28 +115,24 @@ public class BlobsApiFunction
     public async Task<IActionResult> Delete([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "photos/{identifier}")] HttpRequest req, string identifier)
     {
         _logger.LogInformation("Soft-delete requested. Method: {req.Method}, blobId: '{identifier}'", req.Method, identifier);
-        BlobMetaDTO blob = await _bservice.GetBlobMetaAsync(identifier, BlobStorage.Containers.Uploads);
-        blob.DeletedOn = DateTimeOffset.Now;
-        blob = await _bservice.AddMetadataAsync(blob, BlobStorage.Meta.DeletedOn, blob.DeletedOn.ToString()!);
+        
         using var reader = new StreamReader(req.Body);
         var bodyString = await reader.ReadToEndAsync();
+        PatchGalleryItemDTO patchItem = CCSerializer.Deserialize<PatchGalleryItemDTO>(bodyString);
         try
         {
-            Validate.StringValue(nameof(bodyString), bodyString);
             // first, soft-delete metadata, if that works then do the physical blob too
-            var patch = new PatchGalleryItemDTO
-            {
-                DeletedOn = blob.DeletedOn
-            };
-            var ops = PatchOperationBuilder.For(blob, true);
-            var patchedItem = await _cosmos.PatchItemAsync<PatchGalleryItemDTO>(blob.Id, blob.UserId, CloudCosmos.Containers.BlobMeta, ops);
-            var blob_delete_success = await _bservice.DeleteAsync(blob.ContainerName, identifier); // works regardless of blob's existence, but might throw on container 404
-            _logger.LogInformation("Soft-deleted blob '{identifier}' from {containerName}", identifier, blob.ContainerName);
+            patchItem.DeletedOn = DateTimeOffset.UtcNow;
+            var ops = PatchOperationBuilder.For(patchItem, true);
+            var patchedItem = await _cosmos.PatchItemAsync<PatchGalleryItemDTO>(patchItem.Id, patchItem.UserId!, CloudCosmos.Containers.BlobMeta, ops);
+            var blob_delete_success = await _bservice.DeleteAsync(patchItem.ContainerName, identifier); // works regardless of blob's existence, but might throw on container 404
+            _logger.LogInformation("Soft-deleted blob '{identifier}' from {containerName}", identifier, patchItem.ContainerName);
+
             return new OkObjectResult(new { StatusCode = 204, Value = "Not Found"});
         }
         catch (Exception e) when (e is CCSerializationException || e is InvalidArgumentException || e is ArgumentNullException)
         {
-            _logger.LogWarning(e, "{req.Method} Request Failed: soft-delete blob '{identifier}' from container '{containerName}'", req.Method, identifier, blob.ContainerName);
+            _logger.LogWarning(e, "{req.Method} Request Failed: soft-delete blob '{identifier}' from container '{containerName}'", req.Method, identifier, patchItem.ContainerName);
             return new NotFoundObjectResult(new { StatusCode = 204, Value = "Not Found" });
         }
     }

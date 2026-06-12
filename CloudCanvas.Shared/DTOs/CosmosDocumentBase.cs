@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CloudCanvas.Shared.Constants;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace CloudCanvas.Shared.DTOs
@@ -16,6 +17,10 @@ namespace CloudCanvas.Shared.DTOs
 
         // soft deletes; null = not deleted
         [JsonIgnore]
-        public DateTimeOffset? DeletedOn { get; set; } = null; 
+        public DateTimeOffset? DeletedOn { get; set; } = null;
+
+        [Required]
+        [JsonPropertyName("containerName")]
+        public string ContainerName { get; set; } = BlobStorage.Containers.Uploads;
     }
 }

@@ -5,13 +5,13 @@
 }
 
 <div class="container w-100">
-    @await Html.PartialAsync("_Carousel", Model.Blobs)
+    @await Html.PartialAsync("_Carousel", Model.Rows)
     <h4>Inventory</h4>
     <!-- TODO: add Metadata overview -->
     <div id="GalleryInventory" class="d-flex flex-wrap gap-3">
-        @foreach (var blob in Model.Blobs)
+        @foreach (var row in Model.Rows)
         {
-            @await Html.PartialAsync("_GalleryCard", blob);
+            @await Html.PartialAsync("_GalleryCard", row);
         }
     </div>
 </div>

@@ -1,5 +1,4 @@
-﻿@using CloudCanvas.Shared.DTOs
-@model List<BlobMetaDTO>
+﻿@model List<TableRowPhoto>
 
 <div id="GalleryCarousel" class="carousel slide" data-bs-ride="carousel">
     <div class="carousel-indicators">
@@ -14,8 +13,8 @@
             <div class="carousel-item @(i == 0 ? "active" : "")">
                 <img src="@Model[i].Url" class="d-block w-100" style="height: 400px;" alt="..." />
                 <div class="carousel-caption d-none d-md-block">
-                    <h5 class="carousel-title">@( String.IsNullOrWhiteSpace(Model[i].OriginalFilename) ? "No Title" : Model[i].OriginalFilename)</h5>
-                    <p class="carousel-description">@(String.IsNullOrWhiteSpace(Model[i].Description) ? "No Description" : Model[i].Description)</p>
+                    <h5 class="carousel-title">@( Model[i].DisplayName ?? "No Title")</h5>
+                    <p class="carousel-description">@( Model[i].Description ?? "No Description")</p>
                 </div>
             </div>
         }

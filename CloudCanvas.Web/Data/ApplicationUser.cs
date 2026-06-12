@@ -16,7 +16,10 @@ public class ApplicationUser : IdentityUser
     public string? Description { get; set; } = default!; 
     public List<Reaction> Reactions { get; set; } = new();
     public List<Post> Posts { get; set; } = new();
-
+    public ApplicationUser()
+    {
+        DisplayName = UserName;
+    }
     #region NOT MAPPED PROPERTIES
     [NotMapped]
     public List<Comment> Comments => Posts.OfType<Comment>().ToList();

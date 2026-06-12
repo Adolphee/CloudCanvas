@@ -101,6 +101,7 @@ namespace CloudCanvas.Shared.Services
         {
             filestream.Position = 0;
             var identifier = !String.IsNullOrWhiteSpace(customIdentifier) ? customIdentifier : Guid.NewGuid().ToString();
+            blobProperties.Add("container", containerName);
             return await UploadToBlobStorage(containerName, identifier, filestream, blobProperties);
         }
 
@@ -128,6 +129,7 @@ namespace CloudCanvas.Shared.Services
                 var fileStream = file.OpenReadStream();
                 fileStream.Position = 0;
                 identifier = !String.IsNullOrWhiteSpace(identifier) ? identifier : Guid.NewGuid().ToString();
+                props.Add("container", containerName);
                 return await UploadToBlobStorage(containerName, identifier, fileStream, props ?? new());
             } else
             {
