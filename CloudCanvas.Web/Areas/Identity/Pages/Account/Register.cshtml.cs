@@ -70,6 +70,21 @@ public class RegisterModel : PageModel
     /// </summary>
     public class InputModel
     {
+
+        [Required]
+        [StringLength(15)]
+        [Display(Name = "FirstName")]
+        public string FirstName { get; set; } = default!;
+
+        [Required]
+        [StringLength(20)]
+        [Display(Name = "LastName")]
+        public string LastName { get; set; } = default!;
+
+        [Required]
+        [StringLength(20)]
+        [Display(Name = "DisplayName")]
+        public string DisplayName { get; set; } = default!;
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -113,6 +128,9 @@ public class RegisterModel : PageModel
         if (ModelState.IsValid)
         {
             var user = CreateUser();
+            user.DisplayName = Input.DisplayName!.ToString();
+            user.FirstName = Input.FirstName!.ToString();
+            user.LastName = Input.LastName!.ToString();
 
             await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
             await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
@@ -146,7 +164,7 @@ public class RegisterModel : PageModel
             }
             foreach (var error in result.Errors)
             {
-                ModelState.AddModelError(string.Empty, error.Description);
+                ModelState?.AddModelError(string.Empty, error.Description);
             }
         }
 

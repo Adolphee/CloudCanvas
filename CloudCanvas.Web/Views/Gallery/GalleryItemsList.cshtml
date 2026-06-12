@@ -1,10 +1,14 @@
 ﻿@using CloudCanvas.Shared.Enums
 @using CloudCanvas.Shared.Utilities
+@using CloudCanvas.Web.Data
 @using CloudCanvas.Web.Models
+@using Microsoft.AspNetCore.Identity
+
 @model GalleryViewModel
+@inject UserManager<ApplicationUser> UserManager;
 @{
     ViewData["Title"] = "Gallery Page";
-    var thumbnailSize = ImageTool.GetPixelSize(ThumbnailSize.small)+"px";
+    var thumbnailSize = ImageTool.GetPixelSize(ThumbnailSize.small) + "px";
 }
 
 <div class="container w-100">
@@ -30,6 +34,7 @@
         <tbody>
             @foreach (var blob in Model.Blobs)
             {
+                var author = await UserManager.FindByIdAsync(blob.UploadedBy!);
                 <tr id="tr_@blob.Id">
                     <td>@blob.CreatedOn.LocalDateTime</td>
                     <td class="tr-thumbail">
@@ -44,7 +49,7 @@
                     <td class="tr-displayName">@(blob.DisplayName ?? blob.OriginalFilename)</td>
                     <td class="tr-description">@(String.IsNullOrWhiteSpace(blob.Description) ? "No description" : blob.Description)</td>
                     <td>@(blob.ContentLength / 1024) Kb</td>
-                    <td>@(String.IsNullOrWhiteSpace(blob.UploadedBy) ? "Anonymous user" : blob.UploadedBy)</td>
+                    <td>@(author == null ? "Anonymous user" : author.DisplayName)</td>
                     <!-- <td>@(String.IsNullOrWhiteSpace(blob.GalleryName) ? "Default (Public) Gallery" : blob.GalleryName)</td>  -->
                     <th class="quick_actions" scope="row">
                         <button type="button" class="btn col-6" data-bs-toggle="modal" data-bs-target="#Mod-@blob.Id">
