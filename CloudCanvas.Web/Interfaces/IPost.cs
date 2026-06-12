@@ -2,12 +2,7 @@
 
 namespace CloudCanvas.Web.Interfaces
 {
-    public interface IPost : ILikeable, IDisLikeable
+    public interface IPost : ILikeable, IDisLikeable, IHasTimestamps, IPublishable, IDeletable, IReportable
     {
-        public bool ReportPost(ApplicationUser user, string reason);
-        public bool Publish(ApplicationUser user);
-        public bool UnPublish(ApplicationUser user);
-        public bool Delete(ApplicationUser user, bool softDelete = true);
-
     }
 }

@@ -6,15 +6,15 @@ namespace CloudCanvas.Web.Data
 {
     public class Address
     {
-        public string? Id { get; private set; }
-        public string? Street { get; private set; }
-        public string? HouseNumber { get; private set; }
-        public string? City { get; private set; }
-        public string? PostalCode { get; private set; }
-        public string? Country { get; private set; }
+        public string? Id { get; set; }
+        public string? Street { get; set; }
+        public string? HouseNumber { get; set; }
+        public string? City { get; set; }
+        public string? PostalCode { get; set; }
+        public string? Country { get; set; }
 
-        public string? UserId { get; private set; }
-        public List<ApplicationUser> Inhabitants { get; private set; } = default!;
+        public string? UserId { get; set; }
+        public List<ApplicationUser> Inhabitants { get; set; } = default!;
 
         private Address() { }
 

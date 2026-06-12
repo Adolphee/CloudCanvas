@@ -7,9 +7,8 @@ namespace CloudCanvas.Web.Data
     {
         [MaxLength(255), Required]
         public string Text { get; set; } = default!;
-        [Required]
-        public string? PostId { get; set; } = default!;
-        public Post TargetPost { get; set; } = default!;
+        public string PostId { get; set; } = default!;
+        public Post Post { get; set; } = default!;
     }
 
     // Idea: introduce Special (Rich Text) comments

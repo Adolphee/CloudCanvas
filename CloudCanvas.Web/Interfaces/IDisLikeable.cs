@@ -4,9 +4,9 @@ namespace CloudCanvas.Web.Interfaces
 {
     public interface IDisLikeable
     {
-        public Dislike? DisLike(ApplicationUser user);
+        public Dislike? Dislike(ApplicationUser user);
         public bool RemoveDisLike(Dislike dislike);
         public int DisLikesCount();
-        public bool IsDisLikedBy(ApplicationUser user);
+        public bool IsDislikedBy(ApplicationUser user);
     }
 }
