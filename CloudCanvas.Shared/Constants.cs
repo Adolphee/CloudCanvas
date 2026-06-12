@@ -23,6 +23,7 @@ namespace CloudCanvas.Shared.Constants
             public const string OriginalFilename = "originalFilename";
             public static string UploadedBy = "uploadedBy";
             public static string CompletedOn = "completedOn";
+            public static string CreatedOn = "createdOn";
             public const string DeletedOn = "deletedOn";
         }
 

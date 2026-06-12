@@ -11,7 +11,7 @@ namespace CloudCanvas.Functions.Orchestration.Activities;
 
 public class CreateThumbnailActivity
 {
-    private readonly IBlobStorageService _blobService;
+    private readonly BlobStorageService _blobService;
 
     public CreateThumbnailActivity(BlobStorageService blobStorageService)
     {
@@ -31,7 +31,8 @@ public class CreateThumbnailActivity
             var bclient = await _blobService.GetOrCreateContainerClientAsync(req.Blob.ContainerName); // original file blob container
             var stream = await bclient.GetBlobClient(req.Blob.Name).OpenReadAsync(); // download file
             using var thumbnail = await ImageTool.ResizeAsync(stream, req.ThumbnailSize); // Create thumbnail
-            BlobMetaDTO thumbnailMeta = await _blobService.UploadAsync(thumbnail, req.Blob.OriginalFilename, BlobStorage.Containers.Thumbnails, $"{req.Blob.Name}_{req.ThumbnailSize.ToString()}");
+            var props = BlobStorageService.SetOriginalMetadata(req.Blob.OriginalFilename, req.Blob.UploadedBy!);
+            BlobMetaDTO thumbnailMeta = await _blobService.UploadAsync(thumbnail, req.Blob.OriginalFilename, props ,BlobStorage.Containers.Thumbnails, $"{req.Blob.Name}_{req.ThumbnailSize.ToString()}");
             logger.LogInformation("{correlationId} Created {size} thumbnail for {containerName}/{identifier}", 
                 req.CorrelationId, req.ThumbnailSize, req.Blob.ContainerName, req.Blob.Name);
             return thumbnailMeta.Url.ToString();

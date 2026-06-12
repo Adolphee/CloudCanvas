@@ -94,7 +94,7 @@ public class BlobsApiFunction
         {
             var dto = CCSerializer.Deserialize<PatchGalleryItemDTO>(stream);
             var ops = PatchOperationBuilder.For(dto);
-            if (ops.Any())
+            if (ops.Any())         
             {
                 string container = CloudCosmos.Containers.BlobMeta;
                 dto = await _cosmos.PatchItemAsync<PatchGalleryItemDTO>(identifier, dto.UserId, container, ops);

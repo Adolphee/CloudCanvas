@@ -1,5 +1,7 @@
 using Azure.Storage.Blobs;
+using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.DTOs;
+using Microsoft.AspNetCore.Http;
 
 namespace CloudCanvas.Shared.Interfaces;
 
@@ -9,7 +11,8 @@ namespace CloudCanvas.Shared.Interfaces;
 /// </summary>
 public interface IBlobStorageService
 {
-    Task<BlobMetaDTO> UploadAsync(Stream fileStream, string filename, string containerName, string Id = "");
+    Task<BlobMetaDTO> UploadAsync(Stream fileStream, string filename, Dictionary<string, string> blobProperties, string containerName = BlobStorage.Containers.Uploads, string customIdentifier = null!);
+    Task<BlobMetaDTO> UploadAsync(IFormFile file, Dictionary<string, string> props, string containerName = BlobStorage.Containers.Uploads, string customIdentifier = null!);
     Task<List<string>> GetBlobUrlsAsync(string containerName);
     Task<List<BlobMetaDTO>> GetBlobsAsync(string containerName);
     Task<BlobMetaDTO> GetBlobMetaAsync(string identifier, string fromContainer);

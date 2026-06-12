@@ -51,7 +51,10 @@ public class CreateThumbnail(ILogger<CreateThumbnail> logger, BlobStorageService
             var bclient = await _blobService.GetOrCreateContainerClientAsync(metadata.ContainerName); // original file blob container
             var stream = await bclient.GetBlobClient(metadata.Name).OpenReadAsync(); // download file
             using var thumbnail = await ImageTool.ResizeAsync(stream, size); // Create thumbnail
-            BlobMetaDTO thumbnailMeta = await _blobService.UploadAsync(thumbnail, metadata.OriginalFilename, destination, $"{metadata.Name}_{size.ToString()}"); 
+            var props = BlobStorageService.SetOriginalMetadata(metadata.OriginalFilename, metadata.UploadedBy!); // Set thumbnail specific metadata
+            props.Add("size", size.ToString());
+
+            BlobMetaDTO thumbnailMeta = await _blobService.UploadAsync(thumbnail, metadata.OriginalFilename, props, destination, $"{metadata.Id}_{size.ToString()}"); 
             metadata.Thumbnails.Add(size, thumbnailMeta.Url);
             _logger.LogInformation("{correlationId} {size} Thumbnail created and saved to {thumbnails}/{blobName}.", incoming.CorrelationId, size.ToString(), destination, metadata.Name);
         } catch (Exception e)
