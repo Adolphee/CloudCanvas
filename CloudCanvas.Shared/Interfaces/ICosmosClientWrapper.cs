@@ -1,5 +1,4 @@
-﻿using CloudCanvas.Shared.Constants;
-using CloudCanvas.Shared.DTOs;
+﻿using CloudCanvas.Shared.DTOs;
 using Microsoft.Azure.Cosmos;
 
 namespace CloudCanvas.Shared.Interfaces
@@ -23,6 +22,7 @@ namespace CloudCanvas.Shared.Interfaces
         /// <param name="containerName">The name of the container where the object will be saved. Cannot be <see langword="null"/> or empty.</param>
         /// <returns>A task that represents the asynchronous save operation. The task result contains the saved object.</returns>
         Task<T> SaveMetadataAsync<T>(T obj, string containerName, bool overWrite = false) where T : MetadataDocumentBase;
+        Task<Post> SaveMetadataAsync(Post obj, string containerName, bool overWrite = false);
 
         /// <summary>
         /// Retrieves a collection of items of the specified type from the given container.

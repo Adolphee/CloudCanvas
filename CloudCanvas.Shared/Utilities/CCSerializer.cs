@@ -3,7 +3,6 @@ using CloudCanvas.Shared.DTOs;
 using System.Text.Json;
 using CloudCanvas.Shared.Exceptions;
 using CloudCanvas.Shared.Enums;
-using CloudCanvas.Shared.Constants;
 
 namespace CloudCanvas.Shared.Utilities
 {
@@ -103,6 +102,23 @@ namespace CloudCanvas.Shared.Utilities
             {
                 throw new CCSerializationException($"Invalid argument '{nameof(blobMetadataJson)}' provided with value: '{blobMetadataJson}'.", e);
             }
+        }
+
+        public static Post ToPost(this BlobMetaDTO meta)
+        {
+            return new Post
+            {
+                Id = meta.Id,
+                OriginalFilename = meta.OriginalFilename,
+                Title = meta.OriginalFilename,
+                Description = meta.Description,
+                UserTags = meta.UserTags,
+                DisplayName = meta.DisplayName,
+                ContentLength = meta.ContentLength,
+                Url = meta.Url,
+                UserId = meta.UserId,
+                Classification = PostCategory.Photo
+            };
         }
     }
 }

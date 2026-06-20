@@ -1,4 +1,4 @@
-using CloudCanvas.Shared.Constants;
+using CloudCanvas.Shared;
 using CloudCanvas.Shared.DTOs;
 using CloudCanvas.Shared.Exceptions;
 using CloudCanvas.Shared.Interfaces;

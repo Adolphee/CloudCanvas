@@ -1,5 +1,4 @@
 ﻿using Azure.Messaging.ServiceBus;
-using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.Interfaces;
 
 namespace CloudCanvas.Shared.Services

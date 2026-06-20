@@ -1,7 +1,7 @@
 
 using Azure.Identity;
 using Azure.Messaging.ServiceBus;
-using CloudCanvas.Shared.Constants;
+using CloudCanvas.Shared;
 using CloudCanvas.Shared.Interfaces;
 using CloudCanvas.Shared.Services;
 using CloudCanvas.Shared.Utilities;

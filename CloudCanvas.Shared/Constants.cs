@@ -1,8 +1,7 @@
-
 /// <summary>
 /// Simple class to safely hold constant string values.
 /// </summary>
-namespace CloudCanvas.Shared.Constants
+namespace CloudCanvas.Shared
 {
     /// <summary>
     /// Represents constants and nested types related to Azure Blob Storage configuration.

@@ -1,7 +1,6 @@
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Logging;
 using CloudCanvas.Shared.Interfaces;
-using CloudCanvas.Shared.Constants;
 using CloudCanvas.Shared.Exceptions;
 using CloudCanvas.Shared.Utilities;
 using CloudCanvas.Shared.DTOs;

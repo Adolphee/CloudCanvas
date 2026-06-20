@@ -1,6 +1,6 @@
 using Azure.Identity;
 using Azure.Storage.Blobs;
-using CloudCanvas.Shared.Constants;
+using CloudCanvas.Shared;
 using CloudCanvas.Shared.Interfaces;
 using CloudCanvas.Shared.Services;
 using CloudCanvas.Shared.Utilities;
@@ -13,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddTransient<BlobStorageService>();
 builder.Services.AddSingleton(bsc =>
 {
-    var endpoint = Environment.GetEnvironmentVariable(BlobStorage.Uri);
+    var endpoint = Environment.GetEnvironmentVariable(BlobStorage.Self);
     Validate.StringValue(nameof(endpoint), endpoint);
     return new BlobServiceClient(new Uri(endpoint!), new DefaultAzureCredential());
 });

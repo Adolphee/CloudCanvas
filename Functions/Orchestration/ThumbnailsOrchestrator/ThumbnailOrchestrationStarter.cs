@@ -1,6 +1,6 @@
 using Azure.Messaging.ServiceBus;
 using CloudCanvas.Functions.Orchestration.DTO;
-using CloudCanvas.Shared.Constants;
+using CloudCanvas.Shared;
 using CloudCanvas.Shared.DTOs;
 using CloudCanvas.Shared.Exceptions;
 using CloudCanvas.Shared.Utilities;

@@ -1,4 +1,4 @@
-using CloudCanvas.Shared.Constants;
+using CloudCanvas.Shared;
 using CloudCanvas.Shared.Enums;
 using CloudCanvas.Shared.Exceptions;
 using CloudCanvas.Shared.Interfaces;
@@ -45,7 +45,8 @@ namespace CloudCanvas.Web.Controllers
             var meta = await _service.UploadAsync(file.OpenReadStream(), file.FileName, uploadsContainer);
             // I am already saving what I can to CosmosDB, so that the frontend can access it immediately
             // Functions will take care of any further updates, while for now the end user gets the latest relavant data for them
-            await _cosmos.SaveMetadataAsync(meta, CloudCosmos.Containers.BlobMeta);
+            var posts = meta.ToPost();
+            await _cosmos.SaveMetadataAsync(posts, CloudCosmos.Containers.BlobMeta);
             // 3. redirect to gallery
             return RedirectToAction("Index", "Gallery");
         }

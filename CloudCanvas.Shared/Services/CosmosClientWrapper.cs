@@ -1,5 +1,4 @@
-﻿using CloudCanvas.Shared.Constants;
-using CloudCanvas.Shared.DTOs;
+﻿using CloudCanvas.Shared.DTOs;
 using CloudCanvas.Shared.Exceptions;
 using CloudCanvas.Shared.Interfaces;
 using CloudCanvas.Shared.Utilities;
@@ -127,6 +126,16 @@ namespace CloudCanvas.Shared.Services
             };
 
             return blob;
+        }
+
+        public async Task<Post> SaveMetadataAsync(Post post, string containerName, bool overWrite = false)
+        {
+            var container = _client.GetContainer(CloudCosmos.Sql, containerName);
+            ItemResponse<Post> result;
+            var partitionKey = new PartitionKey(post.UserId);
+            if (overWrite) result = await container.ReplaceItemAsync(post, post.Id, partitionKey);
+            else result = await container.CreateItemAsync(post, partitionKey);
+            return result.Resource;
         }
     }
 }

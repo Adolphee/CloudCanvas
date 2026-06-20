@@ -1,5 +1,5 @@
 using CloudCanvas.Functions.Orchestration.DTOs;
-using CloudCanvas.Shared.Constants;
+using CloudCanvas.Shared;
 using CloudCanvas.Shared.DTOs;
 using CloudCanvas.Shared.Interfaces;
 using CloudCanvas.Shared.Services;
