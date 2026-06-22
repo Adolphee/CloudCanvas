@@ -1,10 +1,13 @@
 ﻿using CloudCanvas.Domain.Addresses;
 using CloudCanvas.Domain.Posts;
+using CloudCanvas.Domain.Posts.ValueObjects;
 using CloudCanvas.Domain.Reactions;
+using CloudCanvas.Infrastructure.Common;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace CloudCanvas.Domain.User
 {
@@ -25,6 +28,7 @@ namespace CloudCanvas.Domain.User
         public DateTimeOffset? DeletedOn { get; set; }
         public string? Description { get; set; }
         public List<Reaction> Reactions { get; set; }
+
         public List<Post> Posts { get; set; }
         //public IAppUser(string userName, string firstName, string lastName, string emailAddress, DateTime birthDate);
         

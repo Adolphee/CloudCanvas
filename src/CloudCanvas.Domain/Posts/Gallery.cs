@@ -1,11 +1,13 @@
 ﻿
 using CloudCanvas.Domain.Posts.ValueObjects;
+using CloudCanvas.Infrastructure.Common;
+using System.Text.Json.Serialization;
 
 namespace CloudCanvas.Domain.Posts
 {
     public class Gallery : Post
     {
-        private readonly static PostCategory PostCategory = PostCategory.Gallery;
+        private readonly static PostClassification PostCategory = PostClassification.Gallery;
         public List<Photo>? Photos { get; set; } = new();
         public string? DisplayName { get; set; }
         public string? Description { get; set; }

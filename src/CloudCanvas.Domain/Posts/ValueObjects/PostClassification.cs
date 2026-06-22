@@ -4,8 +4,12 @@ using System.Text;
 
 namespace CloudCanvas.Domain.Posts.ValueObjects
 {
-    public enum PostCategory
+    public enum PostClassification
     {
-        Comment, Article, Photo, Gallery, Video
+        Comment, 
+        //Article, 
+        Photo, 
+        Gallery, 
+        //Video
     }
 }

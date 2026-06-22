@@ -3,11 +3,14 @@ using CloudCanvas.Domain.Abstractions;
 using CloudCanvas.Domain.Posts.ValueObjects;
 using CloudCanvas.Domain.Reactions;
 using CloudCanvas.Domain.User;
+using CloudCanvas.Infrastructure.Common;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace CloudCanvas.Domain.Posts.Contracts
 {
+
     public interface IPost : ILikeable, IDisLikeable, IHasTimestamps, IPublishable, IDeletable, IReportable
     {
         [Required]
@@ -19,7 +22,7 @@ namespace CloudCanvas.Domain.Posts.Contracts
         public IAppUser? Author { get; set; }
 
         [Required]
-        public PostCategory Classification { get; set; }
+        public PostClassification Classification { get; set; }
 
         internal List<Reaction> Reactions { get; set;  }
         [NotMapped]
@@ -30,7 +33,11 @@ namespace CloudCanvas.Domain.Posts.Contracts
         public List<EmojiReaction> EmojiReactions => Reactions.Where(r => r.Type == ReactionType.Emoji).OfType<EmojiReaction>().ToList();
         public List<Comment> Comments { get; set; }
         public bool CommentsEnabled { get; set; }
-
-
+        public long ContentLength { get; set; }
+        public string? Description { get; set; }
+        public string? DisplayName { get; set; }
+        public string OriginalFilename { get; set; }
+        public string Title { get; set; }
+        public List<string> UserTags { get; set; }
     }
 }

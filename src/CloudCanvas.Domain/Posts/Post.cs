@@ -4,6 +4,7 @@ using CloudCanvas.Domain.Posts.Contracts;
 using CloudCanvas.Domain.Posts.ValueObjects;
 using CloudCanvas.Domain.Reactions;
 using CloudCanvas.Domain.User;
+using CloudCanvas.Infrastructure.Common;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
@@ -11,36 +12,46 @@ using System.Xml.Linq;
 
 namespace CloudCanvas.Domain.Posts
 {
-    public abstract class Post: TimeStamped, IPost, ICommentable
+    public class Post: TimeStamped, IPost, ICommentable
     {
 
         #region PROPERTIES
         [Required]
+        public PostClassification Classification { get; set; } = PostClassification.Photo;
         public string? Id { get; set; }
         [Required]
         public string? UserId { get; set; }
         public string? Url { get; set; } = default!;
+        public string? Description { get; set; } = default!;
         public long ContentLength { get; set; }
+        public bool CommentsEnabled { get; set; } = true;
         [Required]
         public IAppUser? Author { get; set; }
 
         internal List<Reaction> Reactions = new();
+        
         [NotMapped]
         public List<Like> Likes => Reactions.Where(r => r.Type == ReactionType.Like).OfType<Like>().ToList();
+        
         [NotMapped]
         public List<Dislike> Dislikes => Reactions.Where(r => r.Type == ReactionType.Dislike).OfType<Dislike>().ToList();
+        
         [NotMapped]
         public List<EmojiReaction> EmojiReactions => Reactions.Where(r => r.Type == ReactionType.Emoji).OfType<EmojiReaction>().ToList();
+        
         public List<Comment> Comments { get; set; } = new();
-        public bool CommentsEnabled { get; set; } = true;
 
         DateTimeOffset IHasTimestamps.CreatedOn { get; set; }
         DateTimeOffset IHasTimestamps.DeletedOn { get; set; }
         DateTimeOffset IHasTimestamps.ModifiedOn { get; set; }
         public DateTimeOffset PublishedOn { get; set; }
         public DateTimeOffset UnpublishedOn { get; set; }
+
         List<Reaction> IPost.Reactions { get; set; } = new();
-        public PostCategory Classification { get; set; } = PostCategory.Photo;
+        public string? DisplayName { get; set; }
+        public List<string>? UserTags { get; set; }
+        public string Title { get; set; }
+        public string OriginalFilename { get; set; }
         #endregion
 
         #region REACTIONS
