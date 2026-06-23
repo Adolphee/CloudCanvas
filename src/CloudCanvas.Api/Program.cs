@@ -30,19 +30,15 @@ builder.Services.AddSingleton( cc =>
 {
     var endpoint = Environment.GetEnvironmentVariable(CloudCosmos.Uri);
 
-    var settings = new JsonSerializerSettings
-    {
-        NullValueHandling = NullValueHandling.Ignore
-    };
-
     //settings.Converters.Add(new PostJsonConverter());
     return new CosmosClient(endpoint, new DefaultAzureCredential(), new CosmosClientOptions
     {
         ConnectionMode = ConnectionMode.Gateway,
-        Serializer = new CustomCosmosSerializer(settings, new CosmosSerializationOptions
+        SerializerOptions = new CosmosSerializationOptions
         {
             PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase,
-        })
+            IgnoreNullValues = true
+        }
     });
 });
 builder.Services.AddOpenApi();
