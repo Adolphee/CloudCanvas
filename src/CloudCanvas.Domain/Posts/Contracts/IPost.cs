@@ -3,10 +3,8 @@ using CloudCanvas.Domain.Abstractions;
 using CloudCanvas.Domain.Posts.ValueObjects;
 using CloudCanvas.Domain.Reactions;
 using CloudCanvas.Domain.User;
-using CloudCanvas.Infrastructure.Common;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
 namespace CloudCanvas.Domain.Posts.Contracts
 {
@@ -24,7 +22,7 @@ namespace CloudCanvas.Domain.Posts.Contracts
         [Required]
         public PostClassification Classification { get; set; }
 
-        internal List<Reaction> Reactions { get; set;  }
+        internal List<Reaction> Reactions { get; set; } 
         [NotMapped]
         public List<Like> Likes => Reactions.Where(r => r.Type == ReactionType.Like).OfType<Like>().ToList();
         [NotMapped]
