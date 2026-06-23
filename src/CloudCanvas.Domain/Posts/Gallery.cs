@@ -7,9 +7,9 @@ namespace CloudCanvas.Domain.Posts
     {
         private readonly static PostClassification PostCategory = PostClassification.Gallery;
         public List<Photo>? Photos { get; set; } = new();
-        public string? DisplayName { get; set; }
-        public string? Description { get; set; }
-        public List<string>? UserTags { get; set; } = new();
+        public string? DisplayName { get; set; } = default!;
+        public string? Description { get; set; } = default!;
+        //public List<string>? UserTags { get; set; } = new();
 
         public Gallery(bool commentsEnabled = true)
         {

@@ -8,8 +8,8 @@ namespace CloudCanvas.Domain.Posts
         private readonly static PostClassification PostCategory = PostClassification.Photo;
         public string? Title { get;  set; }
         public string OriginalFilename { get; set; } = default!;
+        public string? Caption { get; set; } = default!;
         public List<PhotoThumbnail> Thumbnails { get; set; } = new(); // BlobUrls for the thumbnails
-        public List<string> UserTags { get; set; } = new();
         public Photo() { }
     }
 }

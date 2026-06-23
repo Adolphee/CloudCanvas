@@ -32,10 +32,10 @@ namespace CloudCanvas.Domain.Posts.Contracts
         public List<Comment> Comments { get; set; }
         public bool CommentsEnabled { get; set; }
         public long ContentLength { get; set; }
-        public string? Description { get; set; }
-        public string? DisplayName { get; set; }
-        public string? OriginalFilename { get; set; }
-        public string? Title { get; set; }
+        //public string? Description { get; set; }
+        //public string? DisplayName { get; set; }
+        //public string? OriginalFilename { get; set; }
+        //public string? Title { get; set; }
         public List<string> UserTags { get; set; }
     }
 }

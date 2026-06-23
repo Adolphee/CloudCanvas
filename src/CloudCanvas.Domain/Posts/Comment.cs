@@ -5,11 +5,10 @@ namespace CloudCanvas.Domain.Posts
 {
     public class Comment: Post
     {
-        private readonly static PostClassification PostCategory = PostClassification.Comment;
+        private readonly static PostClassification Type = PostClassification.Comment;
         [MaxLength(255), Required]
         public string Text { get; set; } = default!;
         public string PostId { get; set; } = default!;
-
         public Post Post { get; set; } = default!;
     }
 

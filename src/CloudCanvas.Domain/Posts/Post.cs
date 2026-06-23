@@ -20,7 +20,6 @@ namespace CloudCanvas.Domain.Posts
         [Required]
         public string? UserId { get; set; }
         public string? Url { get; set; } = default!;
-        public string? Description { get; set; } = default!;
         public long ContentLength { get; set; }
         public bool CommentsEnabled { get; set; } = true;
         [Required]
@@ -49,10 +48,9 @@ namespace CloudCanvas.Domain.Posts
         public DateTimeOffset UnpublishedOn { get; set; }
 
         List<Reaction> IPost.Reactions { get; set; } = new();
-        public string? DisplayName { get; set; }
         public List<string> UserTags { get; set; } = new();
-        public string? Title { get; set; } = default!;
-        public string? OriginalFilename { get; set; } = default!;
+        //public string? Title { get; set; } = default!;
+        //public string? OriginalFilename { get; set; } = default!;
         #endregion
 
         #region REACTIONS

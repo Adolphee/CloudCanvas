@@ -9,8 +9,8 @@ namespace CloudCanvas.Domain.User
     public interface IAppUser
     {
         public string? Id { get; set; }
-        public string UserName { get; set; }
-        public string Email { get; set; }
+        public string? UserName { get; set; }
+        public string? Email { get; set; }
 
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
@@ -22,10 +22,9 @@ namespace CloudCanvas.Domain.User
         public DateTimeOffset? LastModified { get; set; }
         public DateTimeOffset? DeletedOn { get; set; }
         public string? Description { get; set; }
-        public List<Reaction> Reactions { get; set; }
+        public List<Reaction?> Reactions { get; set; }
 
-        public List<Post> Posts { get; set; }
-        //public IAppUser(string userName, string firstName, string lastName, string emailAddress, DateTime birthDate);
+        public List<Post?> Posts { get; set; }
         
         #region NOT MAPPED PROPERTIES
         [NotMapped]
