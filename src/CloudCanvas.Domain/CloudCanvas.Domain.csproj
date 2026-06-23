@@ -7,13 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.9" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="Entities\" />
     <Folder Include="Posts\Events\" />
+    <Folder Include="Posts\ValueObjects\" />
     <Folder Include="Reactions\Events\" />
     <Folder Include="Reactions\ValueObjects\" />
     <Folder Include="User\Events\" />
