@@ -5,9 +5,9 @@ namespace CloudCanvas.Domain.Posts.Contracts
 {
     public interface IDisLikeable
     {
-        public Dislike? Dislike(IAppUser user);
+        public Dislike? Dislike(AppUser user);
         public bool RemoveDisLike(Dislike dislike);
         public int DisLikesCount();
-        public bool IsDislikedBy(IAppUser user);
+        public bool IsDislikedBy(AppUser user);
     }
 }

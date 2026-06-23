@@ -17,7 +17,7 @@ namespace CloudCanvas.Domain.Posts.Contracts
         public string? UserId { get; set; }
         public string? Url { get; set; }
         [Required]
-        public IAppUser? Author { get; set; }
+        public AppUser? Author { get; set; }
 
         [Required]
         public PostClassification Classification { get; set; }
@@ -34,8 +34,8 @@ namespace CloudCanvas.Domain.Posts.Contracts
         public long ContentLength { get; set; }
         public string? Description { get; set; }
         public string? DisplayName { get; set; }
-        public string OriginalFilename { get; set; }
-        public string Title { get; set; }
+        public string? OriginalFilename { get; set; }
+        public string? Title { get; set; }
         public List<string> UserTags { get; set; }
     }
 }

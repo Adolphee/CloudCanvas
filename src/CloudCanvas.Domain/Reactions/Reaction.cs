@@ -11,7 +11,7 @@ namespace CloudCanvas.Domain.Reactions
         public string? Id { get; set; }
         public ReactionType Type { get; set; }
         public string UserId { get; set; } = default!;
-        public IAppUser User { get; set; } = default!;
+        public AppUser User { get; set; } = default!;
         public string? PostId { get; set; }
         public Post Post { get; set; } = default!;
     }

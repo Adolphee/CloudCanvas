@@ -7,8 +7,8 @@ namespace CloudCanvas.Domain.Posts.Contracts
         public DateTimeOffset PublishedOn { get; set; }
         public DateTimeOffset UnpublishedOn { get; set; }
 
-        public bool UnPublish(IAppUser user);
-        public bool Publish(IAppUser user);
+        public bool UnPublish(AppUser user);
+        public bool Publish(AppUser user);
 
         public bool SetPublishedOn();
         public bool SetUnpublishedOn();
