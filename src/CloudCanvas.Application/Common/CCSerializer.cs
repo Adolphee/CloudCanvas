@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace CloudCanvas.Application.Common
 {
-    public static class CCSerializer
+    public class CCSerializer
     {
         private static JsonSerializerOptions _options = new JsonSerializerOptions
         {
@@ -79,7 +79,7 @@ namespace CloudCanvas.Application.Common
         }
 
         public static string Serialize<T>(T target) => JsonSerializer.Serialize(Validate.Object(target), _options);
-        public static T MetaFromBinaryData<T>(BinaryData blobMetadataDto) => Deserialize<T>(blobMetadataDto.ToString());
+        public static T FromBinaryData<T>(BinaryData blobMetadataDto) => Deserialize<T>(blobMetadataDto.ToString());
         
         /// <summary>
         /// Tries to deserialize a structured string into an object of a given type.
