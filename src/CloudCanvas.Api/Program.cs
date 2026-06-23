@@ -1,17 +1,16 @@
 
 using Azure.Identity;
 using CloudCanvas.Application.Abstractions.Persistence;
-using CloudCanvas.Application.Common;
 using CloudCanvas.Domain.Posts;
 using CloudCanvas.Domain.Posts.Contracts;
-using CloudCanvas.Domain.Posts.ValueObjects;
 using CloudCanvas.Infrastructure;
 using CloudCanvas.Infrastructure.Cosmos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Identity.Web;
+using Newtonsoft.Json;
+
 using WebApplication = Microsoft.AspNetCore.Builder.WebApplication;
-using CloudCanvas.Infrastructure.Cosmos;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -22,33 +21,28 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddInMemoryTokenCaches();
 
 builder.Services.AddControllers();
-builder.Services.AddTransient<IPost>(c => new Photo());
+builder.Services.AddTransient<IPost, Post>();
+builder.Services.AddTransient(typeof(IPostsRepository<>), typeof(CosmosClientWrapper<>));
 
-builder.Services.AddTransient<IPostsRepository<IPost>, CosmosClientWrapper<IPost>>();
-builder.Services.AddTransient<CosmosClientWrapper<IPost>>();
-builder.Services.AddSingleton(cc =>
+builder.Services.AddTransient<CosmosClientWrapper<Post>>();
+
+builder.Services.AddSingleton( cc =>
 {
     var endpoint = Environment.GetEnvironmentVariable(CloudCosmos.Uri);
-    Validate.StringValue(nameof(endpoint), endpoint);
+
+    var settings = new JsonSerializerSettings
+    {
+        NullValueHandling = NullValueHandling.Ignore
+    };
+
+    //settings.Converters.Add(new PostJsonConverter());
     return new CosmosClient(endpoint, new DefaultAzureCredential(), new CosmosClientOptions
     {
         ConnectionMode = ConnectionMode.Gateway,
-        SerializerOptions = new CosmosSerializationOptions
+        Serializer = new CustomCosmosSerializer(settings, new CosmosSerializationOptions
         {
-            PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
-        }
-    });
-});
-builder.Services.AddSingleton<CosmosClient>( cc =>
-{
-    var endpoint = Environment.GetEnvironmentVariable(CloudCosmos.Uri);
-    return new CosmosClient(endpoint, new DefaultAzureCredential(), new CosmosClientOptions
-    {
-        ConnectionMode = ConnectionMode.Gateway,
-        SerializerOptions = new CosmosSerializationOptions
-        {
-            PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
-        }
+            PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase,
+        })
     });
 });
 builder.Services.AddOpenApi();
