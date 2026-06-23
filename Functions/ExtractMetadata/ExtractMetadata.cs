@@ -38,7 +38,7 @@ public class ExtractMetadata(ILogger<ExtractMetadata> logger, BlobStorageService
         try
         {
             BlobMetaDTO metadata = CCSerializer.MetaFromBlobProperties(identifier, blob.Uri.ToString(), blob.GetProperties());
-            if (!await _cosmos.MetaExistsAsync(CloudCosmos.Containers.BlobMeta, metadata.Id, metadata.UserId))
+            if (!await _cosmos.ExistsAsync(CloudCosmos.Containers.BlobMeta, metadata.Id, metadata.UserId))
             { // usually this function only executes ONCE; when the main file is uploaded.
                 metadata = await _cosmos.SaveMetadataAsync(metadata, CloudCosmos.Containers.BlobMeta, false);
             }
