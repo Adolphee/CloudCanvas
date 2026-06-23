@@ -1,13 +1,16 @@
 ﻿using Azure.Storage.Blobs.Models;
-using CloudCanvas.Infrastructure;
 using CloudCanvas.Domain.Common.Enums;
+using CloudCanvas.Domain.Posts;
+using CloudCanvas.Domain.Posts.Contracts;
+using CloudCanvas.Infrastructure;
 using CloudCanvas.Infrastructure.DTOs;
 using CloudCanvas.Infrastructure.Exceptions;
+using Microsoft.Azure.Cosmos;
 using System.Text.Json;
 
 namespace CloudCanvas.Infrastructure.Common
 {
-    public static class CCSerializer
+    public class CCSerializer
     {
         private static JsonSerializerOptions _options = new JsonSerializerOptions
         {
@@ -79,6 +82,46 @@ namespace CloudCanvas.Infrastructure.Common
             };
         }
 
+        public static Post PostFromBlobProperties(string identifier, string blobUrl, BlobProperties props, PostClassification classification = PostClassification.Photo)
+        {
+            bool deleted = false;
+            DateTimeOffset result = DateTimeOffset.MinValue;
+            if (props.Metadata.Keys.Contains(BStorage.Meta.DeletedOn))
+            {
+                try
+                {
+                    deleted = DateTimeOffset.TryParse(props.Metadata[BStorage.Meta.DeletedOn], out result);
+                }
+                catch (Exception) { }  // swallowing this because it tells us deletedOn wasn't set so we can proceed as planned
+            }
+
+            // TODO: uploadedBy / userID will be implemented with the Auth milestone --> Done
+            var uploadedBy = props.Metadata[BStorage.Meta.UploadedBy] ?? null;
+            var oFilename = props.Metadata[BStorage.Meta.OriginalFilename] ?? identifier;
+            var containerName = props.Metadata["container"] ?? BStorage.Containers.Uploads;
+            var post = new Post();
+            switch(classification) {
+                case PostClassification.Photo: //TODO: enhance
+                    var photo = ((Photo)post);
+                    photo.Title = oFilename;
+                    photo.SetCreatedOn();
+                    photo.OriginalFilename = oFilename;
+                    return photo;
+                case PostClassification.Gallery: //TODO: enhance
+                    var gallery = ((Gallery)post);
+                    gallery.DisplayName = oFilename;
+                    gallery.SetCreatedOn();
+                    gallery.Description = String.Empty;
+                    return gallery;
+                case PostClassification.Comment: //TODO: enhance
+                    var comment = ((Comment)post);
+                    comment.Text = oFilename;
+                    comment.SetCreatedOn();
+                    return comment;
+                default: break;
+            }
+            return post;
+        }
         public static string Serialize<T>(T target) => JsonSerializer.Serialize((target), _options);
         public static T MetaFromBinaryData<T>(BinaryData blobMetadataDto) => Deserialize<T>(blobMetadataDto.ToString());
         
