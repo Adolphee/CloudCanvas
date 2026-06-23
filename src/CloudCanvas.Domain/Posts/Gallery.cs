@@ -1,7 +1,5 @@
 ﻿
-using CloudCanvas.Domain.Posts.ValueObjects;
-using CloudCanvas.Infrastructure.Common;
-using System.Text.Json.Serialization;
+using CloudCanvas.Domain.Common.Enums;
 
 namespace CloudCanvas.Domain.Posts
 {

@@ -1,6 +1,6 @@
 ﻿using CloudCanvas.Domain.Common;
+using CloudCanvas.Domain.Common.Enums;
 using CloudCanvas.Domain.Posts;
-using CloudCanvas.Domain.Posts.ValueObjects;
 using CloudCanvas.Domain.User;
 
 

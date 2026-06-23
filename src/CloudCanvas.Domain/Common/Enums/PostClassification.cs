@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CloudCanvas.Domain.Posts.ValueObjects
+namespace CloudCanvas.Domain.Common.Enums
 {
     public enum PostClassification
     {

@@ -1,5 +1,4 @@
-﻿using CloudCanvas.Domain.Posts.ValueObjects;
-using CloudCanvas.Infrastructure.Common;
+﻿using CloudCanvas.Domain.Common.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
@@ -12,7 +11,6 @@ namespace CloudCanvas.Domain.Posts
         public string Text { get; set; } = default!;
         public string PostId { get; set; } = default!;
 
-        //[JsonConverter(typeof(PostJsonConverter))]
         public Post Post { get; set; } = default!;
     }
 

@@ -1,4 +1,6 @@
-﻿namespace CloudCanvas.Domain.Reactions
+﻿using CloudCanvas.Domain.Common.Enums;
+
+namespace CloudCanvas.Domain.Reactions
 {
     public class Like: Reaction
     {

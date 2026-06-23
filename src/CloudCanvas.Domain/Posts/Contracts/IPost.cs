@@ -1,6 +1,6 @@
 ﻿
 using CloudCanvas.Domain.Abstractions;
-using CloudCanvas.Domain.Posts.ValueObjects;
+using CloudCanvas.Domain.Common.Enums;
 using CloudCanvas.Domain.Reactions;
 using CloudCanvas.Domain.User;
 using System.ComponentModel.DataAnnotations;
