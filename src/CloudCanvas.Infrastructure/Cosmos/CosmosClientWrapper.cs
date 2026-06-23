@@ -1,16 +1,13 @@
 ﻿using CloudCanvas.Domain.Posts;
-using CloudCanvas.Domain.Posts.ValueObjects;
 using CloudCanvas.Infrastructure.DTOs;
 using CloudCanvas.Infrastructure.Exceptions;
 using CloudCanvas.Application.Abstractions.Persistence;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
-using System.Net;
-using CloudCanvas.Domain.Posts.Contracts;
 
 namespace CloudCanvas.Infrastructure.Cosmos
 {
-    public class CosmosClientWrapper<T> : IPostsRepository<T> where T : IPost
+    public class CosmosClientWrapper<T> : IPostsRepository<T> where T : Post
     {
         private readonly CosmosClient _client;
         private Container? _container;
@@ -98,16 +95,15 @@ namespace CloudCanvas.Infrastructure.Cosmos
             return res;
         }
 
-        public async Task<List<T>> ListPostsAsync(string containerName)
+        public async Task<List<Post>> GetPostsAsync(string containerName)
         {
             var con = GetContainer(containerName);
-            var queryable = con.GetItemLinqQueryable<T>().Where(x => x.DeletedOn == null);
-            var res = new List<T>();
-            using var iterator = queryable.ToFeedIterator();
-            while (iterator.HasMoreResults)
+            var res = new List<Post>();
+            using var queryable = con.GetItemQueryIterator<BlobMetaDTO>();
+            while (queryable.HasMoreResults)
             {
-                var resItems = await iterator.ReadNextAsync();
-                res.AddRange(resItems.ToList());
+                var resItems = await queryable.ReadNextAsync();
+                res.AddRange(resItems.ToList().Select(item => item.ToPost()));
             }
             return res;
         }
@@ -139,6 +135,11 @@ namespace CloudCanvas.Infrastructure.Cosmos
         }
 
         public Task<T> PatchItemAsync(string id, string partitionKey, string containerName, IReadOnlyList<Dictionary<string, string?>> ops)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<List<T>> IPostsRepository<T>.ListPostsAsync(string containerName)
         {
             throw new NotImplementedException();
         }
