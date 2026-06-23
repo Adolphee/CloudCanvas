@@ -1,13 +1,8 @@
 ﻿using CloudCanvas.Domain.Addresses;
+using CloudCanvas.Domain.Common.Enums;
 using CloudCanvas.Domain.Posts;
-using CloudCanvas.Domain.Posts.ValueObjects;
 using CloudCanvas.Domain.Reactions;
-using CloudCanvas.Infrastructure.Common;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
-using System.Text.Json.Serialization;
 
 namespace CloudCanvas.Domain.User
 {

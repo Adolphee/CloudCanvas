@@ -1,6 +1,5 @@
 ﻿using CloudCanvas.Domain.Common.Enums;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 
 namespace CloudCanvas.Domain.Posts
 {
