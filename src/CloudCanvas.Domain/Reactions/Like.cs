@@ -2,7 +2,7 @@
 
 namespace CloudCanvas.Domain.Reactions
 {
-    public class Like: Reaction
+    public record class Like: Reaction
     {
         public Like(): base()
         {

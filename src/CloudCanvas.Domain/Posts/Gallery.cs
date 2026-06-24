@@ -3,10 +3,10 @@ using CloudCanvas.Domain.Common.Enums;
 
 namespace CloudCanvas.Domain.Posts
 {
-    public class Gallery : Post
+    public record class Gallery : Post
     {
         private readonly static PostClassification PostCategory = PostClassification.Gallery;
-        public List<Photo>? Photos { get; set; } = new();
+        public List<Photo> Photos { get; set; } = new();
         public string? DisplayName { get; set; } = default!;
         public string? Description { get; set; } = default!;
         //public List<string>? UserTags { get; set; } = new();

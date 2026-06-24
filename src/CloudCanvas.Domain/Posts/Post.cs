@@ -9,7 +9,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CloudCanvas.Domain.Posts
 {
-    public class Post: TimeStamped, IPost, ICommentable
+    public record class Post: TimeStamped, IPost, ICommentable
     {
 
         #region PROPERTIES
@@ -25,20 +25,8 @@ namespace CloudCanvas.Domain.Posts
         [Required]
         public AppUser? Author { get; set; } = default!;
 
-        internal List<Reaction> Reactions = new();
+        public List<Reaction> Reactions = new();
 
-        
-
-        [NotMapped]
-        public List<Like> Likes => Reactions.Where(r => r.Type == ReactionType.Like).OfType<Like>().ToList();
-        
-        [NotMapped]
-        public List<Dislike> Dislikes => Reactions.Where(r => r.Type == ReactionType.Dislike).OfType<Dislike>().ToList();
-        
-        [NotMapped]
-        public List<EmojiReaction> EmojiReactions => Reactions.Where(r => r.Type == ReactionType.Emoji).OfType<EmojiReaction>().ToList();
-
-        [NotMapped]
         public List<Comment> Comments { get; set; } = new();
 
         DateTimeOffset IHasTimestamps.CreatedOn { get; set; }
@@ -54,6 +42,16 @@ namespace CloudCanvas.Domain.Posts
         #endregion
 
         #region REACTIONS
+
+        [NotMapped]
+        public List<Like> Likes => Reactions.Where(r => r.Type == ReactionType.Like).OfType<Like>().ToList();
+        
+        [NotMapped]
+        public List<Dislike> Dislikes => Reactions.Where(r => r.Type == ReactionType.Dislike).OfType<Dislike>().ToList();
+        
+        [NotMapped]
+        public List<EmojiReaction> EmojiReactions => Reactions.Where(r => r.Type == ReactionType.Emoji).OfType<EmojiReaction>().ToList();
+        
         public bool Delete(AppUser user, bool softDelete = true)
         {
             if (Author == null || Author.Id != user.Id || DeletedOn != DateTime.MinValue) return false;
@@ -179,5 +177,6 @@ namespace CloudCanvas.Domain.Posts
             return true;
         }
         #endregion
+    
     }
 }

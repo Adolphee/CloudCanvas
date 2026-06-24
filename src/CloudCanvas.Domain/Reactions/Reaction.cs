@@ -6,7 +6,7 @@ using CloudCanvas.Domain.User;
 
 namespace CloudCanvas.Domain.Reactions
 {
-    public class Reaction: TimeStamped
+    public record class Reaction: TimeStamped
     {
         public string? Id { get; set; }
         public ReactionType Type { get; set; }

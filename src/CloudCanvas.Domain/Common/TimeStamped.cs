@@ -4,7 +4,7 @@ using CloudCanvas.Domain.Abstractions;
 
 namespace CloudCanvas.Domain.Common
 {
-    public abstract class TimeStamped: IHasTimestamps
+    public abstract record class TimeStamped: IHasTimestamps
     {
         public DateTimeOffset CreatedOn { get; set; }
         public DateTimeOffset DeletedOn { get; set; }

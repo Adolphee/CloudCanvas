@@ -2,7 +2,7 @@
 
 namespace CloudCanvas.Domain.Reactions
 {
-    public class EmojiReaction: Reaction
+    public record class EmojiReaction: Reaction
     {
         public string? EmojiValue { get; set; }
         EmojiReaction(string value) : base()
