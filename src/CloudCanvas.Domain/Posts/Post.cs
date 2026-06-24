@@ -18,27 +18,18 @@ namespace CloudCanvas.Domain.Posts
         [Required]
         public string? Id { get; set; }
         [Required]
-        public string? UserId { get; set; }
+        public string UserId { get; set; } = default!;
         public string? Url { get; set; } = default!;
         public long ContentLength { get; set; }
         public bool CommentsEnabled { get; set; } = true;
-        [Required]
-        public AppUser? Author { get; set; } = default!;
 
-        public List<Reaction> Reactions = new();
+        public List<Reaction> Reactions { get; set; } = new();
 
         public List<Comment> Comments { get; set; } = new();
-
-        DateTimeOffset IHasTimestamps.CreatedOn { get; set; }
-        DateTimeOffset IHasTimestamps.DeletedOn { get; set; }
-        DateTimeOffset IHasTimestamps.ModifiedOn { get; set; }
         public DateTimeOffset PublishedOn { get; set; }
         public DateTimeOffset UnpublishedOn { get; set; }
 
-        List<Reaction> IPost.Reactions { get; set; } = new();
         public List<string> UserTags { get; set; } = new();
-        //public string? Title { get; set; } = default!;
-        //public string? OriginalFilename { get; set; } = default!;
         #endregion
 
         #region REACTIONS
@@ -52,39 +43,40 @@ namespace CloudCanvas.Domain.Posts
         [NotMapped]
         public List<EmojiReaction> EmojiReactions => Reactions.Where(r => r.Type == ReactionType.Emoji).OfType<EmojiReaction>().ToList();
         
-        public bool Delete(AppUser user, bool softDelete = true)
+        public bool Delete(string user, bool softDelete = true)
         {
-            if (Author == null || Author.Id != user.Id || DeletedOn != DateTime.MinValue) return false;
+            if (UserId == null || UserId != user || DeletedOn != DateTime.MinValue) return false;
             DeletedOn = DateTime.UtcNow;
             return true;
         }
 
-        public Dislike? Dislike(AppUser user)
+        public bool Dislike(string userId)
         {
-            if (Author == null || Author.Id == user.Id || Likes == null) return null; // obvious restriction
+            if (UserId == userId || Likes == null) return false; // obvious restriction
             var disLike = new Dislike
             {
-                PostId = this.Id, User = user
+                PostId = this.Id, UserId = userId
             };
             Dislikes.Add(disLike);
-            return disLike;
+            return true;
         }
 
-        public bool IsDislikedBy(AppUser user)
+        public bool IsDislikedBy(string user)
         {
-            return Dislikes != null && Dislikes.Any(d => d.User.Id == user.Id);
+            return Dislikes != null && Dislikes.Any(d => d.UserId == user);
         }
 
-        public bool IsLikedBy(AppUser user)
+        public bool IsLikedBy(string user)
         {
-            return Likes != null && Likes.Any(l => l.User.Id == user.Id);
+            return Likes != null && Likes.Any(l => l.UserId == user);
         }
 
-        public Like Like(AppUser user)
+        public bool Like(string user)
         {
-            var like = new Like{ User = user, PostId = this.Id };
+            if(String.IsNullOrWhiteSpace(user)) return false;
+            var like = new Like { UserId = user, PostId = this.Id };
             Likes.Add(like);
-            return like;
+            return true;
         }
 
         public int DisLikesCount()
@@ -99,10 +91,10 @@ namespace CloudCanvas.Domain.Posts
             return Likes.Count;
         }
 
-        public bool UnLike(AppUser user)
+        public bool UnLike(string user)
         {
             if (Likes == null || !IsLikedBy(user)) return false;
-            var like = Likes.FirstOrDefault(l => l.User == user);
+            var like = Likes.FirstOrDefault(l => l.UserId == user);
             if (like != null)
             {
                 Likes.Remove(like);
@@ -113,7 +105,7 @@ namespace CloudCanvas.Domain.Posts
 
         public bool RemoveDisLike(Dislike dislike)
         {
-            if(IsDislikedBy(dislike.User!))
+            if(IsDislikedBy(dislike.UserId!))
             {
                 Dislikes!.Remove(dislike);
                 return true;
@@ -140,10 +132,10 @@ namespace CloudCanvas.Domain.Posts
         #endregion
 
         #region PUBLICATION
-        public bool UnPublish(AppUser user)
+        public bool UnPublish(string user)
         {
-            if(Author == null || Author.Id != user.Id || PublishedOn == DateTime.MinValue || UnpublishedOn != DateTime.MinValue || Likes == null) return false;
-            var like = Likes.FirstOrDefault(l => l.User == user);
+            if(UserId == null || UserId != user || PublishedOn == DateTime.MinValue || UnpublishedOn != DateTime.MinValue || Likes == null) return false;
+            var like = Likes.FirstOrDefault(l => l.UserId == user);
             if (like != null)
             {
                 Likes.Remove(like);
@@ -153,14 +145,14 @@ namespace CloudCanvas.Domain.Posts
             return false;
         }
 
-        public bool Publish(AppUser user)
+        public bool Publish(string user)
         {
-            if(user == null || Author == null || Author.Id != user.Id || PublishedOn != DateTime.MinValue) return false;
+            if(user == null || UserId == null || UserId != user || PublishedOn != DateTime.MinValue) return false;
             PublishedOn = DateTime.UtcNow;
             return true;
         }
 
-        public bool ReportPost(AppUser user, string reason)
+        public bool ReportPost(string user, string reason)
         {
             throw new NotImplementedException();
         }

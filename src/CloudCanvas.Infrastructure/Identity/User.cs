@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CloudCanvas.Infrastructure.Identity;
 
-public class ApplicationUser : IdentityUser, IAppUser
+public class User : IdentityUser
 {
     public string? FirstName { get; set; } = default!;
     public string? LastName { get; set; } = default!;
@@ -22,16 +22,17 @@ public class ApplicationUser : IdentityUser, IAppUser
     public string? Description { get; set; } = default!; 
     public List<Reaction> Reactions { get; set; } = new();
     public List<Post> Posts { get; set; } = new();
-    public ApplicationUser()
+    public User()
     {
         AboutMe = UserName;
     }
+    public List<Comment> Comments { get; set; }
+
     #region NOT MAPPED PROPERTIES
-    [NotMapped]
-    public List<Comment> Comments => Posts.OfType<Comment>().ToList();
+
     [NotMapped]
     public List<Photo> Photos => Posts.OfType<Photo>().ToList();
-    [NotMapped]
+    
     public List<Gallery> Galleries => Posts.OfType<Gallery>().ToList();
     [NotMapped]
     public List<Like> Likes => Reactions.Where(r => r.Type == ReactionType.Like)
