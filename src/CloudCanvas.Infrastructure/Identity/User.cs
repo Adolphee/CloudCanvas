@@ -2,7 +2,6 @@ using CloudCanvas.Domain.Addresses;
 using CloudCanvas.Domain.Common.Enums;
 using CloudCanvas.Domain.Posts;
 using CloudCanvas.Domain.Reactions;
-using CloudCanvas.Domain.User;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations.Schema;
 

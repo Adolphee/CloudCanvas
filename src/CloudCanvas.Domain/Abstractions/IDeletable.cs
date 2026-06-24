@@ -1,5 +1,4 @@
-﻿using CloudCanvas.Domain.User;
-namespace CloudCanvas.Domain.Abstractions
+﻿namespace CloudCanvas.Domain.Abstractions
 {
     public interface IDeletable
     {

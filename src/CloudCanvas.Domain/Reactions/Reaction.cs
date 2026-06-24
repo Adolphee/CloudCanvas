@@ -1,7 +1,6 @@
 ﻿using CloudCanvas.Domain.Common;
 using CloudCanvas.Domain.Common.Enums;
 using CloudCanvas.Domain.Posts;
-using CloudCanvas.Domain.User;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 

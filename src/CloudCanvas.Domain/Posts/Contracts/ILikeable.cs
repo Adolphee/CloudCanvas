@@ -1,6 +1,4 @@
-﻿using CloudCanvas.Domain.Reactions;
-using CloudCanvas.Domain.User;
-
+﻿
 namespace CloudCanvas.Domain.Posts.Contracts
 {
     public interface ILikeable

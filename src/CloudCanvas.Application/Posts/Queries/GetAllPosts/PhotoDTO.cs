@@ -1,13 +1,5 @@
 ﻿using CloudCanvas.Application.Reactions.Common;
-using CloudCanvas.Domain.Abstractions;
-using CloudCanvas.Domain.Common.Enums;
-using CloudCanvas.Domain.Posts;
-using CloudCanvas.Domain.Posts.Contracts;
-using CloudCanvas.Domain.Reactions;
-using CloudCanvas.Domain.User;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace CloudCanvas.Application.Posts.Queries.GetAllPosts

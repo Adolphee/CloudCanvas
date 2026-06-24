@@ -1,6 +1,4 @@
-﻿using CloudCanvas.Domain.User;
-
-namespace CloudCanvas.Domain.Posts.Contracts
+﻿namespace CloudCanvas.Domain.Posts.Contracts
 {
     public interface IPublishable
     {
