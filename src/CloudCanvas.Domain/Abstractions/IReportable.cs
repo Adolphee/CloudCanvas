@@ -4,6 +4,6 @@ namespace CloudCanvas.Domain.Abstractions
 {
     public interface IReportable
     {
-        bool ReportPost(AppUser user, string reason);
+        bool ReportPost(string user, string reason = "No reason.");
     }
 }

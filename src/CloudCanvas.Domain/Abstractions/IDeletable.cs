@@ -3,6 +3,6 @@ namespace CloudCanvas.Domain.Abstractions
 {
     public interface IDeletable
     {
-        bool Delete(AppUser user, bool softDelete = true);
+        bool Delete(string userId, bool softDelete = true);
     }
 }

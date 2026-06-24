@@ -12,30 +12,24 @@ namespace CloudCanvas.Domain.Posts.Contracts
     public interface IPost : ILikeable, IDisLikeable, IHasTimestamps, IPublishable, IDeletable, IReportable
     {
         [Required]
-        public string? Id { get; set; }
+        string? Id { get; set; }
         [Required]
-        public string? UserId { get; set; }
-        public string? Url { get; set; }
-        [Required]
-        public AppUser? Author { get; set; }
+        string UserId { get; set; }
+        string? Url { get; set; }
 
         [Required]
-        public PostClassification Classification { get; set; }
+        PostClassification Classification { get; set; }
 
-        internal List<Reaction> Reactions { get; set; } 
+        List<Reaction> Reactions { get; set; } 
         [NotMapped]
-        public List<Like> Likes => Reactions.Where(r => r.Type == ReactionType.Like).OfType<Like>().ToList();
+        List<Like> Likes => Reactions.Where(r => r.Type == ReactionType.Like).OfType<Like>().ToList();
         [NotMapped]
-        public List<Dislike> Dislikes => Reactions.Where(r => r.Type == ReactionType.Dislike).OfType<Dislike>().ToList();
-        [NotMapped]
-        public List<EmojiReaction> EmojiReactions => Reactions.Where(r => r.Type == ReactionType.Emoji).OfType<EmojiReaction>().ToList();
-        public List<Comment> Comments { get; set; }
-        public bool CommentsEnabled { get; set; }
-        public long ContentLength { get; set; }
-        //public string? Description { get; set; }
-        //public string? DisplayName { get; set; }
-        //public string? OriginalFilename { get; set; }
-        //public string? Title { get; set; }
-        public List<string> UserTags { get; set; }
+        List<Dislike> Dislikes => Reactions.Where(r => r.Type == ReactionType.Dislike).OfType<Dislike>().ToList();
+         [NotMapped]
+        List<EmojiReaction> EmojiReactions => Reactions.Where(r => r.Type == ReactionType.Emoji).OfType<EmojiReaction>().ToList();
+        List<Comment> Comments { get; set; }
+        bool CommentsEnabled { get; set; }
+        long ContentLength { get; set; }
+        List<string> UserTags { get; set; }
     }
 }

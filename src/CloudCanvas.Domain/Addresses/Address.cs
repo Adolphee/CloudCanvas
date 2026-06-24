@@ -14,7 +14,7 @@ namespace CloudCanvas.Domain.Addresses
         public string? Country { get; set; }
 
         public string? UserId { get; set; }
-        public List<AppUser?> Inhabitants { get; set; } = default!;
+        public List<string?> Inhabitants { get; set; } = default!;
 
         private Address() { }
 
