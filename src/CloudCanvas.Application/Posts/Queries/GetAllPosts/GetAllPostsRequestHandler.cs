@@ -1,27 +1,22 @@
 ﻿using CloudCanvas.Application.Common.Constants;
-using CloudCanvas.Application.Posts.DTOs;
 using CloudCanvas.Domain.Common.Enums;
 using CloudCanvas.Domain.Posts;
-using CloudCanvas.Domain.Reactions;
-using System.Runtime.InteropServices.Marshalling;
-using IPost = CloudCanvas.Domain.Posts.Contracts.IPost;
-using ICosmos = CloudCanvas.Application.Abstractions.Persistence.IPostsRepository<CloudCanvas.Domain.Posts.Post>;
-using IContext = CloudCanvas.Application.Abstractions.Persistence.IPostsRepository<CloudCanvas.Domain.Posts.Post>;
+using ICosmosRepo = CloudCanvas.Application.Abstractions.Persistence.IPostsRepository<CloudCanvas.Domain.Posts.Contracts.IPost>;
 using CloudCanvas.Application.Reactions.Common;
+using CloudCanvas.Domain.Posts.Contracts;
 
 namespace CloudCanvas.Application.Posts.Queries.GetAllPosts
 {
     public record GetAllPostsQuery
     {
-        public required string? UserId { get; set; }
-        public required string? ContainerName { get; set; }
-        public PostClassification Type { get; set; }
+        public string? UserId { get; set; }
+        public string? ContainerName { get; set; } = CloudCosmos.Containers.BlobMeta;
+        public PostClassification Type { get; set; } = PostClassification.Photo;
     }
 
-    public sealed class GetAllPostsRequestHandler(ICosmos client, IContext context)
+    public sealed class GetAllPostsRequestHandler(ICosmosRepo client)
     {
-        private readonly ICosmos _cosmos = client;
-        private readonly IContext _context = context;
+        private readonly ICosmosRepo _cosmos = client;
 
         public async Task<GetAllPhotosQueryResult> Handle(GetAllPostsQuery query)
         {
