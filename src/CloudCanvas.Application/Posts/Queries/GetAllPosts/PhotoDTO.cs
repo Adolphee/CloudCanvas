@@ -15,9 +15,6 @@ namespace CloudCanvas.Application.Posts.Queries.GetAllPosts
         public string? Title { get; set; }
         public long ContentLength { get; set; }
         public List<string>? UserTags { get; set; }
-
-        public DateTimeOffset CreatedOn { get; set; }
-
         public PhotoDTO()
         {
 
