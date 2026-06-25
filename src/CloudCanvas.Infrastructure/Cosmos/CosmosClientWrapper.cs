@@ -4,10 +4,11 @@ using CloudCanvas.Infrastructure.Exceptions;
 using CloudCanvas.Application.Abstractions.Persistence;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
+using CloudCanvas.Domain.Posts.Contracts;
 
 namespace CloudCanvas.Infrastructure.Cosmos
 {
-    public class CosmosClientWrapper<T> : IPostsRepository<T> where T : Post
+    public class CosmosClientWrapper<T> : IPostsRepository<T> where T : IPost
     {
         private readonly CosmosClient _client;
         private Container? _container;
