@@ -19,7 +19,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreateThumbnail", "Function
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThumbnailOrchestrator", "Functions\Orchestration\ThumbnailsOrchestrator\ThumbnailOrchestrator.csproj", "{9F668737-8FD0-5ED2-DE8E-F595ECEDF4B3}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Legacy", "Legacy", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudCanvas.Functions.BlobsMetadataAPI", "Functions\APIs\BlobsMetadataAPI\CloudCanvas.Functions.BlobsMetadataAPI.csproj", "{6D6FAC03-442E-86F9-FC56-DF5FC46B7D20}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlobsMetadataAPI", "Functions\APIs\BlobsMetadataAPI\BlobsMetadataAPI.csproj", "{6D6FAC03-442E-86F9-FC56-DF5FC46B7D20}"
 EndProject

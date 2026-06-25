@@ -1,9 +1,12 @@
 using Azure.Identity;
 using Azure.Storage.Blobs;
-using CloudCanvas.Shared.Constants;
-using CloudCanvas.Shared.Interfaces;
-using CloudCanvas.Shared.Services;
-using CloudCanvas.Shared.Utilities;
+using CloudCanvas.Application.Abstractions.Persistence;
+using CloudCanvas.Application.Common.Constants;
+using CloudCanvas.Application.Posts.Queries.GetAllPosts;
+using CloudCanvas.Domain.Posts;
+using CloudCanvas.Domain.Posts.Contracts;
+using CloudCanvas.Infrastructure.BlobStorage;
+using CloudCanvas.Infrastructure.Cosmos;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
@@ -13,29 +16,15 @@ using Microsoft.Extensions.Hosting;
 var builder = FunctionsApplication.CreateBuilder(args);
 
 builder.ConfigureFunctionsWebApplication();
-builder.Services.AddTransient<CosmosClientWrapper>();
-builder.Services.AddSingleton(cc =>
-{
-    var accountEndpoint = Environment.GetEnvironmentVariable(CloudCosmos.Uri);
-    Validate.StringValue(nameof(accountEndpoint), accountEndpoint);
 
-    var credential = new DefaultAzureCredential();
-    var cosmosClient = new CosmosClient(accountEndpoint, credential, new CosmosClientOptions
-    {
-        ConnectionMode = ConnectionMode.Gateway,
-        SerializerOptions = new CosmosSerializationOptions
-        {
-            PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
-        }
-    }); ;
-    return cosmosClient;
-});
+builder.Services.AddScoped<GetAllPostsRequestHandler>();
+builder.Services.AddScoped<IPostsRepository<IPost>>(c => new CosmosClientWrapper<IPost>(getCosmosClient()));
+builder.Services.AddSingleton(cc => getCosmosClient());
 
-builder.Services.AddTransient<BlobStorageService>();
+builder.Services.AddScoped<BlobStorageService>();
 builder.Services.AddSingleton(bc =>
 {
-    var endpoint = Environment.GetEnvironmentVariable(BlobStorage.Uri);
-    Validate.StringValue(nameof(endpoint), endpoint);
+    var endpoint = Environment.GetEnvironmentVariable(BStorage.Uri);
     var credential = new DefaultAzureCredential();
     return new BlobServiceClient(new Uri(endpoint!), credential);
 });
@@ -44,3 +33,18 @@ builder.Services
     .ConfigureFunctionsApplicationInsights();
 
 builder.Build().Run();
+
+CosmosClient getCosmosClient()
+{
+    var accountEndpoint = Environment.GetEnvironmentVariable(CloudCosmos.Uri);
+
+    var credential = new DefaultAzureCredential();
+    return new CosmosClient(accountEndpoint, credential, new CosmosClientOptions
+    {
+        ConnectionMode = ConnectionMode.Gateway,
+        SerializerOptions = new CosmosSerializationOptions
+        {
+            PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
+        }
+    });
+}

@@ -1,31 +1,24 @@
-using CloudCanvas.Shared.Constants;
-using CloudCanvas.Shared.DTOs;
-using CloudCanvas.Shared.Exceptions;
-using CloudCanvas.Shared.Interfaces;
-using CloudCanvas.Shared.Services;
-using CloudCanvas.Shared.Utilities;
-using Grpc.Core;
+using CloudCanvas.Application.Posts.Queries.GetAllPosts;
+using IPost = CloudCanvas.Domain.Posts.Contracts.IPost;
+using ICosmos = CloudCanvas.Application.Abstractions.Persistence.IPostsRepository<CloudCanvas.Domain.Posts.Post>;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using System.Net;
-using System.Runtime.CompilerServices;
+using CloudCanvas.Application.Common.Constants;
 
 namespace CloudCanvas.Functions.Api.BlobStorageApi;
 
 public class BlobsApiFunction
 {
     private readonly ILogger<BlobsApiFunction> _logger;
-    private readonly ICosmosClientWrapper _cosmos;
-    private readonly IBlobStorageService _bservice;
+    private readonly GetAllPostsRequestHandler _handler;
     
-    public BlobsApiFunction(ILogger<BlobsApiFunction> logger, CosmosClientWrapper cosmosWrapper, BlobStorageService blobStorageService)
+    public BlobsApiFunction(ILogger<BlobsApiFunction> logger, GetAllPostsRequestHandler handler)
     {
         _logger = logger;
-        _cosmos = cosmosWrapper;
-        _bservice = blobStorageService;
+        _handler = handler;
     }
 
     [Function(name: "GetAllBlobs")]
@@ -33,9 +26,8 @@ public class BlobsApiFunction
     {
         try
         {
-            const string _container = CloudCosmos.Containers.BlobMeta;
-            _logger.LogInformation("Incoming {red.Method} request at '{route}'. Using container '{container}'.", req.Method, req.RouteValues, _container);
-            var res = await _cosmos.ListBlobsAsync<GalleryItemDTO>(_container);
+            _logger.LogInformation("Incoming {red.Method} request at '{route}'. Using container '{container}'.", req.Method, req.RouteValues, CloudCosmos.Containers.BlobMeta);
+            var res = await _handler.Handle(new GetAllPostsQuery());
             return new OkObjectResult(res);
         }
         catch (Exception e)
@@ -45,7 +37,7 @@ public class BlobsApiFunction
         }
     }
 
-
+/*
     [Function(name: "GetSingleBlob")]
     public async Task<IActionResult> GetSingle([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "photos/{identifier}")] HttpRequest req, string identifier, string userId)
     {
@@ -135,5 +127,5 @@ public class BlobsApiFunction
             _logger.LogWarning(e, "{req.Method} Request Failed: soft-delete blob '{identifier}' from container '{containerName}'", req.Method, identifier, patchItem.ContainerName);
             return new NotFoundObjectResult(new { StatusCode = 204, Value = "Not Found" });
         }
-    }
+    }*/
 }
