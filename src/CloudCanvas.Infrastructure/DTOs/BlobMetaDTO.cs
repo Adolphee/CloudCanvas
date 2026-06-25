@@ -1,6 +1,7 @@
 ﻿using Azure.Storage.Blobs.Models;
 using CloudCanvas.Domain.Common.Enums;
 using CloudCanvas.Domain.Posts;
+using CloudCanvas.Domain.Posts.Contracts;
 using System.ComponentModel.DataAnnotations;
 
 namespace CloudCanvas.Infrastructure.DTOs
@@ -53,7 +54,7 @@ namespace CloudCanvas.Infrastructure.DTOs
         public bool IsSealed { get; set; }
         public RehydratePriority RehydratePriority { get; set; }
         public DateTimeOffset LastAccessed { get; set; }
-        public Photo ToPost()
+        public IPost ToPost()
         {
             return new Photo
             {

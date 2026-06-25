@@ -85,7 +85,7 @@ namespace CloudCanvas.Infrastructure.Cosmos
         public async Task<List<T>> ListBlobsAsync(string containerName)
         {
             var con = GetContainer(containerName);
-            var queryable = con.GetItemLinqQueryable<T>().Where(x => x.DeletedOn == null);
+            var queryable = con.GetItemLinqQueryable<T>().Where(x => x.DeletedOn == DateTimeOffset.MinValue);
             var res = new List<T>();
             using var iterator = queryable.ToFeedIterator();
             while (iterator.HasMoreResults)
@@ -96,10 +96,10 @@ namespace CloudCanvas.Infrastructure.Cosmos
             return res;
         }
 
-        public async Task<List<Post>> GetPostsAsync(string containerName)
+        public async Task<List<IPost>> GetPostsAsync(string containerName)
         {
             var con = GetContainer(containerName);
-            var res = new List<Post>();
+            var res = new List<IPost>();
             using var queryable = con.GetItemQueryIterator<BlobMetaDTO>();
             while (queryable.HasMoreResults)
             {

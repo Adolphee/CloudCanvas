@@ -38,7 +38,7 @@ namespace CloudCanvas.Application.Abstractions.Persistence
         Task<List<T>> ListBlobsAsync(string containerName);
 
         Task<List<T>> ListPostsAsync(string containerName);
-        Task<List<Post>> GetPostsAsync(string containerName);
+        Task<List<IPost>> GetPostsAsync(string containerName);
         Task<T> SingleAsync(string documentId, string partitionKey, string containerName);
         Task<bool> ExistsAsync(string containerName, string id, string partitionKey);
         Task<T> PatchItemAsync(string id, string partitionKey, string containerName, IReadOnlyList<IPatchOperation<T>> ops);
