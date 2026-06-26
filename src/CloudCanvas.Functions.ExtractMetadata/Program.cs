@@ -1,10 +1,12 @@
 using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
-using CloudCanvas.Shared.Constants;
-using CloudCanvas.Shared.Interfaces;
-using CloudCanvas.Shared.Services;
-using CloudCanvas.Shared.Utilities;
+using CloudCanvas.Application.Common;
+using CloudCanvas.Application.Common.Constants;
+using CloudCanvas.Domain.Posts.Contracts;
+using CloudCanvas.Infrastructure.BlobStorage;
+using CloudCanvas.Infrastructure.Cosmos;
+using CloudCanvas.Infrastructure.Messaging;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
@@ -18,13 +20,13 @@ var builder = FunctionsApplication.CreateBuilder(args);
 builder.Services.AddTransient<BlobStorageService>(); // Inject custom Blob Storage Service
 builder.Services.AddSingleton(cc =>
 {
-    var endpoint = Environment.GetEnvironmentVariable(BlobStorage.Uri);
+    var endpoint = Environment.GetEnvironmentVariable(BStorage.Uri);
     Validate.StringValue(nameof(endpoint), endpoint);
     return new BlobServiceClient(new Uri(endpoint!), new DefaultAzureCredential());
 });
 
 // COSMOS DB
-builder.Services.AddTransient<CosmosClientWrapper>();
+builder.Services.AddTransient<CosmosClientWrapper<IPost>>();
 builder.Services.AddSingleton(bsc =>
 {
     var endpoint = Environment.GetEnvironmentVariable(CloudCosmos.Uri);
@@ -56,8 +58,8 @@ builder.Services.Configure<JsonSerializerOptions>(options =>
 });
 
 // APPLICATION INSIGHTS
-builder.Services
-    .AddApplicationInsightsTelemetryWorkerService()
-    .ConfigureFunctionsApplicationInsights();
+//builder.Services
+    //.AddApplicationInsightsTelemetryWorkerService()
+    //.ConfigureFunctionsApplicationInsights();
 builder.Services.AddLogging();
 builder.Build().Run();

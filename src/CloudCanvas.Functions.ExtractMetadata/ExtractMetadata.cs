@@ -1,21 +1,25 @@
 using Azure.Messaging.ServiceBus;
-using CloudCanvas.Shared.Constants;
-using CloudCanvas.Shared.DTOs;
-using CloudCanvas.Shared.Enums;
-using CloudCanvas.Shared.Interfaces;
-using CloudCanvas.Shared.Services;
-using CloudCanvas.Shared.Utilities;
-using Grpc.Core;
+using CloudCanvas.Application.Abstractions.Persistence;
+using CloudCanvas.Application.Common.Constants;
+using CloudCanvas.Application.Posts.DTOs;
+using CloudCanvas.Domain.Common.Enums;
+using CloudCanvas.Domain.Posts;
+using CloudCanvas.Domain.Posts.Contracts;
+using CloudCanvas.Infrastructure.BlobStorage;
+using CloudCanvas.Infrastructure.Common;
+using CloudCanvas.Infrastructure.Cosmos;
+using CloudCanvas.Infrastructure.DTOs;
+using CloudCanvas.Infrastructure.Messaging;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-namespace CloudCanvas.Functions;
+namespace CloudCanvas.Functions.ExtractMetadata;
 
-public class ExtractMetadata(ILogger<ExtractMetadata> logger, BlobStorageService blobSerivce, ServiceBusAdapter service, CosmosClientWrapper cosmos)
+public class ExtractMetadata(ILogger<ExtractMetadata> logger, IBlobStorageService blobSerivce, IServiceBusPublisher service, IPostsRepository<IPost> cosmos)
 {
     private readonly ILogger<ExtractMetadata> _logger = logger;
-    private readonly BlobStorageService _blobSerivce = blobSerivce;
-    private readonly ServiceBusAdapter _sbAdapter = service;
-    private readonly CosmosClientWrapper _cosmos = cosmos;
+    private readonly IBlobStorageService _blobSerivce = blobSerivce;
+    private readonly IServiceBusPublisher _sbAdapter = service;
+    private readonly IPostsRepository<IPost> _cosmos = cosmos;
 
     /// <summary>
     /// Processes a blob triggered by an upload event, extracts metadata, and sends a message to a Service Bus topic.
@@ -27,22 +31,23 @@ public class ExtractMetadata(ILogger<ExtractMetadata> logger, BlobStorageService
     /// <param identifier="identifier">The identifier of the uploaded blob.</param>
     /// <returns>A <see cref="ServiceBusMessageDTO"/> containing the event details, subject, and extracted metadata.</returns>
     [Function(nameof(ExtractMetadata))]
-    public async Task Run([BlobTrigger(BlobStorage.Containers.Uploads + "/{identifier}", Connection = BlobStorage.BSConnection)] Stream input, string identifier)
+    public async Task Run([BlobTrigger(BStorage.Containers.Uploads + "/{identifier}", Connection = BStorage.BSConnection)] Stream input, string identifier)
     {
         string correlationId = Guid.NewGuid().ToString();
-        const string uploads = BlobStorage.Containers.Uploads;
+        const string uploads = BStorage.Containers.Uploads;
         _logger.LogInformation("{correlationId} Function Start - Extracting metadata from blob: {container}/{identifier}", correlationId, uploads, identifier);
         
         var bcClient = await _blobSerivce.GetOrCreateContainerClientAsync(uploads);
         var blob = bcClient.GetBlobClient(identifier); // There is already validation on identifier etc from the SDK
         try
         {
-            BlobMetaDTO metadata = CCSerializer.MetaFromBlobProperties(identifier, blob.Uri.ToString(), blob.GetProperties());
-            if (!await _cosmos.ExistsAsync(CloudCosmos.Containers.BlobMeta, metadata.Id, metadata.UserId))
+            IPost photo = new Photo();
+            BlobMetaDTO res = CCSerializer.MetaFromBlobProperties(identifier, blob.Uri.ToString(), blob.GetProperties());
+            if (!await _cosmos.ExistsAsync(CloudCosmos.Containers.BlobMeta, res.Id, res?.UserId!))
             { // usually this function only executes ONCE; when the main file is uploaded.
-                metadata = await _cosmos.SaveMetadataAsync(metadata, CloudCosmos.Containers.BlobMeta, false);
+                photo = await _cosmos.SaveMetadataAsync(res?.ToPost()!, CloudCosmos.Containers.BlobMeta, false);
             }
-            var message = BuildSBMessage(metadata, correlationId);
+            var message = BuildSBMessage(res, correlationId);
             var responseMessageId = await _sbAdapter.SendAsync(ServiceBus.Topics.FileUpdates, message); // Send the message and call it a day
             _logger.LogInformation("{correlationId} Metadata Extracted. Sent Message '{messageId}' to topic '{topic}': {subject}", message.CorrelationId, responseMessageId, ServiceBus.Topics.FileUpdates, message.Subject);
         }
