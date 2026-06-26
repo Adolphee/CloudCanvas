@@ -1,9 +1,10 @@
 using Azure.Messaging.ServiceBus;
+using CloudCanvas.Application.Common.Constants;
+using CloudCanvas.Application.Common.Exceptions;
+using CloudCanvas.Application.Posts.DTOs;
 using CloudCanvas.Functions.Orchestration.DTO;
-using CloudCanvas.Shared.Constants;
-using CloudCanvas.Shared.DTOs;
-using CloudCanvas.Shared.Exceptions;
-using CloudCanvas.Shared.Utilities;
+using CloudCanvas.Infrastructure.Common;
+using CloudCanvas.Infrastructure.DTOs;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
@@ -27,7 +28,7 @@ public class ThumbnailOrchestrationStarter
         var payload = await reader.ReadToEndAsync();
         try
         {
-            var blob = CCSerializer.Deserialize<BlobMetaDTO>(payload); // Validation behind the scenes
+            var blob = CCSerializer.Deserialize<BlobMetadata>(payload); // Validation behind the scenes
             var request = new InceptionRequest(blob, incoming.CorrelationId); // forced correlation for App Insights
             string instanceId = await client.ScheduleNewOrchestrationInstanceAsync(nameof(ThumbnailOrchestrator), request);
             return instanceId;

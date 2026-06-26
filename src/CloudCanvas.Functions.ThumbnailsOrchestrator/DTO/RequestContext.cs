@@ -1,5 +1,6 @@
-﻿using CloudCanvas.Shared.DTOs;
-using CloudCanvas.Shared.Enums;
+﻿
+using CloudCanvas.Domain.Common.Enums;
+using CloudCanvas.Infrastructure.DTOs;
 
 namespace CloudCanvas.Functions.Orchestration.DTOs
 {
@@ -7,7 +8,7 @@ namespace CloudCanvas.Functions.Orchestration.DTOs
     {
         public string InstanceId { get; set; } = default!;
         public string CorrelationId { get; set; } = default!;
-        public BlobMetaDTO Blob { get; set; } = default!;
+        public BlobMetadata Blob { get; set; } = default!;
         public ThumbnailSize ThumbnailSize { get; set; }
     }
 }

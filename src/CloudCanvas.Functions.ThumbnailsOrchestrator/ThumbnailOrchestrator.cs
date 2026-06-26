@@ -1,7 +1,7 @@
+using CloudCanvas.Domain.Common.Enums;
 using CloudCanvas.Functions.Orchestration.Activities;
 using CloudCanvas.Functions.Orchestration.DTO;
-using CloudCanvas.Shared.DTOs;
-using CloudCanvas.Shared.Enums;
+using CloudCanvas.Infrastructure.DTOs;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask;
 using Microsoft.Extensions.Logging;
@@ -11,7 +11,7 @@ namespace CloudCanvas.Functions.Durable.Orchestrators;
 public class ThumbnailOrchestrator
 {
     [Function(nameof(ThumbnailOrchestrator))]
-    public static async Task<BlobMetaDTO> RunOrchestrator(
+    public static async Task<BlobMetadata> RunOrchestrator(
         [OrchestrationTrigger] TaskOrchestrationContext context, InceptionRequest req)
     {
         var logger = context.CreateReplaySafeLogger(nameof(ThumbnailOrchestrator));
@@ -38,8 +38,8 @@ public class ThumbnailOrchestrator
             req.Blob.Thumbnails.Add(size, url.Result); // url.Result is safe here: already awaited Task.WhenAll
         }
         // save result to CosmosDB
-        var meta_req = new MetadataActivityRequest(req.Blob, req.CorrelationId, context.InstanceId);
-        var finalMetadata = await context.CallActivityAsync<BlobMetaDTO>(nameof(PersistMetadataActivity), meta_req);
+        var meta_req = new PersistMetadataActivityRequest(req.Blob, req.CorrelationId, context.InstanceId);
+        var finalMetadata = await context.CallActivityAsync<BlobMetadata>(nameof(PersistMetadataActivity), meta_req);
 
         // publish results to service bus
         var pub_req = new PublishCompletionRequest(req.Blob, req.CorrelationId, context.InstanceId);

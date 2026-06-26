@@ -42,7 +42,7 @@ public class ExtractMetadata(ILogger<ExtractMetadata> logger, IBlobStorageServic
         try
         {
             IPost photo = new Photo();
-            BlobMetaDTO res = CCSerializer.MetaFromBlobProperties(identifier, blob.Uri.ToString(), blob.GetProperties());
+            BlobMetadata res = CCSerializer.MetaFromBlobProperties(identifier, blob.Uri.ToString(), blob.GetProperties());
             if (!await _cosmos.ExistsAsync(CloudCosmos.Containers.BlobMeta, res.Id, res?.UserId!))
             { // usually this function only executes ONCE; when the main file is uploaded.
                 photo = await _cosmos.SaveMetadataAsync(res?.ToPost()!, CloudCosmos.Containers.BlobMeta, false);
@@ -58,7 +58,7 @@ public class ExtractMetadata(ILogger<ExtractMetadata> logger, IBlobStorageServic
         }
     }
 
-    private ServiceBusMessage BuildSBMessage(BlobMetaDTO metadata, string correlationId)
+    private ServiceBusMessage BuildSBMessage(BlobMetadata metadata, string correlationId)
     {
         return MessageFactory.BuildFor(metadata) // Manual dispatch required for full control (dotnet-isolated)
             .WithSubject($"{ServiceBus.Status.NewBlobDetected} - Ready for processing")    // Add Subject

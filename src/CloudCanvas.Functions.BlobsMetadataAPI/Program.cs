@@ -3,7 +3,6 @@ using Azure.Storage.Blobs;
 using CloudCanvas.Application.Abstractions.Persistence;
 using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Application.Posts.Queries.GetAllPosts;
-using CloudCanvas.Domain.Posts;
 using CloudCanvas.Domain.Posts.Contracts;
 using CloudCanvas.Infrastructure.BlobStorage;
 using CloudCanvas.Infrastructure.Cosmos;

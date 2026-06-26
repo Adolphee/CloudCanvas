@@ -1,10 +1,12 @@
 using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
-using CloudCanvas.Shared.Constants;
-using CloudCanvas.Shared.Interfaces;
-using CloudCanvas.Shared.Services;
-using CloudCanvas.Shared.Utilities;
+using CloudCanvas.Application.Common;
+using CloudCanvas.Application.Common.Constants;
+using CloudCanvas.Domain.Posts.Contracts;
+using CloudCanvas.Infrastructure.BlobStorage;
+using CloudCanvas.Infrastructure.Cosmos;
+using CloudCanvas.Infrastructure.Messaging;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
@@ -16,12 +18,11 @@ using System.Text.Json;
 var builder = FunctionsApplication.CreateBuilder(args);
 
 builder.ConfigureFunctionsWebApplication();
-builder.Services.AddTransient<CosmosClientWrapper>();
+builder.Services.AddTransient<CosmosClientWrapper<IPost>>();
 builder.Services.AddTransient<BlobStorageService>();
 builder.Services.AddSingleton(bsc =>
 {
-    var endpoint = Environment.GetEnvironmentVariable(BlobStorage.Uri);
-    Validate.StringValue(nameof(endpoint), endpoint);
+    var endpoint = Environment.GetEnvironmentVariable(BStorage.Uri);
     return new BlobServiceClient(new Uri(endpoint!), new DefaultAzureCredential());
 });
 

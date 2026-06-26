@@ -1,13 +1,14 @@
+using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Functions.Orchestration.DTOs;
-using CloudCanvas.Shared.DTOs;
-using CloudCanvas.Shared.Services;
-using CloudCanvas.Shared.Utilities;
+using CloudCanvas.Infrastructure.BlobStorage;
+using CloudCanvas.Infrastructure.Common;
+using CloudCanvas.Infrastructure.DTOs;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
 namespace CloudCanvas.Functions.Orchestration.Activities;
 
-public class CreateThumbnailActivity
+public sealed class CreateThumbnailActivity
 {
     private readonly BlobStorageService _blobService;
 
@@ -26,11 +27,11 @@ public class CreateThumbnailActivity
         {
             ///TODO: Implement **better validation** on file type before CloudCanvas v1.0, 
             /// for example, what if this function receives a .pdf file? or a .mp4, .zip etc...
-            var bclient = await _blobService.GetOrCreateContainerClientAsync(req.Blob.ContainerName); // original file blob container
+            var bclient = await _blobService.GetOrCreateContainerClientAsync(req.Blob.ContainerName ?? BStorage.Containers.Uploads); // original file blob container
             var stream = await bclient.GetBlobClient(req.Blob.Name).OpenReadAsync(); // download file
             using var thumbnail = await ImageTool.ResizeAsync(stream, req.ThumbnailSize); // Create thumbnail
             var props = BlobStorageService.SetOriginalMetadata(req.Blob.OriginalFilename, req.Blob.UploadedBy!);
-            BlobMetaDTO thumbnailMeta = await _blobService.UploadAsync(thumbnail, req.Blob.OriginalFilename, props ,BlobStorage.Containers.Thumbnails, $"{req.Blob.Name}_{req.ThumbnailSize.ToString()}");
+            BlobMetadata thumbnailMeta = await _blobService.UploadAsync(thumbnail, req.Blob.OriginalFilename, props ,BStorage.Containers.Thumbnails, $"{req.Blob.Name}_{req.ThumbnailSize.ToString()}");
             logger.LogInformation("{correlationId} Created {size} thumbnail for {containerName}/{identifier}", 
                 req.CorrelationId, req.ThumbnailSize, req.Blob.ContainerName, req.Blob.Name);
             return thumbnailMeta.Url.ToString();

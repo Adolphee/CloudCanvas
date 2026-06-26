@@ -3,15 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.6.11822.322
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudCanvas.Functions.ThumbnailOrchestrator", "Functions\Orchestration\ThumbnailsOrchestrator\CloudCanvas.Functions.ThumbnailOrchestrator.csproj", "{9F668737-8FD0-5ED2-DE8E-F595ECEDF4B3}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudCanvas.Functions.BlobsMetadataAPI", "Functions\APIs\BlobsMetadataAPI\CloudCanvas.Functions.BlobsMetadataAPI.csproj", "{6D6FAC03-442E-86F9-FC56-DF5FC46B7D20}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Pipelines", "Pipelines", "{1F61AA08-0663-4270-8B1C-09BFC2F940BE}"
-	ProjectSection(SolutionItems) = preProject
-		metadata-api-deploy.yml = metadata-api-deploy.yml
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "fontend", "fontend", "{C6D2CA7D-8BEC-4D11-B3F7-E8FA225F341F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A0EB1171-2954-4C21-BE72-1F812E07A214}"
@@ -38,6 +29,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "decisions", "decisions", "{
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudCanvas.Functions.ExtractMetadata", "src\CloudCanvas.Functions.ExtractMetadata\CloudCanvas.Functions.ExtractMetadata.csproj", "{5FECCDA6-EF4C-0737-454B-D78221D204F0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "pipelines", "pipelines", "{6B57FDBB-5A75-4829-8DC7-B0DC4BC982AD}"
+	ProjectSection(SolutionItems) = preProject
+		pipelines\metadata-api-deploy.yml = pipelines\metadata-api-deploy.yml
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudCanvas.Functions.ThumbnailOrchestrator", "src\CloudCanvas.Functions.ThumbnailsOrchestrator\CloudCanvas.Functions.ThumbnailOrchestrator.csproj", "{68197862-A4A8-613E-D1F4-A4283C9B7468}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudCanvas.Functions.BlobsMetadataAPI", "src\CloudCanvas.Functions.BlobsMetadataAPI\CloudCanvas.Functions.BlobsMetadataAPI.csproj", "{32131039-C5F0-8C32-E608-8E0649AFE675}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,30 +48,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9F668737-8FD0-5ED2-DE8E-F595ECEDF4B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9F668737-8FD0-5ED2-DE8E-F595ECEDF4B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9F668737-8FD0-5ED2-DE8E-F595ECEDF4B3}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{9F668737-8FD0-5ED2-DE8E-F595ECEDF4B3}.Debug|x64.Build.0 = Debug|Any CPU
-		{9F668737-8FD0-5ED2-DE8E-F595ECEDF4B3}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{9F668737-8FD0-5ED2-DE8E-F595ECEDF4B3}.Debug|x86.Build.0 = Debug|Any CPU
-		{9F668737-8FD0-5ED2-DE8E-F595ECEDF4B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9F668737-8FD0-5ED2-DE8E-F595ECEDF4B3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9F668737-8FD0-5ED2-DE8E-F595ECEDF4B3}.Release|x64.ActiveCfg = Release|Any CPU
-		{9F668737-8FD0-5ED2-DE8E-F595ECEDF4B3}.Release|x64.Build.0 = Release|Any CPU
-		{9F668737-8FD0-5ED2-DE8E-F595ECEDF4B3}.Release|x86.ActiveCfg = Release|Any CPU
-		{9F668737-8FD0-5ED2-DE8E-F595ECEDF4B3}.Release|x86.Build.0 = Release|Any CPU
-		{6D6FAC03-442E-86F9-FC56-DF5FC46B7D20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6D6FAC03-442E-86F9-FC56-DF5FC46B7D20}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6D6FAC03-442E-86F9-FC56-DF5FC46B7D20}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{6D6FAC03-442E-86F9-FC56-DF5FC46B7D20}.Debug|x64.Build.0 = Debug|Any CPU
-		{6D6FAC03-442E-86F9-FC56-DF5FC46B7D20}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{6D6FAC03-442E-86F9-FC56-DF5FC46B7D20}.Debug|x86.Build.0 = Debug|Any CPU
-		{6D6FAC03-442E-86F9-FC56-DF5FC46B7D20}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6D6FAC03-442E-86F9-FC56-DF5FC46B7D20}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6D6FAC03-442E-86F9-FC56-DF5FC46B7D20}.Release|x64.ActiveCfg = Release|Any CPU
-		{6D6FAC03-442E-86F9-FC56-DF5FC46B7D20}.Release|x64.Build.0 = Release|Any CPU
-		{6D6FAC03-442E-86F9-FC56-DF5FC46B7D20}.Release|x86.ActiveCfg = Release|Any CPU
-		{6D6FAC03-442E-86F9-FC56-DF5FC46B7D20}.Release|x86.Build.0 = Release|Any CPU
 		{70D7514B-647A-7B30-A3F7-B482DFD9626D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{70D7514B-647A-7B30-A3F7-B482DFD9626D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{70D7514B-647A-7B30-A3F7-B482DFD9626D}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -132,13 +108,35 @@ Global
 		{5FECCDA6-EF4C-0737-454B-D78221D204F0}.Release|x64.Build.0 = Release|Any CPU
 		{5FECCDA6-EF4C-0737-454B-D78221D204F0}.Release|x86.ActiveCfg = Release|Any CPU
 		{5FECCDA6-EF4C-0737-454B-D78221D204F0}.Release|x86.Build.0 = Release|Any CPU
+		{68197862-A4A8-613E-D1F4-A4283C9B7468}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68197862-A4A8-613E-D1F4-A4283C9B7468}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68197862-A4A8-613E-D1F4-A4283C9B7468}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{68197862-A4A8-613E-D1F4-A4283C9B7468}.Debug|x64.Build.0 = Debug|Any CPU
+		{68197862-A4A8-613E-D1F4-A4283C9B7468}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{68197862-A4A8-613E-D1F4-A4283C9B7468}.Debug|x86.Build.0 = Debug|Any CPU
+		{68197862-A4A8-613E-D1F4-A4283C9B7468}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68197862-A4A8-613E-D1F4-A4283C9B7468}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68197862-A4A8-613E-D1F4-A4283C9B7468}.Release|x64.ActiveCfg = Release|Any CPU
+		{68197862-A4A8-613E-D1F4-A4283C9B7468}.Release|x64.Build.0 = Release|Any CPU
+		{68197862-A4A8-613E-D1F4-A4283C9B7468}.Release|x86.ActiveCfg = Release|Any CPU
+		{68197862-A4A8-613E-D1F4-A4283C9B7468}.Release|x86.Build.0 = Release|Any CPU
+		{32131039-C5F0-8C32-E608-8E0649AFE675}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32131039-C5F0-8C32-E608-8E0649AFE675}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32131039-C5F0-8C32-E608-8E0649AFE675}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{32131039-C5F0-8C32-E608-8E0649AFE675}.Debug|x64.Build.0 = Debug|Any CPU
+		{32131039-C5F0-8C32-E608-8E0649AFE675}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{32131039-C5F0-8C32-E608-8E0649AFE675}.Debug|x86.Build.0 = Debug|Any CPU
+		{32131039-C5F0-8C32-E608-8E0649AFE675}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32131039-C5F0-8C32-E608-8E0649AFE675}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32131039-C5F0-8C32-E608-8E0649AFE675}.Release|x64.ActiveCfg = Release|Any CPU
+		{32131039-C5F0-8C32-E608-8E0649AFE675}.Release|x64.Build.0 = Release|Any CPU
+		{32131039-C5F0-8C32-E608-8E0649AFE675}.Release|x86.ActiveCfg = Release|Any CPU
+		{32131039-C5F0-8C32-E608-8E0649AFE675}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{9F668737-8FD0-5ED2-DE8E-F595ECEDF4B3} = {A0EB1171-2954-4C21-BE72-1F812E07A214}
-		{6D6FAC03-442E-86F9-FC56-DF5FC46B7D20} = {A0EB1171-2954-4C21-BE72-1F812E07A214}
 		{E13F5AB8-9907-4283-ADBE-843B5F249ED1} = {C6D2CA7D-8BEC-4D11-B3F7-E8FA225F341F}
 		{70D7514B-647A-7B30-A3F7-B482DFD9626D} = {A0EB1171-2954-4C21-BE72-1F812E07A214}
 		{FD50614D-CD8C-245A-E1DB-C67C48CB2298} = {A0EB1171-2954-4C21-BE72-1F812E07A214}
