@@ -18,17 +18,17 @@ namespace CloudCanvas.Infrastructure.Common
         };
 
         /// <summary>
-        /// Converts the provided blob properties and metadata into a <see cref="BlobMetaDTO"/> object.
+        /// Converts the provided blob properties and metadata into a <see cref="BlobMetadata"/> object.
         /// </summary>
         /// <remarks>This method maps the properties of a blob, as represented by <see
-        /// cref="BlobProperties"/>,  to a <see cref="BlobMetaDTO"/> object for further processing or use in the
+        /// cref="BlobProperties"/>,  to a <see cref="BlobMetadata"/> object for further processing or use in the
         /// application.</remarks>
         /// <param name="identifier">The original name of the file before it was uploaded to the blob storage.</param>
         /// <param name="blobUrl">The URL of the blob in the storage system.</param>
         /// <param name="props">The properties of the blob, including metadata, content details, and versioning information.</param>
-        /// <returns>A <see cref="BlobMetaDTO"/> object containing metadata and properties of the blob, such as its URL, 
+        /// <returns>A <see cref="BlobMetadata"/> object containing metadata and properties of the blob, such as its URL, 
         /// original file name, content details, and other relevant attributes.</returns>
-        public static BlobMetaDTO MetaFromBlobProperties(string identifier, string blobUrl, BlobProperties props)
+        public static BlobMetadata MetaFromBlobProperties(string identifier, string blobUrl, BlobProperties props)
         {
             bool deleted = false;
             DateTimeOffset result = DateTimeOffset.MinValue;
@@ -45,7 +45,7 @@ namespace CloudCanvas.Infrastructure.Common
             var uploadedBy = props.Metadata[BStorage.Meta.UploadedBy] ?? null;
             var oFilename = props.Metadata[BStorage.Meta.OriginalFilename] ?? identifier;
             var containerName = props.Metadata["container"] ?? BStorage.Containers.Uploads;
-            return new BlobMetaDTO
+            return new BlobMetadata
             {
                 Id = identifier,
                 UserId = uploadedBy,
@@ -78,7 +78,7 @@ namespace CloudCanvas.Infrastructure.Common
                 CopyCompletedOn = props.CopyCompletedOn,
                 IsLatestVersion = props.IsLatestVersion,
                 VersionId = props.VersionId,
-                DeletedOn = deleted ? result : null //only assign 'result' when it has been altered succesfully and deleted = true
+                DeletedOn = deleted ? result : DateTimeOffset.MinValue //only assign 'result' when it has been altered succesfully and deleted = true
             };
         }
 
@@ -113,11 +113,6 @@ namespace CloudCanvas.Infrastructure.Common
                     gallery.SetCreatedOn();
                     gallery.Description = String.Empty;
                     return gallery;
-                case PostClassification.Comment: //TODO: enhance
-                    var comment = ((Comment)post);
-                    comment.Text = oFilename;
-                    comment.SetCreatedOn();
-                    return comment;
                 default: break;
             }
             return post;
