@@ -1,6 +1,4 @@
-﻿
-using CloudCanvas.Domain.Posts;
-using CloudCanvas.Domain.Posts.Contracts;
+﻿using CloudCanvas.Domain.Posts.Contracts;
 
 namespace CloudCanvas.Application.Abstractions.Persistence
 {

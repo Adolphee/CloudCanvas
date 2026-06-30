@@ -1,9 +1,8 @@
-﻿
-using CloudCanvas.Domain.Common.Enums;
+﻿using CloudCanvas.Domain.Common.Enums;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 
-namespace CloudCanvas.Infrastructure.BlobStorage
+namespace CloudCanvas.Infrastructure.Common
 {
     public static class ImageTool
     {
