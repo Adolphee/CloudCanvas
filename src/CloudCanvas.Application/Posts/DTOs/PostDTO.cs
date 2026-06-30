@@ -3,7 +3,7 @@ using CloudCanvas.Domain.Abstractions;
 using CloudCanvas.Domain.Reactions;
 using System.ComponentModel.DataAnnotations;
 
-namespace CloudCanvas.Application.Posts.Queries.GetAllPosts
+namespace CloudCanvas.Application.Posts.DTOs
 {
     public record PostDTO
     {
@@ -13,7 +13,7 @@ namespace CloudCanvas.Application.Posts.Queries.GetAllPosts
         public Creator? Creator { get; set; } = default!;
 
         [Required]
-        private static string Classification { get; set; }
+        private static string Classification { get; set; } = default!;
         public ReactionsOverviewDTO Reactions { get; set; } = new();
         public DateTimeOffset CreatedOn { get; set; }
     }

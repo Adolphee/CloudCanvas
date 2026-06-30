@@ -54,7 +54,7 @@ namespace CloudCanvas.Infrastructure.Cosmos
             var container = GetContainer(containerName);
             try
             {
-                await container.ReadItemAsync<BlobMetaDTO>(id, new PartitionKey(partitionKey));
+                await container.ReadItemAsync<BlobMetadata>(id, new PartitionKey(partitionKey));
                 return true;
             }
             catch (CosmosException)
@@ -100,7 +100,7 @@ namespace CloudCanvas.Infrastructure.Cosmos
         {
             var con = GetContainer(containerName);
             var res = new List<IPost>();
-            using var queryable = con.GetItemQueryIterator<BlobMetaDTO>();
+            using var queryable = con.GetItemQueryIterator<BlobMetadata>();
             while (queryable.HasMoreResults)
             {
                 var resItems = await queryable.ReadNextAsync();
@@ -112,7 +112,7 @@ namespace CloudCanvas.Infrastructure.Cosmos
         public async Task<bool> DeleteDocumentAsync(T meta, string containerName = CloudCosmos.Containers.BlobMeta)
         {
             var container = GetContainer(containerName);
-            var result = await container.DeleteItemAsync<BlobMetaDTO>(meta.Id, new PartitionKey(meta.UserId));
+            var result = await container.DeleteItemAsync<BlobMetadata>(meta.Id, new PartitionKey(meta.UserId));
             return result == null;
         }
 

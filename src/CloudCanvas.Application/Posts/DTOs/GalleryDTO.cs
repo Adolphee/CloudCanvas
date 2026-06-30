@@ -1,7 +1,7 @@
 ﻿using CloudCanvas.Application.Reactions.Common;
 using CloudCanvas.Domain.Posts;
 
-namespace CloudCanvas.Application.Posts.Queries.GetAllPosts
+namespace CloudCanvas.Application.Posts.DTOs
 {
     public sealed record Creator
     {

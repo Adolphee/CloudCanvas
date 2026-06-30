@@ -92,7 +92,7 @@ namespace CloudCanvas.Infrastructure.BlobStorage
        /// if not specified. Cannot be null or empty.</param>
        /// <returns>A task that represents the asynchronous upload operation.</returns>
        /// <exception cref="BadImageFormatException">Thrown if <paramref name="filestream"/> is null or cannot be read.</exception>
-        public async Task<BlobMetaDTO> UploadAsync(Stream filestream, string filename, Dictionary<string, string> blobProperties, string containerName = BStorage.Containers.Uploads, string customIdentifier = null!)
+        public async Task<BlobMetadata> UploadAsync(Stream filestream, string filename, Dictionary<string, string> blobProperties, string containerName = BStorage.Containers.Uploads, string customIdentifier = null!)
         {
             filestream.Position = 0;
             var identifier = !String.IsNullOrWhiteSpace(customIdentifier) ? customIdentifier : Guid.NewGuid().ToString();
@@ -100,14 +100,14 @@ namespace CloudCanvas.Infrastructure.BlobStorage
             return await UploadToBlobStorage(containerName, identifier, filestream, blobProperties);
         }
 
-        private async Task<BlobMetaDTO> UploadToBlobStorage(string containerName, string identifier, Stream fileStream, Dictionary<string, string> metadata)
+        private async Task<BlobMetadata> UploadToBlobStorage(string containerName, string identifier, Stream fileStream, Dictionary<string, string> metadata)
         {
             try
             {
                 var client = await GetOrCreateContainerClientAsync(containerName);
                 var blob = client.GetBlobClient(identifier);
                 var info = await blob.UploadAsync(fileStream, new BlobUploadOptions { Metadata = metadata });
-                BlobMetaDTO dto = CCSerializer.MetaFromBlobProperties(identifier, blob.Uri.ToString(), blob.GetProperties());
+                BlobMetadata dto = CCSerializer.MetaFromBlobProperties(identifier, blob.Uri.ToString(), blob.GetProperties());
                 return dto;
             }
             catch (Exception e)
@@ -127,13 +127,13 @@ namespace CloudCanvas.Infrastructure.BlobStorage
         public static Dictionary<string, string> SetOriginalMetadata(string filename, string uploadedById)
         {
             Dictionary<string, string> properties = new();
-            properties.Add(BStorage.Meta.OriginalFilename, filename); // this is to enforce data consistency, convertability between BlobProperties & BlobMetaDTO
+            properties.Add(BStorage.Meta.OriginalFilename, filename); // this is to enforce data consistency, convertability between BlobProperties & BlobMetadata
             properties.Add(BStorage.Meta.UploadedBy, uploadedById); // Idem dito, these blob metadata are not available OOTB (afaik)
             properties.Add(BStorage.Meta.CreatedOn, DateTime.UtcNow.ToString());
             return properties;
         }
 
-        public async Task<BlobMetaDTO> GetBlobMetadataAsync(string identifier, string fromContainer)
+        public async Task<BlobMetadata> GetBlobMetadataAsync(string identifier, string fromContainer)
         {
             var container = await GetOrCreateContainerClientAsync(fromContainer);
             var bclient = container.GetBlobClient(identifier);
@@ -141,7 +141,7 @@ namespace CloudCanvas.Infrastructure.BlobStorage
             return CCSerializer.MetaFromBlobProperties(identifier, bclient.Uri.ToString(), props);
         }
 
-        public async Task<BlobMetaDTO> AddBlobMetadataAsync(BlobMetaDTO blob, string key, string value)
+        public async Task<BlobMetadata> AddBlobMetadataAsync(BlobMetadata blob, string key, string value)
         {
             blob.Metadata[key] = value;
             var bclient = await GetOrCreateContainerClientAsync(blob.ContainerName);
@@ -149,15 +149,15 @@ namespace CloudCanvas.Infrastructure.BlobStorage
             return blob;
         }
 
-        public async Task<List<BlobMetaDTO>> GetBlobsAsync(string containerName)
+        public async Task<List<BlobMetadata>> GetBlobsAsync(string containerName)
         {
             var container = _client.GetBlobContainerClient(containerName);
             var blobItems = container.GetBlobsAsync();
-            List<BlobMetaDTO> results = new();
+            List<BlobMetadata> results = new();
             await foreach(var item in blobItems)
             {
                var blob = container.GetBlobClient(item.Name);
-                BlobMetaDTO meta = CCSerializer.MetaFromBlobProperties(blob.Name, blob.Uri.ToString(), await blob.GetPropertiesAsync());
+                BlobMetadata meta = CCSerializer.MetaFromBlobProperties(blob.Name, blob.Uri.ToString(), await blob.GetPropertiesAsync());
                 results.Add(meta);
             }
             return results;

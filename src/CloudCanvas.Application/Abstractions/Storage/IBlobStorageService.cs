@@ -11,12 +11,12 @@ namespace CloudCanvas.Application.Abstractions.Storage;
 /// </summary>
 public interface IBlobStorageService
 {
-    Task<UploadPhotoResult> UploadAsync(Stream fileStream, string filename, Dictionary<string, string> blobProperties, string containerName = BStorage.Containers.Uploads, string customIdentifier = null!);
-    Task<UploadPhotoResult> UploadAsync(IFormFile file, Dictionary<string, string> props, string containerName = BStorage.Containers.Uploads, string customIdentifier = null!);
+    Task<FileMetadata> UploadAsync(Stream fileStream, string filename, Dictionary<string, string> blobProperties, string containerName = BStorage.Containers.Uploads, string customIdentifier = null!);
+    Task<FileMetadata> UploadAsync(IFormFile file, Dictionary<string, string> props, string containerName = BStorage.Containers.Uploads, string customIdentifier = null!);
     Task<List<string>> GetBlobUrlsAsync(string containerName);
-    Task<List<UploadPhotoResult>> GetBlobsAsync(string containerName);
-    Task<UploadPhotoResult> GetBlobMetadataAsync(string identifier, string fromContainer);
-    Task<UploadPhotoResult> AddBlobMetadataAsync(UploadPhotoResult blob, string key, string value);
+    Task<List<FileMetadata>> GetBlobsAsync(string containerName);
+    Task<FileMetadata> GetBlobMetadataAsync(string identifier, string fromContainer);
+    Task<FileMetadata> AddBlobMetadataAsync(FileMetadata blob, string key, string value);
     Task<BlobContainerClient> GetOrCreateContainerClientAsync(string containerName, bool createIfNotExists = false);
     Task<bool> DeleteAsync(string containerName, string blobName);
 }

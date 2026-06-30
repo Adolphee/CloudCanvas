@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace CloudCanvas.Application.Posts.Queries.GetAllPosts
+namespace CloudCanvas.Application.Posts.DTOs
 {
     public sealed record CommentDTO: PostDTO
     {

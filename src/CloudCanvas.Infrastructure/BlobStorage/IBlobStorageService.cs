@@ -9,11 +9,11 @@ namespace CloudCanvas.Infrastructure.BlobStorage;
 /// </summary>
 public interface IBlobStorageService
 {
-    Task<BlobMetaDTO> UploadAsync(Stream fileStream, string filename, Dictionary<string, string> blobProperties, string containerName = BStorage.Containers.Uploads, string customIdentifier = null!);
+    Task<BlobMetadata> UploadAsync(Stream fileStream, string filename, Dictionary<string, string> blobProperties, string containerName = BStorage.Containers.Uploads, string customIdentifier = null!);
     Task<List<string>> GetBlobUrlsAsync(string containerName);
-    Task<List<BlobMetaDTO>> GetBlobsAsync(string containerName);
-    Task<BlobMetaDTO> GetBlobMetadataAsync(string identifier, string fromContainer);
-    Task<BlobMetaDTO> AddBlobMetadataAsync(BlobMetaDTO blob, string key, string value);
+    Task<List<BlobMetadata>> GetBlobsAsync(string containerName);
+    Task<BlobMetadata> GetBlobMetadataAsync(string identifier, string fromContainer);
+    Task<BlobMetadata> AddBlobMetadataAsync(BlobMetadata blob, string key, string value);
     Task<BlobContainerClient> GetOrCreateContainerClientAsync(string containerName, bool createIfNotExists = false);
     Task<bool> DeleteAsync(string containerName, string blobName);
 }

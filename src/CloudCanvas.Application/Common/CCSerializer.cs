@@ -15,17 +15,17 @@ namespace CloudCanvas.Application.Common
         };
 
         /// <summary>
-        /// Converts the provided blob properties and metadata into a <see cref="UploadPhotoResult"/> object.
+        /// Converts the provided blob properties and metadata into a <see cref="FileMetadata"/> object.
         /// </summary>
         /// <remarks>This method maps the properties of a blob, as represented by <see
-        /// cref="BlobProperties"/>,  to a <see cref="UploadPhotoResult"/> object for further processing or use in the
+        /// cref="BlobProperties"/>,  to a <see cref="FileMetadata"/> object for further processing or use in the
         /// application.</remarks>
         /// <param name="identifier">The original name of the file before it was uploaded to the blob storage.</param>
         /// <param name="blobUrl">The URL of the blob in the storage system.</param>
         /// <param name="props">The properties of the blob, including metadata, content details, and versioning information.</param>
-        /// <returns>A <see cref="UploadPhotoResult"/> object containing metadata and properties of the blob, such as its URL, 
+        /// <returns>A <see cref="FileMetadata"/> object containing metadata and properties of the blob, such as its URL, 
         /// original file name, content details, and other relevant attributes.</returns>
-        public static UploadPhotoResult MetaFromBlobProperties(string identifier, string blobUrl, BlobProperties props)
+        public static FileMetadata MetaFromBlobProperties(string identifier, string blobUrl, BlobProperties props)
         {
             Validate.StringValue(nameof(identifier), identifier, $"Missing {nameof(identifier)} and/or {nameof(blobUrl)}. Unable to link metadata to blob.");
             bool deleted = false;
@@ -43,7 +43,7 @@ namespace CloudCanvas.Application.Common
             var uploadedBy = props.Metadata[BStorage.Meta.UploadedBy] ?? null;
             var oFilename = props.Metadata[BStorage.Meta.OriginalFilename] ?? identifier;
             var containerName = props.Metadata["container"] ?? BStorage.Containers.Uploads;
-            return Validate.Object(new UploadPhotoResult
+            return Validate.Object(new FileMetadata
             {
                 Id = identifier,
                 UserId = uploadedBy,

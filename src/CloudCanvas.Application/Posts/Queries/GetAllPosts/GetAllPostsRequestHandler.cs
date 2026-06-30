@@ -4,6 +4,7 @@ using CloudCanvas.Domain.Posts;
 using ICosmosRepo = CloudCanvas.Application.Abstractions.Persistence.IPostsRepository<CloudCanvas.Domain.Posts.Contracts.IPost>;
 using CloudCanvas.Application.Reactions.Common;
 using CloudCanvas.Domain.Posts.Contracts;
+using CloudCanvas.Application.Posts.DTOs;
 
 namespace CloudCanvas.Application.Posts.Queries.GetAllPosts
 {

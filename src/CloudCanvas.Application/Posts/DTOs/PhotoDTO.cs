@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 
-namespace CloudCanvas.Application.Posts.Queries.GetAllPosts
+namespace CloudCanvas.Application.Posts.DTOs
 {
     public sealed record PhotoDTO: PostDTO
     {

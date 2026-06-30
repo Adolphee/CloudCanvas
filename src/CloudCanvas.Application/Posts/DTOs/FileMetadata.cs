@@ -4,7 +4,7 @@ using CloudCanvas.Domain.Posts;
 using CloudCanvas.Domain.Posts.Contracts;
 using System.ComponentModel.DataAnnotations;
 
-namespace CloudCanvas.Infrastructure.DTOs
+namespace CloudCanvas.Application.Posts.DTOs
 {
     /// <summary>
     /// Represents metadata and properties associated with a blob in a storage system.
@@ -13,13 +13,14 @@ namespace CloudCanvas.Infrastructure.DTOs
     /// metadata,  content properties, and various operational states such as copy status, encryption details,  and
     /// access tier. It is designed to encapsulate all relevant data for managing and interacting  with blobs in a
     /// storage context.</remarks>
-    public class BlobMetaDTO: GalleryItemDTO
+    public class FileMetadata: GalleryItemDTO
     {
         [Required, MaxLength(100)]
         public string Name { get; set; } = default!;
         [Required, Range(0, 4)]
         public int ProcessingStage { get; set; }
         public string? ContentEncoding { get; set; }
+        public string? ContainerName { get; set; }
         public BlobType BlobType { get; set; }
         public List<string> Tags { get; set; } = new(); // for future A.I. integration for auto-tagging
         public string? ContentType { get; set; }
@@ -54,6 +55,7 @@ namespace CloudCanvas.Infrastructure.DTOs
         public bool IsSealed { get; set; }
         public RehydratePriority RehydratePriority { get; set; }
         public DateTimeOffset LastAccessed { get; set; }
+
         public IPost ToPost()
         {
             return new Photo
@@ -62,7 +64,7 @@ namespace CloudCanvas.Infrastructure.DTOs
                 OriginalFilename = OriginalFilename,
                 Title = OriginalFilename,
                 Caption = Description,
-                UserTags = UserTags?? default!,
+                UserTags = UserTags ?? default!,
                 ContentLength = ContentLength,
                 Url = Url,
                 UserId = UserId,

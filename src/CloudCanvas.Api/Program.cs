@@ -5,6 +5,8 @@ using CloudCanvas.Domain.Posts;
 using CloudCanvas.Domain.Posts.Contracts;
 using CloudCanvas.Infrastructure;
 using CloudCanvas.Infrastructure.Cosmos;
+using MapsterMapper;
+using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Identity.Web;
@@ -25,6 +27,10 @@ builder.Services.AddTransient<IPost, Post>();
 builder.Services.AddTransient(typeof(IPostsRepository<>), typeof(CosmosClientWrapper<>));
 
 builder.Services.AddTransient<CosmosClientWrapper<Post>>();
+
+var config = TypeAdapterConfig.GlobalSettings;
+builder.Services.AddSingleton(config);
+builder.Services.AddScoped<IMapper, Mapper>();
 
 builder.Services.AddSingleton( cc =>
 {
