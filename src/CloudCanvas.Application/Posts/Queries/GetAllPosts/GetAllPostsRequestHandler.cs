@@ -5,6 +5,8 @@ using ICosmosRepo = CloudCanvas.Application.Abstractions.Persistence.IPostsRepos
 using CloudCanvas.Application.Reactions.Common;
 using CloudCanvas.Domain.Posts.Contracts;
 using CloudCanvas.Application.Posts.DTOs;
+using CloudCanvas.Application.Posts.Photos.Queries.GetPhotos;
+using Mapster;
 
 namespace CloudCanvas.Application.Posts.Queries.GetAllPosts
 {
@@ -15,22 +17,18 @@ namespace CloudCanvas.Application.Posts.Queries.GetAllPosts
         public PostClassification Type { get; set; } = PostClassification.Photo;
     }
 
+    public record GetAllPhotosQuery: GetAllPostsQuery
+    {
+    }
+
     public sealed class GetAllPostsRequestHandler(ICosmosRepo client)
     {
         private readonly ICosmosRepo _cosmos = client;
 
         public async Task<GetAllPhotosQueryResult> Handle(GetAllPostsQuery query)
         {
-            var posts = await _cosmos.GetPostsAsync(query?.ContainerName ?? CloudCosmos.Containers.BlobMeta);
-            var res = new GetAllPhotosQueryResult();
-            posts.ForEach(p =>
-            {
-                PhotoDTO finalPost = new();
-                finalPost = SetPhotoDetails(p, new PhotoDTO());
-                SetIdentityDetails(p, finalPost);
-                finalPost.Reactions = GetReactionsOverview(p);
-                res.Posts.Add(finalPost);
-            });
+            var posts = await _cosmos.GetPhotosAsync(query?.ContainerName ?? CloudCosmos.Containers.BlobMeta);
+            var res = new GetAllPhotosQueryResult(posts);
 
             return res;
         }
@@ -64,6 +62,7 @@ namespace CloudCanvas.Application.Posts.Queries.GetAllPosts
                 Id = fromObject.UserId!
             };
             toObject.CreatedOn = fromObject.CreatedOn;
+            toObject.DeletedOn = fromObject.DeletedOn;
         }
 
         public PhotoDTO SetPhotoDetails(IPost fromObject, PhotoDTO toObject, bool force = false)

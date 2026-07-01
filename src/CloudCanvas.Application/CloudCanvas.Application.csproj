@@ -28,7 +28,6 @@
     <Folder Include="Posts\Galleries\Queries\GetUnpublished\" />
     <Folder Include="Interfaces\" />
     <Folder Include="Posts\Photos\Commands\" />
-    <Folder Include="Posts\Photos\Queries\" />
     <Folder Include="Posts\Queries\GetPostById\" />
     <Folder Include="Posts\Queries\GetPublicPosts\" />
     <Folder Include="Posts\Queries\GetPrivatePostsByUserId\" />
@@ -44,6 +43,7 @@
   <ItemGroup>
     <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.20.1" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.29.0" />
+    <PackageReference Include="Mapster" Version="10.0.9" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
     <PackageReference Include="Newtonsoft.Json.Schema" Version="4.0.1" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />

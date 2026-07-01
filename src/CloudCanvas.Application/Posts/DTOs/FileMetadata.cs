@@ -2,6 +2,7 @@
 using CloudCanvas.Domain.Common.Enums;
 using CloudCanvas.Domain.Posts;
 using CloudCanvas.Domain.Posts.Contracts;
+using CloudCanvas.Domain.Thumbnail;
 using System.ComponentModel.DataAnnotations;
 
 namespace CloudCanvas.Application.Posts.DTOs
@@ -56,8 +57,9 @@ namespace CloudCanvas.Application.Posts.DTOs
         public RehydratePriority RehydratePriority { get; set; }
         public DateTimeOffset LastAccessed { get; set; }
 
-        public IPost ToPost()
+        public IPost ToPost(PostClassification type = PostClassification.Photo)
         {
+            var thumb = this.Thumbnails;
             return new Photo
             {
                 Id = Id,
@@ -67,8 +69,15 @@ namespace CloudCanvas.Application.Posts.DTOs
                 UserTags = UserTags ?? default!,
                 ContentLength = ContentLength,
                 Url = Url,
-                UserId = UserId,
-                Classification = PostClassification.Photo
+                UserId = UserId!,
+                Classification = PostClassification.Photo,
+                Thumbnails = thumb.Select(t => new PhotoThumbnail
+                {
+                    PhotoId = Id,
+                    OriginalImageURL = Url,
+                    Size = t.Key,
+                    Url = t.Value
+                }).ToList()
             };
         }
     }

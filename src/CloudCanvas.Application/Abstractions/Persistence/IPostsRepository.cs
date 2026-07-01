@@ -1,4 +1,5 @@
-﻿using CloudCanvas.Domain.Posts.Contracts;
+﻿using CloudCanvas.Application.Posts.DTOs;
+using CloudCanvas.Domain.Posts.Contracts;
 
 namespace CloudCanvas.Application.Abstractions.Persistence
 {
@@ -36,7 +37,7 @@ namespace CloudCanvas.Application.Abstractions.Persistence
         Task<List<T>> ListBlobsAsync(string containerName);
 
         Task<List<T>> ListPostsAsync(string containerName);
-        Task<List<IPost>> GetPostsAsync(string containerName);
+        Task<List<PostDTO>> GetPostsAsync(string containerName);
         Task<List<PhotoDTO>> GetPhotosAsync(string containerName);
         Task<List<PhotoDTO>> GetUserPhotosAsync(string userId, string containerName);
         Task<T> SingleAsync(string documentId, string partitionKey, string containerName);
