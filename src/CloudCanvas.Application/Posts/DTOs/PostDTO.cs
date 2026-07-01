@@ -16,5 +16,6 @@ namespace CloudCanvas.Application.Posts.DTOs
         private static string Classification { get; set; } = default!;
         public ReactionsOverviewDTO Reactions { get; set; } = new();
         public DateTimeOffset CreatedOn { get; set; }
+        public DateTimeOffset? DeletedOn { get; set; }
     }
 }

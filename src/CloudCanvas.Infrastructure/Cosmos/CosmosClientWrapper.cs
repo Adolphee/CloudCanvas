@@ -1,10 +1,11 @@
-﻿using CloudCanvas.Domain.Posts;
+﻿using CloudCanvas.Application.Abstractions.Persistence;
+using CloudCanvas.Application.Posts.DTOs;
+using CloudCanvas.Domain.Posts.Contracts;
 using CloudCanvas.Infrastructure.DTOs;
 using CloudCanvas.Infrastructure.Exceptions;
-using CloudCanvas.Application.Abstractions.Persistence;
+using Mapster;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
-using CloudCanvas.Domain.Posts.Contracts;
 
 namespace CloudCanvas.Infrastructure.Cosmos
 {
@@ -96,15 +97,44 @@ namespace CloudCanvas.Infrastructure.Cosmos
             return res;
         }
 
-        public async Task<List<IPost>> GetPostsAsync(string containerName)
+        public async Task<List<PhotoDTO>> GetPhotosAsync(string containerName)
         {
             var con = GetContainer(containerName);
-            var res = new List<IPost>();
-            using var queryable = con.GetItemQueryIterator<BlobMetadata>();
+            var res = new List<PhotoDTO>();
+            using var queryable = con.GetItemQueryIterator<PhotoDTO>();
+
             while (queryable.HasMoreResults)
             {
                 var resItems = await queryable.ReadNextAsync();
-                res.AddRange(resItems.ToList().Select(item => item.ToPost()));
+                res.AddRange(resItems);
+            }
+            return res.ToList();
+        }
+
+        public async Task<List<PostDTO>> GetPostsAsync(string containerName)
+        {
+            var con = GetContainer(containerName);
+            var res = new List<PostDTO>();
+            using var queryable = con.GetItemQueryIterator<PostDTO>();
+
+            while (queryable.HasMoreResults)
+            {
+                var resItems = await queryable.ReadNextAsync();
+                res.AddRange(resItems);
+            }
+            return res;
+        }
+
+        public async Task<List<PhotoDTO>> GetUserPhotosAsync(string userId, string containerName)
+        {
+            var con = GetContainer(containerName);
+            var res = new List<PhotoDTO>();
+            using var queryable = con.GetItemQueryIterator<BlobMetadata>();
+
+            while (queryable.HasMoreResults)
+            {
+                var resItems = await queryable.ReadNextAsync();
+                res.AddRange(resItems.Where(x => x.UserId! == userId).Select(y => y.Adapt<PhotoDTO>()));
             }
             return res;
         }

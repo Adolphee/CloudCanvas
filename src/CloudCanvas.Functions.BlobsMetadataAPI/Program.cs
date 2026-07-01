@@ -17,8 +17,21 @@ var builder = FunctionsApplication.CreateBuilder(args);
 builder.ConfigureFunctionsWebApplication();
 
 builder.Services.AddScoped<GetAllPostsRequestHandler>();
-builder.Services.AddScoped<IPostsRepository<IPost>>(c => new CosmosClientWrapper<IPost>(getCosmosClient()));
-builder.Services.AddSingleton(cc => getCosmosClient());
+builder.Services.AddScoped<IPostsRepository<IPost>, CosmosClientWrapper<IPost>>();
+builder.Services.AddSingleton(cc =>
+{
+    var accountEndpoint = Environment.GetEnvironmentVariable(CloudCosmos.Uri);
+
+    var credential = new DefaultAzureCredential();
+    return new CosmosClient(accountEndpoint, credential, new CosmosClientOptions
+    {
+        ConnectionMode = ConnectionMode.Gateway,
+        SerializerOptions = new CosmosSerializationOptions
+        {
+            PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
+        }
+    });
+});
 
 builder.Services.AddScoped<BlobStorageService>();
 builder.Services.AddSingleton(bc =>
@@ -32,18 +45,3 @@ builder.Services
     .ConfigureFunctionsApplicationInsights();
 
 builder.Build().Run();
-
-CosmosClient getCosmosClient()
-{
-    var accountEndpoint = Environment.GetEnvironmentVariable(CloudCosmos.Uri);
-
-    var credential = new DefaultAzureCredential();
-    return new CosmosClient(accountEndpoint, credential, new CosmosClientOptions
-    {
-        ConnectionMode = ConnectionMode.Gateway,
-        SerializerOptions = new CosmosSerializationOptions
-        {
-            PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
-        }
-    });
-}

@@ -37,6 +37,8 @@ namespace CloudCanvas.Application.Abstractions.Persistence
 
         Task<List<T>> ListPostsAsync(string containerName);
         Task<List<IPost>> GetPostsAsync(string containerName);
+        Task<List<PhotoDTO>> GetPhotosAsync(string containerName);
+        Task<List<PhotoDTO>> GetUserPhotosAsync(string userId, string containerName);
         Task<T> SingleAsync(string documentId, string partitionKey, string containerName);
         Task<bool> ExistsAsync(string containerName, string id, string partitionKey);
         Task<T> PatchItemAsync(string id, string partitionKey, string containerName, IReadOnlyList<IPatchOperation<T>> ops);

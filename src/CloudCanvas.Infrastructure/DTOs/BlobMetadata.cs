@@ -17,6 +17,6 @@ namespace CloudCanvas.Infrastructure.DTOs
     /// storage context.</remarks>
     public class BlobMetadata: FileMetadata
     {
-        public DateTimeOffset DeletedOn { get; set; } = default!;
+        public DateTimeOffset? DeletedOn { get; set; } = default!;
     }
 }
