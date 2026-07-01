@@ -1,13 +1,11 @@
 using Azure.Messaging.ServiceBus;
 using CloudCanvas.Application.Abstractions.Persistence;
 using CloudCanvas.Application.Common.Constants;
-using CloudCanvas.Application.Posts.DTOs;
 using CloudCanvas.Domain.Common.Enums;
 using CloudCanvas.Domain.Posts;
 using CloudCanvas.Domain.Posts.Contracts;
 using CloudCanvas.Infrastructure.BlobStorage;
 using CloudCanvas.Infrastructure.Common;
-using CloudCanvas.Infrastructure.Cosmos;
 using CloudCanvas.Infrastructure.DTOs;
 using CloudCanvas.Infrastructure.Messaging;
 using Microsoft.Azure.Functions.Worker;
@@ -43,9 +41,10 @@ public class ExtractMetadata(ILogger<ExtractMetadata> logger, IBlobStorageServic
         {
             IPost photo = new Photo();
             BlobMetadata res = CCSerializer.MetaFromBlobProperties(identifier, blob.Uri.ToString(), blob.GetProperties());
-            if (!await _cosmos.ExistsAsync(CloudCosmos.Containers.BlobMeta, res.Id, res?.UserId!))
+            var userId = res.UserId ?? throw new InvalidOperationException($"UserId is null for blob: {uploads}/{identifier}");
+            if (!await _cosmos.ExistsAsync(CloudCosmos.Containers.BlobMeta, res.Id, userId))
             { // usually this function only executes ONCE; when the main file is uploaded.
-                photo = await _cosmos.SaveMetadataAsync(res?.ToPost()!, CloudCosmos.Containers.BlobMeta, false);
+                photo = await _cosmos.SaveMetadataAsync(res?.ToPhoto()!, CloudCosmos.Containers.BlobMeta, false);
             }
             var message = BuildSBMessage(res, correlationId);
             var responseMessageId = await _sbAdapter.SendAsync(ServiceBus.Topics.FileUpdates, message); // Send the message and call it a day

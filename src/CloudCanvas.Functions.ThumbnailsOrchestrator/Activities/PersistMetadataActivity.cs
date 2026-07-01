@@ -23,7 +23,7 @@ public class PersistMetadataActivity(IPostsRepository<IPost> cosmos)
         {
             req.Blob.ProcessingStage = (int)BlobProcessingStage.UpdateMetadata;
             req.Blob.LastModified = DateTimeOffset.Now;
-            await _cosmos.SaveMetadataAsync(req.Blob.ToPost(), CloudCosmos.Containers.BlobMeta, true);      // Overwrite metadata to CosmosDB
+            await _cosmos.SaveMetadataAsync(req.Blob.ToPhoto(), CloudCosmos.Containers.BlobMeta, true);      // Overwrite metadata to CosmosDB
             logger.LogInformation("{correlationId} Metadata Persisted for blob {container}/{identifier}", req.CorrelationId, req.Blob.ContainerName, req.Blob.Name);
         }
         catch (Exception e) when (e is CCSerializationException || e is InvalidArgumentException)

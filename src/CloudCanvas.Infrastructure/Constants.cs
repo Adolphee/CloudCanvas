@@ -24,6 +24,7 @@ namespace CloudCanvas.Infrastructure
             public static string CompletedOn = "completedOn";
             public static string CreatedOn = "createdOn";
             public const string DeletedOn = "deletedOn";
+            public const string Container = "container";
         }
 
         public abstract class Containers

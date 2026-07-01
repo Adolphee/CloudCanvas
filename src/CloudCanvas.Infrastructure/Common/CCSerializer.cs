@@ -42,13 +42,13 @@ namespace CloudCanvas.Infrastructure.Common
                 }
 
             // TODO: uploadedBy / userID will be implemented with the Auth milestone --> Done
-            var uploadedBy = props.Metadata[BStorage.Meta.UploadedBy] ?? null;
-            var oFilename = props.Metadata[BStorage.Meta.OriginalFilename] ?? identifier;
-            var containerName = props.Metadata["container"] ?? BStorage.Containers.Uploads;
+            var uploadedBy = props.Metadata.TryGetValue(BStorage.Meta.UploadedBy, out var uploader) ? uploader : null;
+            var oFilename = props.Metadata.TryGetValue(BStorage.Meta.OriginalFilename, out var originalFilename) ? originalFilename : identifier;
+            var containerName = props.Metadata.TryGetValue(BStorage.Meta.Container, out var container) ? container : BStorage.Containers.Uploads;
             return new BlobMetadata
             {
                 Id = identifier,
-                UserId = uploadedBy,
+                UserId = uploadedBy ?? "Unknown User",
                 Url = blobUrl,
                 OriginalFilename = oFilename,
                 CreatedOn = props.CreatedOn,

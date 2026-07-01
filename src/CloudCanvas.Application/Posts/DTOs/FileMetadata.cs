@@ -57,7 +57,7 @@ namespace CloudCanvas.Application.Posts.DTOs
         public RehydratePriority RehydratePriority { get; set; }
         public DateTimeOffset LastAccessed { get; set; }
 
-        public IPost ToPost(PostClassification type = PostClassification.Photo)
+        public Photo ToPhoto(PostClassification type = PostClassification.Photo)
         {
             var thumb = this.Thumbnails;
             return new Photo
