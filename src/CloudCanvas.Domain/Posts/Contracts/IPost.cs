@@ -14,7 +14,7 @@ namespace CloudCanvas.Domain.Posts.Contracts
         string? Id { get; set; }
         [Required]
         string UserId { get; set; }
-        string? Url { get; set; }
+        string? Location { get; set; }
 
         [Required]
         PostClassification Classification { get; set; }

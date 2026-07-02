@@ -17,7 +17,7 @@ namespace CloudCanvas.Domain.Posts
         public string? Id { get; set; }
         [Required]
         public string UserId { get; set; } = default!;
-        public string? Url { get; set; } = default!;
+        public string? Location { get; set; } = default!;
         public long ContentLength { get; set; }
         public bool CommentsEnabled { get; set; } = true;
 

@@ -68,16 +68,45 @@ namespace CloudCanvas.Application.Posts.DTOs
                 Caption = Description,
                 UserTags = UserTags ?? default!,
                 ContentLength = ContentLength,
-                Url = Url,
+                Location = this.Location,
                 UserId = UserId!,
                 Classification = PostClassification.Photo,
                 Thumbnails = thumb.Select(t => new PhotoThumbnail
                 {
                     PhotoId = Id,
-                    OriginalImageURL = Url,
+                    OriginalImageURL = Location,
                     Size = t.Key,
                     Url = t.Value
-                }).ToList()
+                }).ToList(),
+                CreatedOn = this.CreatedOn,
+                ModifiedOn = this.LastModified,
+                CommentsEnabled = this.CommentsEnabled ?? false
+            };
+        }
+
+        public PhotoDTO ToPhotoDTO(PostClassification type = PostClassification.Photo)
+        {
+            var thumb = this.Thumbnails;
+            return new PhotoDTO
+            {
+                Id = Id,
+                OriginalFilename = OriginalFilename,
+                Title = OriginalFilename,
+                Description = Description,
+                UserTags = UserTags ?? default!,
+                ContentLength = ContentLength,
+                Location = this.Location,
+                Creator = new Creator
+                {
+                    Id = this.UserId!,
+                    DisplayName = "Anonymous User", ///TODO: make creator info dynamic
+                    UserName = "anon12345"
+                },
+                Classification = nameof(PostClassification.Photo),
+                Thumbnails = thumb,
+                CreatedOn = this.CreatedOn,
+                ModifiedOn = this.LastModified,
+                CommentsEnabled = this.CommentsEnabled ?? false
             };
         }
     }

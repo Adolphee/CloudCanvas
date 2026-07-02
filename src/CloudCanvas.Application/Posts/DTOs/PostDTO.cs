@@ -1,5 +1,6 @@
 ﻿using CloudCanvas.Application.Reactions.Common;
 using CloudCanvas.Domain.Abstractions;
+using CloudCanvas.Domain.Common.Enums;
 using CloudCanvas.Domain.Reactions;
 using System.ComponentModel.DataAnnotations;
 
@@ -13,9 +14,10 @@ namespace CloudCanvas.Application.Posts.DTOs
         public Creator? Creator { get; set; } = default!;
 
         [Required]
-        private static string Classification { get; set; } = default!;
+        public string Classification { get; set; } = default!;
         public ReactionsOverviewDTO Reactions { get; set; } = new();
         public DateTimeOffset CreatedOn { get; set; }
         public DateTimeOffset? DeletedOn { get; set; }
+        public DateTimeOffset ModifiedOn { get; set; }
     }
 }

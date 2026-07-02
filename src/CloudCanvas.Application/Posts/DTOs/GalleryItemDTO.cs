@@ -6,7 +6,7 @@ namespace CloudCanvas.Application.Posts.DTOs
     public class GalleryItemDTO: UpdateBasicPostInfoRequest
     {
         [Required]
-        public string Url { get; set; } = default!;
+        public string Location { get; set; } = default!;
         [Required]
         public string OriginalFilename { get; set; } = default!;
         public Dictionary<ThumbnailSize, string> Thumbnails { get; set; } = new(); // BlobUrls for the thumbnails

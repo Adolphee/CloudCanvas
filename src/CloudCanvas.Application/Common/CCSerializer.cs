@@ -47,7 +47,7 @@ namespace CloudCanvas.Application.Common
             {
                 Id = identifier,
                 UserId = uploadedBy,
-                Url = blobUrl,
+                Location = blobUrl,
                 OriginalFilename = oFilename,
                 CreatedOn = props.CreatedOn,
                 ProcessingStage = (int)BlobProcessingStage.UploadSuccessful, // TOFIX: this is misleading when this method is not 
