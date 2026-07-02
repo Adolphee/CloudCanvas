@@ -27,7 +27,6 @@
     <Folder Include="Posts\Galleries\Queries\GetPublicGalleries\" />
     <Folder Include="Posts\Galleries\Queries\GetUnpublished\" />
     <Folder Include="Interfaces\" />
-    <Folder Include="Posts\Photos\Commands\" />
     <Folder Include="Posts\Queries\GetPostById\" />
     <Folder Include="Posts\Queries\GetPublicPosts\" />
     <Folder Include="Posts\Queries\GetPrivatePostsByUserId\" />

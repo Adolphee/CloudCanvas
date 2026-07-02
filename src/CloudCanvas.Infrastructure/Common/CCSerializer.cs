@@ -49,7 +49,7 @@ namespace CloudCanvas.Infrastructure.Common
             {
                 Id = identifier,
                 UserId = uploadedBy ?? "Unknown User",
-                Url = blobUrl,
+                Location = blobUrl,
                 OriginalFilename = oFilename,
                 CreatedOn = props.CreatedOn,
                 ContainerName = containerName,

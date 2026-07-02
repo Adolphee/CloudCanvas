@@ -3,7 +3,6 @@ using CloudCanvas.Application.Posts.DTOs;
 using CloudCanvas.Domain.Posts.Contracts;
 using CloudCanvas.Infrastructure.DTOs;
 using CloudCanvas.Infrastructure.Exceptions;
-using Mapster;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 
@@ -86,7 +85,7 @@ namespace CloudCanvas.Infrastructure.Cosmos
         public async Task<List<T>> ListBlobsAsync(string containerName)
         {
             var con = GetContainer(containerName);
-            var queryable = con.GetItemLinqQueryable<T>().Where(x => x.DeletedOn == DateTimeOffset.MinValue);
+            var queryable = con.GetItemLinqQueryable<T>().Where(x => x.DeletedOn <= DateTimeOffset.MinValue);
             var res = new List<T>();
             using var iterator = queryable.ToFeedIterator();
             while (iterator.HasMoreResults)
@@ -101,12 +100,12 @@ namespace CloudCanvas.Infrastructure.Cosmos
         {
             var con = GetContainer(containerName);
             var res = new List<PhotoDTO>();
-            using var queryable = con.GetItemQueryIterator<PhotoDTO>();
-
+            using var queryable = con.GetItemQueryIterator<BlobMetadata>();
             while (queryable.HasMoreResults)
             {
-                var resItems = await queryable.ReadNextAsync();
-                res.AddRange(resItems);
+                var feedResponse = await queryable.ReadNextAsync();
+                var availableItems = feedResponse.Where(i => i.DeletedOn is null || i.DeletedOn <= DateTimeOffset.MinValue);
+                res.AddRange(availableItems.Select(b => b.ToPhotoDTO()));
             }
             return res.ToList();
         }
@@ -115,12 +114,12 @@ namespace CloudCanvas.Infrastructure.Cosmos
         {
             var con = GetContainer(containerName);
             var res = new List<PostDTO>();
-            using var queryable = con.GetItemQueryIterator<PostDTO>();
-
+            using var queryable = con.GetItemQueryIterator<BlobMetadata>();
             while (queryable.HasMoreResults)
             {
-                var resItems = await queryable.ReadNextAsync();
-                res.AddRange(resItems);
+                var feedResponse = await queryable.ReadNextAsync();
+                var availableItems = feedResponse.Where(i => i.DeletedOn is null || i.DeletedOn <= DateTimeOffset.MinValue);
+                res.AddRange(availableItems.Select(b => b.ToPhotoDTO()));
             }
             return res;
         }
@@ -133,8 +132,9 @@ namespace CloudCanvas.Infrastructure.Cosmos
 
             while (queryable.HasMoreResults)
             {
-                var resItems = await queryable.ReadNextAsync();
-                res.AddRange(resItems.Where(x => x.UserId! == userId).Select(y => y.Adapt<PhotoDTO>()));
+                var feedResponse = await queryable.ReadNextAsync();
+                var availableItems = feedResponse.Where(i => i.UserId == userId && (i.DeletedOn is null || i.DeletedOn <= DateTimeOffset.MinValue));
+                res.AddRange(availableItems.Select(i => i.ToPhotoDTO()));
             }
             return res;
         }

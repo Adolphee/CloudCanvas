@@ -5,10 +5,9 @@ using ICosmosRepo = CloudCanvas.Application.Abstractions.Persistence.IPostsRepos
 using CloudCanvas.Application.Reactions.Common;
 using CloudCanvas.Domain.Posts.Contracts;
 using CloudCanvas.Application.Posts.DTOs;
-using CloudCanvas.Application.Posts.Photos.Queries.GetPhotos;
 using Mapster;
 
-namespace CloudCanvas.Application.Posts.Queries.GetAllPosts
+namespace CloudCanvas.Application.Posts.Photos.Queries.GetPhotos
 {
     public record GetAllPostsQuery
     {
@@ -21,7 +20,7 @@ namespace CloudCanvas.Application.Posts.Queries.GetAllPosts
     {
     }
 
-    public sealed class GetAllPostsRequestHandler(ICosmosRepo client)
+    public sealed class GetAllPhotosRequestHandler(ICosmosRepo client)
     {
         private readonly ICosmosRepo _cosmos = client;
 
@@ -71,7 +70,7 @@ namespace CloudCanvas.Application.Posts.Queries.GetAllPosts
                 toObject.OriginalFilename = ((Photo)fromObject).OriginalFilename;
                 toObject.Title = ((Photo)fromObject).Title;
                 toObject.ContentLength = fromObject.ContentLength;
-                toObject.Location = fromObject.Url?? throw new ArgumentException("Invalid image location."); 
+                toObject.Location = fromObject.Location?? throw new ArgumentException("Invalid image location."); 
                 toObject.UserTags = ((Photo)fromObject).UserTags;
             }
             return toObject;

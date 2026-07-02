@@ -123,7 +123,7 @@ namespace CloudCanvas.Infrastructure.Migrations
                     b.Property<DateTimeOffset>("UnpublishedOn")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("Url")
+                    b.Property<string>("Location")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
@@ -195,7 +195,7 @@ namespace CloudCanvas.Infrastructure.Migrations
                     b.Property<int>("Size")
                         .HasColumnType("int");
 
-                    b.Property<string>("Url")
+                    b.Property<string>("Location")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

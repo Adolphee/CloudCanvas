@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CloudCanvas.Application.Posts.Photos.Queries.GetPhotos
+namespace CloudCanvas.Application.Posts.Photos.Queries.GetPhotosByUser
 {
     public record GetUserPhotosQuery
     {

@@ -1,10 +1,6 @@
-using CloudCanvas.Application.Abstractions.Persistence;
-using CloudCanvas.Application.Common.Constants;
+using CloudCanvas.Application.Posts.Photos.Commands;
 using CloudCanvas.Application.Posts.Photos.Queries.GetPhotos;
-using CloudCanvas.Application.Posts.Queries.GetAllPosts;
-using CloudCanvas.Domain.Posts;
-using CloudCanvas.Domain.Posts.Contracts;
-using CloudCanvas.Infrastructure.Cosmos;
+using CloudCanvas.Application.Posts.Photos.Queries.GetPhotosByUser;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.Resource;
 using ICosmosRepo = CloudCanvas.Application.Abstractions.Persistence.IPostsRepository<CloudCanvas.Domain.Posts.Contracts.IPost>;
@@ -18,12 +14,13 @@ namespace CloudCanvas.Api.Controllers
     {
         private readonly ICosmosRepo _client = client;
 
-        [HttpGet(Name = "GetAllPosts")]
-        public async Task<GetAllPhotosQueryResult> Get() => await new GetAllPostsRequestHandler(_client).Handle(new GetAllPostsQuery());
+        [HttpGet(Name = "GetAllPhotos")]
+        public async Task<GetAllPhotosQueryResult> GetAsync() => await new GetAllPhotosRequestHandler(_client).Handle(new GetAllPhotosQuery());
 
-        [HttpGet(Name = "GetUserPosts")]
-        public async Task<GetUserPhotosQueryResult> GetUserPhotos(string usr) => await new GetUserPhotosRequestHandler(_client).Handle(new GetUserPhotosQuery(usr));
+        [HttpGet("user/{userId}", Name = "GetUserPhotos")]
+        public async Task<GetUserPhotosQueryResult> GetUserPhotosAsync(string userId) => await new GetUserPhotosRequestHandler(_client).Handle(new GetUserPhotosQuery(userId));
 
-
+        [HttpPost(Name = "SavePhoto")]
+        public async Task<SavePhotoQueryResult> CreatePhotoAsync([FromBody] SavePhotoCommand command) => await new SavePhotoRequestHandler(_client).Handle(command);
     }
 }
