@@ -36,13 +36,13 @@ A page-specific read model was chosen because it keeps the Cosmos projection foc
 
 ## Consequences
 
-**Easier:**
+**Benefits:**
 - Fast gallery page reads with fewer round-trips and less server-side join complexity.
 - Read models can be shaped exactly for UI needs, which simplifies API response construction.
 - SQL Server remains cleanly positioned as the source of truth for transactional operations.
 - The architecture aligns with CQRS and can scale to more specialized read views later.
 
-**Harder:**
+**Tradeoffs:**
 - The system must accept eventual consistency between SQL writes and Cosmos DB projections.
 - Projection logic, orchestration, retries, and rebuild workflows must be implemented and maintained.
 - Poorly designed documents may become too large or too frequently updated for hot galleries.

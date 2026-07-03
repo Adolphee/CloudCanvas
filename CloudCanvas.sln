@@ -23,6 +23,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{FE0EB5BF-C
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "decisions", "decisions", "{A753A70B-B9AC-43E4-8087-E926F73173BA}"
 	ProjectSection(SolutionItems) = preProject
+		docs\decisions\adr-clean-architecture-cqrs-upgrade.md = docs\decisions\adr-clean-architecture-cqrs-upgrade.md
+		docs\decisions\adr-metadata-centric-blob-api.md = docs\decisions\adr-metadata-centric-blob-api.md
+		docs\decisions\adr-separate-shared-contracts-from-function-apps.md = docs\decisions\adr-separate-shared-contracts-from-function-apps.md
 		docs\decisions\cosmosdb-read-models-for-gallery-pages.md = docs\decisions\cosmosdb-read-models-for-gallery-pages.md
 		docs\decisions\template_and_credits.md = docs\decisions\template_and_credits.md
 	EndProjectSection
