@@ -10,7 +10,7 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <None Include="local.settings.json" />
     <PackageReference Include="Azure.Identity" Version="1.21.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.23.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="3.1.2" />
     <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.61.0" />
     
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.52.0" />
