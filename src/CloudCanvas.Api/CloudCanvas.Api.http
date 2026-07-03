@@ -1,0 +1,6 @@
+@CloudCanvas.Api_HostAddress = http://localhost:5022
+
+GET {{CloudCanvas.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

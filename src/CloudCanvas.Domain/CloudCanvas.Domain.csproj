@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Entities\" />
+    <Folder Include="Posts\Events\" />
+    <Folder Include="Posts\ValueObjects\" />
+    <Folder Include="Reactions\Events\" />
+    <Folder Include="Reactions\ValueObjects\" />
+    <Folder Include="User\Events\" />
+    <Folder Include="User\ValueObjects\" />
+  </ItemGroup>
+
+</Project>
