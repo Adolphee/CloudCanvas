@@ -3,13 +3,13 @@ using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Application.Common.Exceptions;
 using CloudCanvas.Domain.Common.Enums;
 using CloudCanvas.Domain.Posts.Contracts;
-using CloudCanvas.Functions.Orchestration.DTOs;
+using CloudCanvas.Functions.ThumbnailOrchestrator.DTO;
 using CloudCanvas.Infrastructure.Cosmos;
 using CloudCanvas.Infrastructure.DTOs;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
-namespace CloudCanvas.Functions.Orchestration.Activities;
+namespace CloudCanvas.Functions.ThumbnailOrchestrator.Activities;
 
 public class PersistMetadataActivity(IPostsRepository<IPost> cosmos)
 {

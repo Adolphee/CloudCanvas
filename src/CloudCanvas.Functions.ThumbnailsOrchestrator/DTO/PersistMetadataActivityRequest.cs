@@ -1,6 +1,5 @@
-﻿using CloudCanvas.Application.Posts.DTOs;
-using CloudCanvas.Infrastructure.DTOs;
-namespace CloudCanvas.Functions.Orchestration.DTO
+﻿using CloudCanvas.Infrastructure.DTOs;
+namespace CloudCanvas.Functions.ThumbnailOrchestrator.DTO
 {
     public class PersistMetadataActivityRequest: ThumbnailOrchestrationRequest
     {

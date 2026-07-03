@@ -1,9 +1,8 @@
-﻿
-using CloudCanvas.Application.Posts.DTOs;
+﻿using CloudCanvas.Application.Posts.DTOs;
 using CloudCanvas.Domain.Common.Enums;
 using CloudCanvas.Infrastructure.DTOs;
 
-namespace CloudCanvas.Functions.Orchestration.DTO
+namespace CloudCanvas.Functions.ThumbnailOrchestrator.DTO
 {
     public class ThumbnailActivityRequest: ThumbnailOrchestrationRequest
     {

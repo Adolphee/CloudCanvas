@@ -1,12 +1,12 @@
 using CloudCanvas.Domain.Common.Enums;
-using CloudCanvas.Functions.Orchestration.Activities;
-using CloudCanvas.Functions.Orchestration.DTO;
+using CloudCanvas.Functions.ThumbnailOrchestrator.Activities;
+using CloudCanvas.Functions.ThumbnailOrchestrator.DTO;
 using CloudCanvas.Infrastructure.DTOs;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask;
 using Microsoft.Extensions.Logging;
 
-namespace CloudCanvas.Functions.Durable.Orchestrators;
+namespace CloudCanvas.Functions.ThumbnailOrchestrator;
 
 public class ThumbnailOrchestrator
 {

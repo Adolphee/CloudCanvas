@@ -1,6 +1,6 @@
 ﻿using CloudCanvas.Infrastructure.DTOs;
 
-namespace CloudCanvas.Functions.Orchestration.DTO
+namespace CloudCanvas.Functions.ThumbnailOrchestrator.DTO
 {
     public sealed class PublishCompletionRequest(BlobMetadata blob, string correlationId, string instanceId) 
         : PersistMetadataActivityRequest(blob, correlationId, instanceId)
