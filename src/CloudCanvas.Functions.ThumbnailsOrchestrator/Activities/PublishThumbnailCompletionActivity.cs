@@ -1,21 +1,19 @@
-using CloudCanvas.Functions.Orchestration.DTO;
-using CloudCanvas.Functions.Orchestration.DTOs;
-using CloudCanvas.Shared.Constants;
-using CloudCanvas.Shared.DTOs;
-using CloudCanvas.Shared.Exceptions;
-using CloudCanvas.Shared.Interfaces;
-using CloudCanvas.Shared.Services;
+using CloudCanvas.Application.Common.Constants;
+using CloudCanvas.Application.Common.Exceptions;
+using CloudCanvas.Functions.ThumbnailOrchestrator.DTO;
+using CloudCanvas.Infrastructure.DTOs;
+using CloudCanvas.Infrastructure.Messaging;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
-namespace CloudCanvas.Functions.Orchestration.Activities;
+namespace CloudCanvas.Functions.ThumbnailOrchestrator.Activities;
 
 public class PublishThumbnailCompletionActivity(ServiceBusAdapter serviceBusAdapter)
 {
     private readonly ServiceBusAdapter _sbAdapter = serviceBusAdapter;
 
     [Function(nameof(PublishThumbnailCompletionActivity))]
-    public async Task<BlobMetaDTO> Run([ActivityTrigger] RequestContext req, FunctionContext context)
+    public async Task<BlobMetadata> Run([ActivityTrigger] RequestContext req, FunctionContext context)
     {
         var logger = context.GetLogger<PublishThumbnailCompletionActivity>();
         logger.LogInformation("{correlationId} Thumbnails orchestration complete. BlobId: {identifier}, InstanceId: {instanceId}", req.CorrelationId, req.Blob.Name, req.InstanceId);
@@ -24,7 +22,7 @@ public class PublishThumbnailCompletionActivity(ServiceBusAdapter serviceBusAdap
             var SbNotification = MessageFactory.BuildFor(req.Blob)
                 .WithSubject(ServiceBus.Status.OrchestrationFinished)
                 .SetCorrelationId(req.CorrelationId)
-                .AddProperty(BlobStorage.Meta.CompletedOn, DateTimeOffset.Now)
+                .AddProperty(BStorage.Meta.CompletedOn, DateTimeOffset.Now)
                 .Finalize(req.InstanceId);
 
             await _sbAdapter.SendAsync(ServiceBus.Topics.FileUpdates, SbNotification);
@@ -33,7 +31,7 @@ public class PublishThumbnailCompletionActivity(ServiceBusAdapter serviceBusAdap
         }
         catch (Exception e) when (e is CCSerializationException || e is InvalidArgumentException)
         {
-            logger.LogError(e, "{correlationId} Failed to deserialize metadata into an object of type {type}. Operation aborted. ", req.CorrelationId, nameof(BlobMetaDTO));
+            logger.LogError(e, "{correlationId} Failed to deserialize metadata into an object of type {type}. Operation aborted. ", req.CorrelationId, nameof(BlobMetadata));
             throw;
         }
         return req.Blob;

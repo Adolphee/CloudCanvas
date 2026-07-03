@@ -1,15 +1,14 @@
 using Azure.Messaging.ServiceBus;
 using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Application.Common.Exceptions;
-using CloudCanvas.Application.Posts.DTOs;
-using CloudCanvas.Functions.Orchestration.DTO;
+using CloudCanvas.Functions.ThumbnailOrchestrator.DTO;
 using CloudCanvas.Infrastructure.Common;
 using CloudCanvas.Infrastructure.DTOs;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
 
-namespace CloudCanvas.Functions.Durable.Starters;
+namespace CloudCanvas.Functions.ThumbnailOrchestrator;
 
 public class ThumbnailOrchestrationStarter
 {

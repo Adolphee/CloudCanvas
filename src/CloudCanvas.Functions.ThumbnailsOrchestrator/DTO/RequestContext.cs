@@ -1,8 +1,7 @@
-﻿
-using CloudCanvas.Domain.Common.Enums;
+﻿using CloudCanvas.Domain.Common.Enums;
 using CloudCanvas.Infrastructure.DTOs;
 
-namespace CloudCanvas.Functions.Orchestration.DTOs
+namespace CloudCanvas.Functions.ThumbnailOrchestrator.DTO
 {
     public class RequestContext
     {

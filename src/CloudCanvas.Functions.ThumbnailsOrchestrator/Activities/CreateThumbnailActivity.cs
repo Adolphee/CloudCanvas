@@ -1,12 +1,12 @@
 using CloudCanvas.Application.Common.Constants;
-using CloudCanvas.Functions.Orchestration.DTOs;
+using CloudCanvas.Functions.ThumbnailOrchestrator.DTO;
 using CloudCanvas.Infrastructure.BlobStorage;
 using CloudCanvas.Infrastructure.Common;
 using CloudCanvas.Infrastructure.DTOs;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
-namespace CloudCanvas.Functions.Orchestration.Activities;
+namespace CloudCanvas.Functions.ThumbnailOrchestrator.Activities;
 
 public sealed class CreateThumbnailActivity
 {
@@ -34,7 +34,7 @@ public sealed class CreateThumbnailActivity
             BlobMetadata thumbnailMeta = await _blobService.UploadAsync(thumbnail, req.Blob.OriginalFilename, props ,BStorage.Containers.Thumbnails, $"{req.Blob.Name}_{req.ThumbnailSize.ToString()}");
             logger.LogInformation("{correlationId} Created {size} thumbnail for {containerName}/{identifier}", 
                 req.CorrelationId, req.ThumbnailSize, req.Blob.ContainerName, req.Blob.Name);
-            return thumbnailMeta.Url.ToString();
+            return thumbnailMeta.Location;
         }
         catch (Exception e)
         { // Drop the ball
