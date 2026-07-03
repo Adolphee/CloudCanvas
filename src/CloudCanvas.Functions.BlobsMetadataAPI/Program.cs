@@ -2,7 +2,7 @@ using Azure.Identity;
 using Azure.Storage.Blobs;
 using CloudCanvas.Application.Abstractions.Persistence;
 using CloudCanvas.Application.Common.Constants;
-using CloudCanvas.Application.Posts.Queries.GetAllPosts;
+using CloudCanvas.Application.Posts.Photos.Queries.GetPhotos;
 using CloudCanvas.Domain.Posts.Contracts;
 using CloudCanvas.Infrastructure.BlobStorage;
 using CloudCanvas.Infrastructure.Cosmos;
@@ -16,7 +16,7 @@ var builder = FunctionsApplication.CreateBuilder(args);
 
 builder.ConfigureFunctionsWebApplication();
 
-builder.Services.AddScoped<GetAllPostsRequestHandler>();
+builder.Services.AddScoped<GetAllPhotosRequestHandler>();
 builder.Services.AddScoped<IPostsRepository<IPost>, CosmosClientWrapper<IPost>>();
 builder.Services.AddSingleton(cc =>
 {
