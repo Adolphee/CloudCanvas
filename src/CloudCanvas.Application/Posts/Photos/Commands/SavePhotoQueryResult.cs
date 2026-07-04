@@ -8,6 +8,6 @@ namespace CloudCanvas.Application.Posts.Photos.Commands
     public sealed record SavePhotoQueryResult
     {
         public bool IsSuccessFull { get; set; } = false;
-        public PhotoDTO Photo { get; set; } = default!;
+        public PhotoDTO? Photo { get; set; } = default!;
     }
 }

@@ -230,7 +230,7 @@ namespace CloudCanvas.Infrastructure.Migrations
                     b.Property<DateTimeOffset?>("DeletedOn")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("Description")
+                    b.Property<string>("Caption")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
@@ -435,7 +435,7 @@ namespace CloudCanvas.Infrastructure.Migrations
                 {
                     b.HasBaseType("CloudCanvas.Domain.Posts.Post");
 
-                    b.Property<string>("Description")
+                    b.Property<string>("Caption")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DisplayName")

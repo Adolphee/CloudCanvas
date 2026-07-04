@@ -74,6 +74,7 @@ namespace CloudCanvas.Application.Common.Constants
         public const string Uri = "CosmosEndpointURI";
         public abstract class Containers {
             public const string BlobMeta = "blob_metadata";
+            public const string UserPhotos = "user_photos";
         }
     }
 
