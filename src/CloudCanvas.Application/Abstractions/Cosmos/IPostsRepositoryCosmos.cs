@@ -1,7 +1,8 @@
 ﻿using CloudCanvas.Application.Posts.DTOs;
+using CloudCanvas.Domain.Posts;
 using CloudCanvas.Domain.Posts.Contracts;
 
-namespace CloudCanvas.Application.Abstractions.Persistence
+namespace CloudCanvas.Application.Abstractions.Cosmos
 {
     /// <summary>
     /// Defines an abstraction for interacting with a Cosmos DB client, providing methods to save and query objects in
@@ -10,7 +11,7 @@ namespace CloudCanvas.Application.Abstractions.Persistence
     /// <remarks>This interface is designed to simplify operations with Cosmos DB by abstracting common tasks
     /// such as saving objects and querying containers. Implementations of this interface should handle the underlying
     /// communication with Cosmos DB and ensure proper error handling.</remarks>
-    public interface IPostsRepository<T> where T : IPost
+    public interface IPostsRepositoryCosmos<T> where T : IPost
     {
         /// <summary>
         /// Saves the specified object to the given container asynchronously.
@@ -22,6 +23,7 @@ namespace CloudCanvas.Application.Abstractions.Persistence
         /// <param name="containerName">The name of the container where the object will be saved. Cannot be <see langword="null"/> or empty.</param>
         /// <returns>A task that represents the asynchronous save operation. The task result contains the saved object.</returns>
         Task<T> SaveMetadataAsync(T obj, string containerName, bool overWrite = false);
+        Task<PhotoDTO> SavePhotoAsync(PhotoDTO metadata, string containerName, bool overWrite = true);
 
         /// <summary>
         /// Retrieves a collection of items of the specified type from the given container.
@@ -34,7 +36,7 @@ namespace CloudCanvas.Application.Abstractions.Persistence
         /// <returns>An <see cref="Container"/> The specified container. Returns an empty collection if the container is empty or does not exist.</returns>
         Task<bool> DeleteDocumentAsync(T item, string containerName);
 
-        Task<List<T>> ListBlobsAsync(string containerName);
+        Task<List<Post>> ListBlobsAsync(string containerName);
 
         Task<List<T>> ListPostsAsync(string containerName);
         Task<List<PostDTO>> GetPostsAsync(string containerName);

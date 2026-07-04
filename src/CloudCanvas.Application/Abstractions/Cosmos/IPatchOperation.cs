@@ -1,6 +1,6 @@
 ﻿using CloudCanvas.Domain.Posts.Contracts;
 
-namespace CloudCanvas.Application.Abstractions.Persistence
+namespace CloudCanvas.Application.Abstractions.Cosmos
 {
     public interface IPatchOperation<T> where T : IPost
     {
