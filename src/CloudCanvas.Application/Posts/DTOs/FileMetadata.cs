@@ -1,4 +1,5 @@
 ﻿using Azure.Storage.Blobs.Models;
+using CloudCanvas.Domain.Common;
 using CloudCanvas.Domain.Common.Enums;
 using CloudCanvas.Domain.Posts;
 using CloudCanvas.Domain.Posts.Contracts;
@@ -86,7 +87,6 @@ namespace CloudCanvas.Application.Posts.DTOs
 
         public PhotoDTO ToPhotoDTO(PostClassification type = PostClassification.Photo)
         {
-            var thumb = this.Thumbnails;
             return new PhotoDTO
             {
                 Id = Id,
@@ -103,9 +103,13 @@ namespace CloudCanvas.Application.Posts.DTOs
                     UserName = "anon12345"
                 },
                 Classification = nameof(PostClassification.Photo),
-                Thumbnails = thumb,
-                CreatedOn = this.CreatedOn,
-                ModifiedOn = this.LastModified,
+                Thumbnails = this.Thumbnails.ToDictionary(k => k.ToString(), v => v.Value),
+                TimeStamps = new()
+                {
+                   CreatedOn = this.CreatedOn,
+                   ModifiedOn = this.LastModified,
+                   DeletedOn = DateTimeOffset.MinValue
+                },
                 CommentsEnabled = this.CommentsEnabled ?? false
             };
         }

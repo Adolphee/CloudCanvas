@@ -17,7 +17,7 @@ namespace CloudCanvas.Application.Posts.DTOs
         public string? Title { get; set; }
         public long ContentLength { get; set; }
         public List<string>? UserTags { get; set; }
-        public Dictionary<ThumbnailSize, string>? Thumbnails { get; set; } = null; // rather have it be bull if no thumb available
+        public Dictionary<string, string>? Thumbnails { get; set; } = new();
 
         public PhotoDTO()
         {
