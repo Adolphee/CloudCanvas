@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CloudCanvas.Domain.Reactions
 {
-    public record class Reaction: TimeStamped
+    public record class Reaction: TimeStampz
     {
         [Required]
         public string? Id { get; set; }

@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CloudCanvas.Domain.Posts
 {
-    public record class Comment: TimeStamped
+    public record class Comment: TimeStampz
     {
         public string? Id { get; set; }
         private readonly static PostClassification Type = PostClassification.Comment;

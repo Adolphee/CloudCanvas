@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CloudCanvas.Domain.Posts
 {
-    public record class Post: TimeStamped, IPost, ICommentable
+    public record class Post: TimeStampz, IPost, ICommentable
     {
 
         #region PROPERTIES
