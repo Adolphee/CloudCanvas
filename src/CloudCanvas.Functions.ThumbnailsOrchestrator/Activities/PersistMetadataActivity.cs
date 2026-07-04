@@ -1,4 +1,4 @@
-using CloudCanvas.Application.Abstractions.Persistence;
+using CloudCanvas.Application.Abstractions.Cosmos;
 using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Application.Common.Exceptions;
 using CloudCanvas.Domain.Common.Enums;
@@ -11,9 +11,9 @@ using Microsoft.Extensions.Logging;
 
 namespace CloudCanvas.Functions.ThumbnailOrchestrator.Activities;
 
-public class PersistMetadataActivity(IPostsRepository<IPost> cosmos)
+public class PersistMetadataActivity(IPostsRepositoryCosmos<IPost> cosmos)
 {
-    private readonly IPostsRepository<IPost> _cosmos = cosmos;
+    private readonly IPostsRepositoryCosmos<IPost> _cosmos = cosmos;
 
     [Function(nameof(PersistMetadataActivity))]
     public async Task<BlobMetadata> Run([ActivityTrigger] RequestContext req, FunctionContext context)

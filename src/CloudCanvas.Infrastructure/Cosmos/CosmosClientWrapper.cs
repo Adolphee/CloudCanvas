@@ -1,5 +1,6 @@
-﻿using CloudCanvas.Application.Abstractions.Persistence;
+﻿using CloudCanvas.Application.Abstractions.Cosmos;
 using CloudCanvas.Application.Posts.DTOs;
+using CloudCanvas.Domain.Posts;
 using CloudCanvas.Domain.Posts.Contracts;
 using CloudCanvas.Infrastructure.DTOs;
 using CloudCanvas.Infrastructure.Exceptions;
@@ -8,7 +9,7 @@ using Microsoft.Azure.Cosmos.Linq;
 
 namespace CloudCanvas.Infrastructure.Cosmos
 {
-    public class CosmosClientWrapper<T> : IPostsRepository<T> where T : IPost
+    public class CosmosClientWrapper<T> : IPostsRepositoryCosmos<T> where T : IPost
     {
         private readonly CosmosClient _client;
         private Container? _container;
@@ -44,6 +45,18 @@ namespace CloudCanvas.Infrastructure.Cosmos
             var container = _client.GetContainer(CloudCosmos.Sql, containerName);
             ItemResponse<T> result;
             var partitionKey = new PartitionKey(metadata.UserId);
+            if (metadata.Id == null) metadata.Id = Guid.NewGuid().ToString();
+            if (overWrite) result = await container.ReplaceItemAsync(metadata, metadata.Id, partitionKey);
+            else result = await container.CreateItemAsync(metadata, partitionKey);
+            return result.Resource;
+        }
+        
+        public async Task<PhotoDTO> SavePhotoAsync(PhotoDTO metadata, string containerName, bool overWrite = true)
+        {
+            var container = _client.GetContainer(CloudCosmos.Sql, containerName);
+            ItemResponse<PhotoDTO> result;
+            if (metadata.Id == null) metadata.Id = Guid.NewGuid().ToString();
+            var partitionKey = new PartitionKey(metadata.Creator?.Id);
             if (overWrite) result = await container.ReplaceItemAsync(metadata, metadata.Id, partitionKey);
             else result = await container.CreateItemAsync(metadata, partitionKey);
             return result.Resource;
@@ -82,11 +95,11 @@ namespace CloudCanvas.Infrastructure.Cosmos
             return _container;
         }
 
-        public async Task<List<T>> ListBlobsAsync(string containerName)
+        public async Task<List<Post>> ListBlobsAsync(string containerName)
         {
             var con = GetContainer(containerName);
-            var queryable = con.GetItemLinqQueryable<T>().Where(x => x.DeletedOn <= DateTimeOffset.MinValue);
-            var res = new List<T>();
+            var queryable = con.GetItemLinqQueryable<Post>().Where(x => x.DeletedOn <= DateTimeOffset.MinValue);
+            var res = new List<Post>();
             using var iterator = queryable.ToFeedIterator();
             while (iterator.HasMoreResults)
             {
@@ -100,12 +113,12 @@ namespace CloudCanvas.Infrastructure.Cosmos
         {
             var con = GetContainer(containerName);
             var res = new List<PhotoDTO>();
-            using var queryable = con.GetItemQueryIterator<BlobMetadata>();
+            using var queryable = con.GetItemQueryIterator<PhotoDTO>();
             while (queryable.HasMoreResults)
             {
                 var feedResponse = await queryable.ReadNextAsync();
-                var availableItems = feedResponse.Where(i => i.DeletedOn is null || i.DeletedOn <= DateTimeOffset.MinValue);
-                res.AddRange(availableItems.Select(b => b.ToPhotoDTO()));
+                var availableItems = feedResponse.Where(i => i.TimeStamps.DeletedOn <= DateTimeOffset.MinValue);
+                res.AddRange(availableItems);
             }
             return res.ToList();
         }
@@ -170,7 +183,7 @@ namespace CloudCanvas.Infrastructure.Cosmos
             throw new NotImplementedException();
         }
 
-        Task<List<T>> IPostsRepository<T>.ListPostsAsync(string containerName)
+        Task<List<T>> IPostsRepositoryCosmos<T>.ListPostsAsync(string containerName)
         {
             throw new NotImplementedException();
         }
