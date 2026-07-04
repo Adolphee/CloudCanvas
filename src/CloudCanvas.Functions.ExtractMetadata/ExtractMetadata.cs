@@ -1,5 +1,5 @@
 using Azure.Messaging.ServiceBus;
-using CloudCanvas.Application.Abstractions.Persistence;
+using CloudCanvas.Application.Abstractions.Cosmos;
 using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Domain.Common.Enums;
 using CloudCanvas.Domain.Posts;
@@ -12,12 +12,12 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 namespace CloudCanvas.Functions.ExtractMetadata;
 
-public class ExtractMetadata(ILogger<ExtractMetadata> logger, IBlobStorageService blobSerivce, IServiceBusPublisher service, IPostsRepository<IPost> cosmos)
+public class ExtractMetadata(ILogger<ExtractMetadata> logger, IBlobStorageService blobSerivce, IServiceBusPublisher service, IPostsRepositoryCosmos<IPost> cosmos)
 {
     private readonly ILogger<ExtractMetadata> _logger = logger;
     private readonly IBlobStorageService _blobSerivce = blobSerivce;
     private readonly IServiceBusPublisher _sbAdapter = service;
-    private readonly IPostsRepository<IPost> _cosmos = cosmos;
+    private readonly IPostsRepositoryCosmos<IPost> _cosmos = cosmos;
 
     /// <summary>
     /// Processes a blob triggered by an upload event, extracts metadata, and sends a message to a Service Bus topic.

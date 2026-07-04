@@ -1,6 +1,6 @@
 using Azure.Identity;
 using Azure.Storage.Blobs;
-using CloudCanvas.Application.Abstractions.Persistence;
+using CloudCanvas.Application.Abstractions.Cosmos;
 using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Application.Posts.Photos.Queries.GetPhotos;
 using CloudCanvas.Domain.Posts.Contracts;
@@ -17,7 +17,7 @@ var builder = FunctionsApplication.CreateBuilder(args);
 builder.ConfigureFunctionsWebApplication();
 
 builder.Services.AddScoped<GetAllPhotosRequestHandler>();
-builder.Services.AddScoped<IPostsRepository<IPost>, CosmosClientWrapper<IPost>>();
+builder.Services.AddScoped<IPostsRepositoryCosmos<IPost>, CosmosClientWrapper<IPost>>();
 builder.Services.AddSingleton(cc =>
 {
     var accountEndpoint = Environment.GetEnvironmentVariable(CloudCosmos.Uri);

@@ -2,7 +2,7 @@
 using CloudCanvas.Application.Posts.DTOs;
 using CloudCanvas.Application.Posts.Photos.Queries.GetPhotos;
 using Mapster;
-using ICosmosRepo = CloudCanvas.Application.Abstractions.Persistence.IPostsRepository<CloudCanvas.Domain.Posts.Contracts.IPost>;
+using ICosmosRepo = CloudCanvas.Application.Abstractions.Cosmos.IPostsRepositoryCosmos<CloudCanvas.Domain.Posts.Contracts.IPost>;
 
 namespace CloudCanvas.Application.Posts.Photos.Queries.GetPhotosByUser
 {

@@ -1,7 +1,7 @@
 using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
-using CloudCanvas.Application.Abstractions.Persistence;
+using CloudCanvas.Application.Abstractions.Cosmos;
 using CloudCanvas.Application.Common;
 using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Domain.Posts.Contracts;
@@ -27,7 +27,7 @@ builder.Services.AddSingleton(cc =>
 
 //builder.Services.AddScoped<IPost>(); // return a photo because metadata extraction doesn't make sense
 // COSMOS DB
-builder.Services.AddTransient<IPostsRepository<IPost>, CosmosClientWrapper<IPost>>();
+builder.Services.AddTransient<IPostsRepositoryCosmos<IPost>, CosmosClientWrapper<IPost>>();
 builder.Services.AddSingleton(bsc =>
 {
     var endpoint = Environment.GetEnvironmentVariable(CloudCosmos.Uri);

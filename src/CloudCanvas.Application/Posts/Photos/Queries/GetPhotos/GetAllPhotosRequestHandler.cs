@@ -1,7 +1,7 @@
 ﻿using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Domain.Common.Enums;
 using CloudCanvas.Domain.Posts;
-using ICosmosRepo = CloudCanvas.Application.Abstractions.Persistence.IPostsRepository<CloudCanvas.Domain.Posts.Contracts.IPost>;
+using ICosmosRepo = CloudCanvas.Application.Abstractions.Cosmos.IPostsRepositoryCosmos<CloudCanvas.Domain.Posts.Contracts.IPost>;
 using CloudCanvas.Application.Reactions.Common;
 using CloudCanvas.Domain.Posts.Contracts;
 using CloudCanvas.Application.Posts.DTOs;
@@ -26,7 +26,7 @@ namespace CloudCanvas.Application.Posts.Photos.Queries.GetPhotos
 
         public async Task<GetAllPhotosQueryResult> Handle(GetAllPostsQuery query)
         {
-            var posts = await _cosmos.GetPhotosAsync(query?.ContainerName ?? CloudCosmos.Containers.BlobMeta);
+            var posts = await _cosmos.GetPhotosAsync(CloudCosmos.Containers.UserPhotos);
             var res = new GetAllPhotosQueryResult(posts);
 
             return res;
@@ -41,27 +41,6 @@ namespace CloudCanvas.Application.Posts.Photos.Queries.GetPhotos
                 toObject.UserTags = ((Gallery)fromObject).UserTags;
             }
             return toObject;
-        }
-
-        private ReactionsOverviewDTO GetReactionsOverview(IPost fromObject)
-        {
-            return new()
-            {
-                Likes = fromObject.LikesCount(),
-                Dislikes = fromObject.DisLikesCount(),
-                EmojiReactions = fromObject.EmojiReactions.Count
-            };
-        }
-
-        private void SetIdentityDetails(IPost fromObject, PostDTO toObject)
-        {
-            toObject.Id = fromObject.Id;
-            toObject.Creator = new Creator
-            {
-                Id = fromObject.UserId!
-            };
-            toObject.CreatedOn = fromObject.CreatedOn;
-            toObject.DeletedOn = fromObject.DeletedOn;
         }
 
         public PhotoDTO SetPhotoDetails(IPost fromObject, PhotoDTO toObject, bool force = false)

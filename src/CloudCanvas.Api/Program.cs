@@ -1,17 +1,20 @@
 
 using Azure.Identity;
+using CloudCanvas.Application.Abstractions.Cosmos;
 using CloudCanvas.Application.Abstractions.Persistence;
 using CloudCanvas.Domain.Posts;
 using CloudCanvas.Domain.Posts.Contracts;
 using CloudCanvas.Infrastructure;
 using CloudCanvas.Infrastructure.Cosmos;
-using MapsterMapper;
+using CloudCanvas.Infrastructure.Persistence;
+using CloudCanvas.Infrastructure.Persistence.Repositories;
 using Mapster;
+using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Azure.Cosmos;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
-
 using WebApplication = Microsoft.AspNetCore.Builder.WebApplication;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,10 +27,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddControllers();
 builder.Services.AddTransient<IPost, Post>();
-builder.Services.AddTransient(typeof(IPostsRepository<>), typeof(CosmosClientWrapper<>));
+builder.Services.AddTransient(typeof(IPostsRepositoryCosmos<>), typeof(CosmosClientWrapper<>));
 
 builder.Services.AddTransient<CosmosClientWrapper<Post>>();
-
+builder.Services.AddTransient<IPhotoRepositoryEF, PhotoRepositoryEF>();
+builder.Services.AddDbContext<CCDBContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("localdb"));
+});
 var config = TypeAdapterConfig.GlobalSettings;
 builder.Services.AddSingleton(config);
 builder.Services.AddScoped<IMapper, Mapper>();
@@ -47,6 +54,8 @@ builder.Services.AddSingleton( cc =>
         }
     });
 });
+
+
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
