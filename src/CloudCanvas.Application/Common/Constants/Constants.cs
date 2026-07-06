@@ -78,6 +78,11 @@ namespace CloudCanvas.Application.Common.Constants
         }
     }
 
+    public abstract class SQLServer
+    {
+        public const string ConnectionString = "sqlserver";
+    }
+
     public abstract class Secrets
     {
         public const string MNSTRG = "MNSTRG";
@@ -89,5 +94,11 @@ namespace CloudCanvas.Application.Common.Constants
     public abstract class Config
     {
         public const string MaxMessageLength = "MAX_MSG_LEN";
+    }
+
+    public abstract class CCClaimTypes
+    {
+        public const string ObjectIdentfier = "http://schemas.microsoft.com/identity/claims/objectidentifier";
+        public const string Name = "name";
     }
 }

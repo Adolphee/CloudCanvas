@@ -22,8 +22,8 @@ namespace CloudCanvas.Application.Abstractions.Cosmos
         /// <param name="obj">The object to be saved. Cannot be <see langword="null"/>.</param>
         /// <param name="containerName">The name of the container where the object will be saved. Cannot be <see langword="null"/> or empty.</param>
         /// <returns>A task that represents the asynchronous save operation. The task result contains the saved object.</returns>
-        Task<T> SaveMetadataAsync(T obj, string containerName, bool overWrite = false);
-        Task<PhotoDTO> SavePhotoAsync(PhotoDTO metadata, string containerName, bool overWrite = true);
+        Task<T> SaveMetadataAsync(T obj, string containerName, bool overWrite = false, CancellationToken cancellationToken = default);
+        Task<PhotoDTO> SavePhotoAsync(PhotoDTO metadata, string containerName, bool overWrite = true, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Retrieves a collection of items of the specified type from the given container.
@@ -34,17 +34,17 @@ namespace CloudCanvas.Application.Abstractions.Cosmos
         /// <typeparam name="T">The type of items to retrieve from the container.</typeparam>
         /// <param name="containerName">The name of the container to query. Must not be null or empty.</param>
         /// <returns>An <see cref="Container"/> The specified container. Returns an empty collection if the container is empty or does not exist.</returns>
-        Task<bool> DeleteDocumentAsync(T item, string containerName);
+        Task<bool> DeleteDocumentAsync(T item, string containerName, CancellationToken cancellationToken = default);
 
-        Task<List<Post>> ListBlobsAsync(string containerName);
+        Task<List<Post>> ListBlobsAsync(string containerName, CancellationToken cancellationToken = default);
 
-        Task<List<T>> ListPostsAsync(string containerName);
-        Task<List<PostDTO>> GetPostsAsync(string containerName);
-        Task<List<PhotoDTO>> GetPhotosAsync(string containerName);
-        Task<List<PhotoDTO>> GetUserPhotosAsync(string userId, string containerName);
-        Task<T> SingleAsync(string documentId, string partitionKey, string containerName);
-        Task<bool> ExistsAsync(string containerName, string id, string partitionKey);
-        Task<T> PatchItemAsync(string id, string partitionKey, string containerName, IReadOnlyList<IPatchOperation<T>> ops);
-        Task<T> PatchItemAsync(string id, string partitionKey, string containerName, IReadOnlyList<Dictionary<string, string?>> ops);
+        Task<List<T>> ListPostsAsync(string containerName, CancellationToken cancellationToken = default);
+        Task<List<PostDTO>> GetPostsAsync(string containerName, CancellationToken cancellationToken = default);
+        Task<List<PhotoDTO>> GetPhotosAsync(string containerName, CancellationToken cancellationToken = default);
+        Task<List<PhotoDTO>> GetUserPhotosAsync(string userId, string containerName, CancellationToken cancellationToken = default);
+        Task<T> SingleAsync(string documentId, string partitionKey, string containerName, CancellationToken cancellationToken = default);
+        Task<bool> ExistsAsync(string containerName, string id, string partitionKey, CancellationToken cancellationToken = default);
+        Task<T> PatchItemAsync(string id, string partitionKey, string containerName, IReadOnlyList<IPatchOperation<T>> ops, CancellationToken cancellationToken = default);
+        Task<T> PatchItemAsync(string id, string partitionKey, string containerName, IReadOnlyList<Dictionary<string, string?>> ops, CancellationToken cancellationToken = default);
     }
 }

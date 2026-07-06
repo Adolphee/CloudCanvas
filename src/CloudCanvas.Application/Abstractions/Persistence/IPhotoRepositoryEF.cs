@@ -11,6 +11,7 @@ namespace CloudCanvas.Application.Abstractions.Persistence
         Task<string?> AddPhotoAsync(Photo photo, CancellationToken cancellation = default);
         Task<Photo?> GetPhotoByIdAsync(string id, CancellationToken cancellation = default);
         Task<bool> DeletePhotoAsync(string id, CancellationToken cancellation = default, bool softDelete = true);
-        Task<Photo?> UpdatePhotoAsynce(Photo photo, CancellationToken cancellation = default);
+        Task<bool> ExistsAsync(string id, CancellationToken cancellation = default);
+        Task<bool> UpdatePhotoAsynce(Photo photo, CancellationToken cancellation = default);
     }
 }

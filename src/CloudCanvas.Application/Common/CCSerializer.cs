@@ -51,7 +51,7 @@ namespace CloudCanvas.Application.Common
                 OriginalFilename = oFilename,
                 CreatedOn = props.CreatedOn,
                 ProcessingStage = (int)BlobProcessingStage.UploadSuccessful, // TOFIX: this is misleading when this method is not 
-                Metadata = props.Metadata,
+                Metadata = props.Metadata.ToDictionary(),
                 Thumbnails = new Dictionary<ThumbnailSize, string>(),
                 UploadedBy = uploadedBy,
                 Name = identifier,
