@@ -3,21 +3,6 @@ using CloudCanvas.Domain.Posts;
 
 namespace CloudCanvas.Application.Posts.DTOs
 {
-    public sealed record Creator
-    {
-        public string Id { get; set; }
-        public string? UserName { get; set; }
-        public string? DisplayName { get; set; }
-        public Creator() { }
-        public Creator(string id, string? username, string? displayName)
-        {
-            Id = id;
-            UserName = username?? "Unknown User";
-            DisplayName = displayName?? "No display name" ;
-        }
-    }
-
-
     public sealed record GalleryDTO: PostDTO
     {
         public List<PhotoDTO> Photos { get; set; } = new();

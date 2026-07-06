@@ -4,6 +4,7 @@ using CloudCanvas.Domain.Common.Enums;
 using CloudCanvas.Domain.Posts;
 using CloudCanvas.Domain.Posts.Contracts;
 using CloudCanvas.Domain.Thumbnail;
+using Mapster;
 using System.ComponentModel.DataAnnotations;
 
 namespace CloudCanvas.Application.Posts.DTOs
@@ -29,7 +30,7 @@ namespace CloudCanvas.Application.Posts.DTOs
         public long TagCount { get; set; }
         public string? ContentLanguage { get; set; }
         public bool HasLegalHold { get; internal set; }
-        public IDictionary<string, string> Metadata { get; set; } = new Dictionary<string, string>(); // any additional/custom metadata
+        public Dictionary<string, string> Metadata { get; set; } = new(); // any additional/custom metadata
         public DateTimeOffset CopyCompletedOn { get; set; } = new();
         public string? CopyStatusDescription { get; set; }
         public string? CopyId { get; set; }
@@ -96,12 +97,6 @@ namespace CloudCanvas.Application.Posts.DTOs
                 UserTags = UserTags ?? default!,
                 ContentLength = ContentLength,
                 Location = this.Location,
-                Creator = new Creator
-                {
-                    Id = this.UserId!,
-                    DisplayName = "Anonymous User", ///TODO: make creator info dynamic
-                    UserName = "anon12345"
-                },
                 Classification = nameof(PostClassification.Photo),
                 Thumbnails = this.Thumbnails.ToDictionary(k => k.ToString(), v => v.Value),
                 TimeStamps = new()

@@ -17,7 +17,8 @@ namespace CloudCanvas.Application.Posts.DTOs
         public string? Title { get; set; }
         public long ContentLength { get; set; }
         public List<string>? UserTags { get; set; }
-        public Dictionary<string, string>? Thumbnails { get; set; } = new();
+        public Dictionary<string, string> Thumbnails { get; set; } = new();
+        public string? GalleryId { get; set; } = default!;
 
         public PhotoDTO()
         {
