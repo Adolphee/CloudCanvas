@@ -4,10 +4,11 @@ using CloudCanvas.Domain.Common.Enums;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json.Serialization;
 
-namespace CloudCanvas.Application.Posts.Photos.Commands
+namespace CloudCanvas.Application.Posts.Photos.Commands.SavePhoto
 {
-    public sealed record SavePhotoCommand: TimeStampz
+    public record CreatePhotoCommand: TimeStampz
     {
         public string UserId { get; set; } = default!;
         public string? Caption { get; set; } = default!;
@@ -18,7 +19,10 @@ namespace CloudCanvas.Application.Posts.Photos.Commands
         public string? GalleryId { get; set; } = default!;
         public bool CommentsEnabled { get; set; } = true;
         public PostClassification Classification { get; set; } = PostClassification.Photo;
+        public int ContentLength { get; set; }
         public List<string>? UserTags { get; set; } = new();
         public TimeStampz? TimeStamps { get; set; } = new();
+        [JsonIgnore]
+        public Creator? Creator = null;
     }
 }
