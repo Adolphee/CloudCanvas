@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CloudCanvas.Infrastructure.Migrations
 {
     [DbContext(typeof(CCDBContext))]
-    [Migration("20260624225105_InitialMigration")]
+    [Migration("20260705163927_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -117,6 +117,9 @@ namespace CloudCanvas.Infrastructure.Migrations
                     b.Property<DateTimeOffset>("DeletedOn")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<string>("Location")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTimeOffset>("ModifiedOn")
                         .HasColumnType("datetimeoffset");
 
@@ -125,9 +128,6 @@ namespace CloudCanvas.Infrastructure.Migrations
 
                     b.Property<DateTimeOffset>("UnpublishedOn")
                         .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Location")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -198,7 +198,7 @@ namespace CloudCanvas.Infrastructure.Migrations
                     b.Property<int>("Size")
                         .HasColumnType("int");
 
-                    b.Property<string>("Location")
+                    b.Property<string>("Url")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -233,7 +233,7 @@ namespace CloudCanvas.Infrastructure.Migrations
                     b.Property<DateTimeOffset?>("DeletedOn")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("Caption")
+                    b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
@@ -438,7 +438,7 @@ namespace CloudCanvas.Infrastructure.Migrations
                 {
                     b.HasBaseType("CloudCanvas.Domain.Posts.Post");
 
-                    b.Property<string>("Caption")
+                    b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DisplayName")

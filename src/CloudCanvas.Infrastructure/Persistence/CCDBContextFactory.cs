@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
+using SQLServer = CloudCanvas.Application.Common.Constants.SQLServer;
 
 namespace CloudCanvas.Infrastructure.Persistence;
 
@@ -22,7 +23,7 @@ public sealed class CCDBContextFactory : IDesignTimeDbContextFactory<CCDBContext
             .AddEnvironmentVariables()
             .Build();
 
-        var conn_str = config.GetConnectionString("localdb");
+        var conn_str = config.GetConnectionString(SQLServer.ConnectionString);
 
         var optionsBuilder = new DbContextOptionsBuilder<CCDBContext>();
         optionsBuilder.UseSqlServer(conn_str);

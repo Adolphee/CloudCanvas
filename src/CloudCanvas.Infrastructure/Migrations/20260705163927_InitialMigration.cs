@@ -195,7 +195,7 @@ namespace CloudCanvas.Infrastructure.Migrations
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Classification = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Url = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Location = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ContentLength = table.Column<long>(type: "bigint", nullable: false),
                     CommentsEnabled = table.Column<bool>(type: "bit", nullable: false),
                     PublishedOn = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),

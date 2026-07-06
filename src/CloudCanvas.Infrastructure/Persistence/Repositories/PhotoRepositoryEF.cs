@@ -1,5 +1,6 @@
 ﻿using CloudCanvas.Application.Abstractions.Persistence;
 using CloudCanvas.Domain.Posts;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,7 +12,7 @@ namespace CloudCanvas.Infrastructure.Persistence.Repositories
         private readonly CCDBContext _contex = ctx;
         public async Task<string?> AddPhotoAsync(Photo photo, CancellationToken cancellation)
         {
-            var res = _contex.Add(photo);
+            var res = _contex.Photos.Add(photo);
             return await _contex.SaveChangesAsync(cancellation) > 0? res.Entity.Id: null;
         }
 
@@ -20,14 +21,15 @@ namespace CloudCanvas.Infrastructure.Persistence.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<Photo?> GetPhotoByIdAsync(string id, CancellationToken cancellation)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<bool> ExistsAsync(string id, CancellationToken cancellation = default) 
+            => await _contex.Photos.AnyAsync(x => x.Id == id, cancellation);
 
-        public Task<Photo?> UpdatePhotoAsynce(Photo photo, CancellationToken cancellation)
-        {
-            throw new NotImplementedException();
+        public async Task<Photo?> GetPhotoByIdAsync(string id, CancellationToken cancellation = default)
+            => await _contex.Photos.FindAsync(id, cancellation);
+
+        public async Task<bool> UpdatePhotoAsynce(Photo photo, CancellationToken cancellation = default){
+            _contex.Update(photo);
+            return await _contex.SaveChangesAsync(cancellation) == 1;
         }
     }
 }
