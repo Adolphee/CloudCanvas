@@ -14,7 +14,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using SQLServer = CloudCanvas.Application.Common.Constants.SQLServer;
 using WebApplication = Microsoft.AspNetCore.Builder.WebApplication;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,8 +26,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .EnableTokenAcquisitionToCallDownstreamApi()
             //.AddMicrosoftGraph(builder.Configuration.GetSection("MicrosoftGraph"))
             .AddInMemoryTokenCaches();
-
 builder.Services.AddControllers();
+
+builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddTransient<IPost, Post>();
 builder.Services.AddTransient(typeof(IPostsRepositoryCosmos<>), typeof(CosmosClientWrapper<>));
 
@@ -33,17 +37,21 @@ builder.Services.AddTransient<CosmosClientWrapper<Post>>();
 builder.Services.AddTransient<IPhotoRepositoryEF, PhotoRepositoryEF>();
 builder.Services.AddDbContext<CCDBContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("localdb"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString(SQLServer.ConnectionString));
 });
 var config = TypeAdapterConfig.GlobalSettings;
 builder.Services.AddSingleton(config);
 builder.Services.AddScoped<IMapper, Mapper>();
 
+var options = new JsonSerializerOptions
+{
+    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+};
+
 builder.Services.AddSingleton( cc =>
 {
     var endpoint = Environment.GetEnvironmentVariable(CloudCosmos.Uri);
 
-    //settings.Converters.Add(new PostJsonConverter());
     return new CosmosClient(endpoint, new DefaultAzureCredential(), new CosmosClientOptions
     {
         ConnectionMode = ConnectionMode.Gateway,
@@ -54,7 +62,6 @@ builder.Services.AddSingleton( cc =>
         }
     });
 });
-
 
 builder.Services.AddOpenApi();
 
