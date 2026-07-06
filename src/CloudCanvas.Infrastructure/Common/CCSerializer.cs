@@ -54,7 +54,7 @@ namespace CloudCanvas.Infrastructure.Common
                 CreatedOn = props.CreatedOn,
                 ContainerName = containerName,
                 ProcessingStage = 0, // TOFIX: this is misleading when this method is not 
-                Metadata = props.Metadata,
+                Metadata = props.Metadata.ToDictionary(),
                 Thumbnails = new Dictionary<ThumbnailSize, string>(),
                 UploadedBy = uploadedBy,
                 Name = identifier,

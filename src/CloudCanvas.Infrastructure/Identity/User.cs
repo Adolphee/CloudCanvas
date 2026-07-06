@@ -12,6 +12,7 @@ public class User : IdentityUser
     public string? FirstName { get; set; } = default!;
     public string? LastName { get; set; } = default!;
     public string? AboutMe { get; set; } = default!;
+    public string? DisplayName { get; set; }
     public string? ProPicUrl { get; set; } = default!;
     public Address? Address { get; set; }
     public DateTimeOffset? CreatedOn { get; set; }
@@ -39,5 +40,6 @@ public class User : IdentityUser
     [NotMapped]
     public List<Dislike> Dislikes => Reactions.Where(r => r.Type.Equals(ReactionType.Dislike))
         .OfType<Dislike>().ToList();
+
     #endregion
 }
