@@ -10,7 +10,7 @@ namespace CloudCanvas.Application.Posts.Photos.Queries.GetPhotosByUser
         public string UserId { get; set; }
         public string ContainerName { get; set; }
 
-        public GetUserPhotosQuery(string id, string container = CloudCosmos.Containers.BlobMeta)
+        public GetUserPhotosQuery(string id, string container = CloudCosmos.Containers.UserPhotos)
         {
             UserId = id;
             ContainerName = container;

@@ -11,7 +11,7 @@ namespace CloudCanvas.Application.Posts.Photos.Queries.GetPhotosByUser
         private ICosmosRepo _cosmos = cosmos;
         public async Task<GetUserPhotosQueryResult> Handle(GetUserPhotosQuery query)
         {
-            var posts = await _cosmos.GetUserPhotosAsync(query.UserId, query?.ContainerName ?? CloudCosmos.Containers.BlobMeta);
+            var posts = await _cosmos.GetUserPhotosAsync(query.UserId, query?.ContainerName ?? CloudCosmos.Containers.UserPhotos);
             return new GetUserPhotosQueryResult(posts);
         }
     }
