@@ -4,6 +4,7 @@ using CloudCanvas.Domain.Posts;
 using CloudCanvas.Domain.Posts.Contracts;
 using CloudCanvas.Infrastructure.DTOs;
 using CloudCanvas.Infrastructure.Exceptions;
+using Mapster;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 
@@ -18,10 +19,10 @@ namespace CloudCanvas.Infrastructure.Cosmos
             _client = client;
         }
 
-        public async Task<T> PatchItemAsync(string identifier, string userId, string containerName, IReadOnlyList<PatchOperation> ops)
+        public async Task<T> PatchItemAsync(string identifier, string userId, string containerName, IReadOnlyList<PatchOperation> ops, CancellationToken cancellationToken = default)
         {
             _container = GetContainer(containerName);
-            var metadata = await _container.PatchItemAsync<T>(id: identifier, partitionKey: new PartitionKey(userId), patchOperations: ops);
+            var metadata = await _container.PatchItemAsync<T>(id: identifier, partitionKey: new PartitionKey(userId), patchOperations: ops, cancellationToken: cancellationToken);
             return metadata;
         }
 
@@ -40,34 +41,34 @@ namespace CloudCanvas.Infrastructure.Cosmos
         /// <returns>The saved object as returned by Cosmos DB after the upsert operation.</returns>
         /// <exception cref="ArgumentException">Thrown if the <paramref name="metadata"/> is invalid, or if the <see cref="MetadataDocumentBase.Id"/> or <see
         /// cref="MetadataDocumentBase.UserId"/> properties are null, empty, or whitespace.</exception>
-        public async Task<T> SaveMetadataAsync(T metadata, string containerName, bool overWrite = true)
+        public async Task<T> SaveMetadataAsync(T metadata, string containerName, bool overWrite = true, CancellationToken cancellationToken = default)
         {
             var container = _client.GetContainer(CloudCosmos.Sql, containerName);
             ItemResponse<T> result;
             var partitionKey = new PartitionKey(metadata.UserId);
             if (metadata.Id == null) metadata.Id = Guid.NewGuid().ToString();
-            if (overWrite) result = await container.ReplaceItemAsync(metadata, metadata.Id, partitionKey);
-            else result = await container.CreateItemAsync(metadata, partitionKey);
+            if (overWrite) result = await container.ReplaceItemAsync(metadata, metadata.Id, partitionKey, cancellationToken: cancellationToken);
+            else result = await container.CreateItemAsync(metadata, partitionKey, cancellationToken: cancellationToken);
             return result.Resource;
         }
         
-        public async Task<PhotoDTO> SavePhotoAsync(PhotoDTO metadata, string containerName, bool overWrite = true)
+        public async Task<PhotoDTO> SavePhotoAsync(PhotoDTO metadata, string containerName, bool overWrite = true, CancellationToken cancellationToken = default)
         {
             var container = _client.GetContainer(CloudCosmos.Sql, containerName);
             ItemResponse<PhotoDTO> result;
             if (metadata.Id == null) metadata.Id = Guid.NewGuid().ToString();
-            var partitionKey = new PartitionKey(metadata.Creator?.Id);
-            if (overWrite) result = await container.ReplaceItemAsync(metadata, metadata.Id, partitionKey);
-            else result = await container.CreateItemAsync(metadata, partitionKey);
+            var partitionKey = new PartitionKey(metadata.Creator!.GetId());
+            if (overWrite) result = await container.ReplaceItemAsync(metadata, metadata.Id, partitionKey, cancellationToken: cancellationToken);
+            else result = await container.CreateItemAsync(metadata, partitionKey, cancellationToken: cancellationToken);
             return result.Resource;
         }
 
-        public async Task<bool> ExistsAsync(string containerName, string id, string partitionKey)
+        public async Task<bool> ExistsAsync(string containerName, string id, string partitionKey, CancellationToken cancellationToken = default)
         {
             var container = GetContainer(containerName);
             try
             {
-                await container.ReadItemAsync<BlobMetadata>(id, new PartitionKey(partitionKey));
+                await container.ReadItemAsync<BlobMetadata>(id, new PartitionKey(partitionKey), cancellationToken: cancellationToken);
                 return true;
             }
             catch (CosmosException)
@@ -95,7 +96,7 @@ namespace CloudCanvas.Infrastructure.Cosmos
             return _container;
         }
 
-        public async Task<List<Post>> ListBlobsAsync(string containerName)
+        public async Task<List<Post>> ListBlobsAsync(string containerName, CancellationToken cancellationToken = default)
         {
             var con = GetContainer(containerName);
             var queryable = con.GetItemLinqQueryable<Post>().Where(x => x.DeletedOn <= DateTimeOffset.MinValue);
@@ -103,66 +104,66 @@ namespace CloudCanvas.Infrastructure.Cosmos
             using var iterator = queryable.ToFeedIterator();
             while (iterator.HasMoreResults)
             {
-                var resItems = await iterator.ReadNextAsync();
+                var resItems = await iterator.ReadNextAsync(cancellationToken: cancellationToken);
                 res.AddRange(resItems.ToList());
             }
             return res;
         }
 
-        public async Task<List<PhotoDTO>> GetPhotosAsync(string containerName)
+        public async Task<List<PhotoDTO>> GetPhotosAsync(string containerName, CancellationToken cancellationToken = default)
         {
             var con = GetContainer(containerName);
-            var res = new List<PhotoDTO>();
+            var res = new List<PhotoDTO>(); 
             using var queryable = con.GetItemQueryIterator<PhotoDTO>();
             while (queryable.HasMoreResults)
             {
-                var feedResponse = await queryable.ReadNextAsync();
+                var feedResponse = await queryable.ReadNextAsync(cancellationToken: cancellationToken);
                 var availableItems = feedResponse.Where(i => i.TimeStamps.DeletedOn <= DateTimeOffset.MinValue);
                 res.AddRange(availableItems);
             }
             return res.ToList();
         }
 
-        public async Task<List<PostDTO>> GetPostsAsync(string containerName)
+        public async Task<List<PostDTO>> GetPostsAsync(string containerName, CancellationToken cancellationToken = default)
         {
             var con = GetContainer(containerName);
             var res = new List<PostDTO>();
             using var queryable = con.GetItemQueryIterator<BlobMetadata>();
             while (queryable.HasMoreResults)
             {
-                var feedResponse = await queryable.ReadNextAsync();
+                var feedResponse = await queryable.ReadNextAsync(cancellationToken: cancellationToken);
                 var availableItems = feedResponse.Where(i => i.DeletedOn is null || i.DeletedOn <= DateTimeOffset.MinValue);
-                res.AddRange(availableItems.Select(b => b.ToPhotoDTO()));
+                res.AddRange(availableItems.Adapt<List<PostDTO>>());
             }
             return res;
         }
 
-        public async Task<List<PhotoDTO>> GetUserPhotosAsync(string userId, string containerName)
+        public async Task<List<PhotoDTO>> GetUserPhotosAsync(string userId, string containerName, CancellationToken cancellationToken = default)
         {
             var con = GetContainer(containerName);
             var res = new List<PhotoDTO>();
-            using var queryable = con.GetItemQueryIterator<BlobMetadata>();
+            using var queryable = con.GetItemQueryIterator<PhotoDTO>();
 
             while (queryable.HasMoreResults)
             {
-                var feedResponse = await queryable.ReadNextAsync();
-                var availableItems = feedResponse.Where(i => i.UserId == userId && (i.DeletedOn is null || i.DeletedOn <= DateTimeOffset.MinValue));
-                res.AddRange(availableItems.Select(i => i.ToPhotoDTO()));
+                var feedResponse = await queryable.ReadNextAsync(cancellationToken: cancellationToken);
+                var availableItems = feedResponse.Where(i => i.UserId == userId && (i.TimeStamps.DeletedOn <= DateTimeOffset.MinValue));
+                res.AddRange(availableItems.Adapt<List<PhotoDTO>>());
             }
             return res;
         }
 
-        public async Task<bool> DeleteDocumentAsync(T meta, string containerName = CloudCosmos.Containers.BlobMeta)
+        public async Task<bool> DeleteDocumentAsync(T meta, string containerName, CancellationToken cancellationToken = default)
         {
             var container = GetContainer(containerName);
-            var result = await container.DeleteItemAsync<BlobMetadata>(meta.Id, new PartitionKey(meta.UserId));
+            var result = await container.DeleteItemAsync<BlobMetadata>(meta.Id, new PartitionKey(meta.UserId), cancellationToken: cancellationToken);
             return result == null;
         }
 
-        public async Task<T> SingleAsync(string documentId, string userId, string containerName = CloudCosmos.Containers.BlobMeta)
+        public async Task<T> SingleAsync(string documentId, string userId, string containerName, CancellationToken cancellationToken = default)
         {
             var container = GetContainer(containerName);
-            var blob = await container.ReadItemAsync<T>(documentId, new PartitionKey(userId));
+            var blob = await container.ReadItemAsync<T>(documentId, new PartitionKey(userId), cancellationToken: cancellationToken);
             if (blob == null) throw new CosmosDocumentNotFoundException
             {
                 ContainerName = containerName,
@@ -173,17 +174,17 @@ namespace CloudCanvas.Infrastructure.Cosmos
             return blob;
         }
 
-        public Task<T> PatchItemAsync(string id, string partitionKey, string containerName, IReadOnlyList<IPatchOperation<T>> ops)
+        public Task<T> PatchItemAsync(string id, string partitionKey, string containerName, IReadOnlyList<IPatchOperation<T>> ops, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
-        public Task<T> PatchItemAsync(string id, string partitionKey, string containerName, IReadOnlyList<Dictionary<string, string?>> ops)
+        public Task<T> PatchItemAsync(string id, string partitionKey, string containerName, IReadOnlyList<Dictionary<string, string?>> ops, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
-        Task<List<T>> IPostsRepositoryCosmos<T>.ListPostsAsync(string containerName)
+        Task<List<T>> IPostsRepositoryCosmos<T>.ListPostsAsync(string containerName, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

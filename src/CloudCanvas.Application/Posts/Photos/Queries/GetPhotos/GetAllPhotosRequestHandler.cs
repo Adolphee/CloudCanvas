@@ -7,15 +7,8 @@ using CloudCanvas.Domain.Posts.Contracts;
 using CloudCanvas.Application.Posts.DTOs;
 using Mapster;
 
-namespace CloudCanvas.Application.Posts.Photos.Queries.GetPhotos
+namespace CloudCanvas.Application.Posts.Photos.Queries.GetPhotosByUser
 {
-    public record GetAllPostsQuery
-    {
-        public string? UserId { get; set; }
-        public string? ContainerName { get; set; } = CloudCosmos.Containers.BlobMeta;
-        public PostClassification Type { get; set; } = PostClassification.Photo;
-    }
-
     public record GetAllPhotosQuery: GetAllPostsQuery
     {
     }
@@ -24,35 +17,6 @@ namespace CloudCanvas.Application.Posts.Photos.Queries.GetPhotos
     {
         private readonly ICosmosRepo _cosmos = client;
 
-        public async Task<GetAllPhotosQueryResult> Handle(GetAllPostsQuery query)
-        {
-            var posts = await _cosmos.GetPhotosAsync(CloudCosmos.Containers.UserPhotos);
-            var res = new GetAllPhotosQueryResult(posts);
-
-            return res;
-        }
-
-        public GalleryDTO SetGalleryDetails(IPost fromObject, GalleryDTO toObject, bool force = false)
-        {
-            if (force || fromObject.Classification == PostClassification.Gallery)
-            {
-                toObject.DisplayName = ((Gallery)fromObject).DisplayName;
-                toObject.Description = ((Gallery)fromObject).Description;
-                toObject.UserTags = ((Gallery)fromObject).UserTags;
-            }
-            return toObject;
-        }
-
-        public PhotoDTO SetPhotoDetails(IPost fromObject, PhotoDTO toObject, bool force = false)
-        {
-            if(force || fromObject.Classification == PostClassification.Photo) {
-                toObject.OriginalFilename = ((Photo)fromObject).OriginalFilename;
-                toObject.Title = ((Photo)fromObject).Title;
-                toObject.ContentLength = fromObject.ContentLength;
-                toObject.Location = fromObject.Location?? throw new ArgumentException("Invalid image location."); 
-                toObject.UserTags = ((Photo)fromObject).UserTags;
-            }
-            return toObject;
-        }
+        public async Task<List<PhotoDTO>> Handle(GetAllPostsQuery query) => await _cosmos.GetPhotosAsync(query.ContainerName ?? CloudCosmos.Containers.UserPhotos);
     }
 }
