@@ -1,6 +1,7 @@
 using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Infrastructure.Common;
 using CloudCanvas.Infrastructure.DTOs;
 using CloudCanvas.Infrastructure.Exceptions;
@@ -16,7 +17,7 @@ namespace CloudCanvas.Infrastructure.BlobStorage
     /// operations with Azure Blob Storage. It includes methods for retrieving blob container clients, listing blob
     /// URLs, and uploading files. The service ensures proper validation of input parameters and handles exceptions
     /// related to blob storage operations.</remarks>
-    public class BlobStorageService: IBlobStorageService
+    public class BlobStorageService: IFileStorageService
     { 
         private readonly BlobServiceClient _client;
         private BlobContainerClient _bcClient = default!;

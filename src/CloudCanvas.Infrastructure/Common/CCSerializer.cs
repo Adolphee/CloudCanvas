@@ -1,11 +1,9 @@
 ﻿using Azure.Storage.Blobs.Models;
+using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Domain.Common.Enums;
 using CloudCanvas.Domain.Posts;
-using CloudCanvas.Domain.Posts.Contracts;
-using CloudCanvas.Infrastructure;
 using CloudCanvas.Infrastructure.DTOs;
 using CloudCanvas.Infrastructure.Exceptions;
-using Microsoft.Azure.Cosmos;
 using System.Text.Json;
 
 namespace CloudCanvas.Infrastructure.Common
