@@ -1,18 +1,19 @@
 ﻿using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Application.Posts.DTOs;
+using CloudCanvas.Application.Posts.Photos.Interfaces;
 using CloudCanvas.Application.Posts.Photos.Queries.GetPhotos;
 using Mapster;
-using ICosmosRepo = CloudCanvas.Application.Abstractions.Cosmos.IPostsRepositoryCosmos<CloudCanvas.Domain.Posts.Contracts.IPost>;
+using MediatR;
 
 namespace CloudCanvas.Application.Posts.Photos.Queries.GetPhotosByUser
 {
-    public record GetUserPhotosRequestHandler(ICosmosRepo cosmos)
+    public record GetUserPhotosRequestHandler(IPhotoProjectionStore cosmos): IRequestHandler<GetUserPhotosQuery, GetUserPhotosResult>
     {
-        private ICosmosRepo _cosmos = cosmos;
-        public async Task<GetUserPhotosQueryResult> Handle(GetUserPhotosQuery query)
+        private IPhotoProjectionStore _cosmos = cosmos;
+        public async Task<GetUserPhotosResult> Handle(GetUserPhotosQuery query, CancellationToken cancellation)
         {
-            var posts = await _cosmos.GetUserPhotosAsync(query.UserId, query?.ContainerName ?? CloudCosmos.Containers.UserPhotos);
-            return new GetUserPhotosQueryResult(posts);
+            var posts = await _cosmos.GetByUserIdAsync(query.UserId, query?.ContainerName ?? CloudCosmos.Containers.UserPhotos, cancellation);
+            return new GetUserPhotosResult(posts);
         }
     }
 }
