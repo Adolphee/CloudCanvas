@@ -1,64 +1,40 @@
-using CloudCanvas.Application.Abstractions.Persistence;
 using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Application.Posts.DTOs;
-using CloudCanvas.Application.Posts.Photos.Commands.SavePhoto;
+using CloudCanvas.Application.Posts.Photos.Commands.CreatePhoto;
+using CloudCanvas.Application.Posts.Photos.Queries.GetPhotos;
 using CloudCanvas.Application.Posts.Photos.Queries.GetPhotosByUser;
-using CloudCanvas.Infrastructure.Identity;
-using CloudCanvas.Infrastructure.Persistence;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
 using System.Security.Claims;
-using ICosmosRepo = CloudCanvas.Application.Abstractions.Cosmos.IPostsRepositoryCosmos<CloudCanvas.Domain.Posts.Contracts.IPost>;
 namespace CloudCanvas.Api.Controllers
 {
     //[Authorize]
     [ApiController]
     [Route("api/[controller]")]
     [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
-    public class PhotosController(ICosmosRepo client, IPhotoRepositoryEF ctx, CCDBContext context) : ControllerBase
+    public class PhotosController(ISender sender) : ControllerBase
     {
-        private readonly ICosmosRepo _client = client;
-        private readonly CCDBContext _context = context;
-        private readonly IPhotoRepositoryEF _photos = ctx;
+        private readonly ISender _sender = sender;
+
 
         [HttpGet(Name = "GetAllPhotos")]
-        public async Task<IActionResult> GetAsync()
-        {
-            var photos = await new GetAllPhotosRequestHandler(_client).Handle(new GetAllPhotosQuery());
-            return Ok(new { photos.Count, photos });
-        }
+        public async Task<ActionResult<GetAllPhotosResult>> GetAsync() => Ok(await _sender.Send(new GetAllPhotosQuery()));
 
         [HttpGet("user/{userId}", Name = "GetUserPhotos")]
-        public async Task<IActionResult> GetUserPhotosAsync(string userId)
-        {
-            var photos = await new GetUserPhotosRequestHandler(_client).Handle(new GetUserPhotosQuery(userId));
-            return Ok(new { photos.Count, photos });
-        }
+        public async Task<ActionResult<GetUserPhotosResult>> GetUserPhotosAsync(string userId) => Ok(await _sender.Send(new GetUserPhotosQuery(userId)));
 
         [Authorize]
-        [HttpPost(Name = "SavePhoto")]
-        public async Task<PhotoDTO> CreatePhotoAsync([FromBody] CreatePhotoCommand command, CancellationToken cancellation = default) {
-            command.UserId = User.GetObjectId()!;
-             var user = new User()
-            {
-                Id = User.FindFirstValue(CCClaimTypes.ObjectIdentfier)!,
-                Email = User.FindFirstValue(ClaimTypes.Email),
-                FirstName = User.FindFirstValue(ClaimTypes.GivenName),
-                LastName = User.FindFirstValue(ClaimTypes.Surname),
-                UserName = User.FindFirstValue(ClaimTypes.Email),
-                DisplayName = User.FindFirstValue(CCClaimTypes.Name)
-             };
+        [HttpPost(Name = "CreatePhoto")]
+        public async Task<ActionResult<CreatePhotoResult>> CreatePhotoAsync([FromBody] CreatePhotoCommand command, CancellationToken cancellation = default) {
 
-            if (!await _context.Users.AnyAsync(u => u.Id == user.Id || u.Email == user.Email, cancellation))
-            {
-                await _context.Users.AddAsync(user, cancellation);
-                await _context.SaveChangesAsync(cancellation);
-            }
-            command.Creator = new Creator(id : command.UserId, displayName: user.DisplayName, username: user.Email);
-            return await new CreatePhotoCommandHandler(_client, _photos).Handle(command, cancellation);
+            command.UserId = User.GetObjectId()!;
+            var userName = User.FindFirstValue(ClaimTypes.Email);
+            var displayName = User.FindFirstValue(CCClaimTypes.Name);
+            command.Creator = new Creator(id: command.UserId, displayName: displayName, username: userName);
+            return Ok(await _sender.Send(command, cancellation));
         }
     }
 }
