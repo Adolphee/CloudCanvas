@@ -1,14 +1,13 @@
 ﻿using CloudCanvas.Application.Posts.DTOs;
 using CloudCanvas.Domain.Common;
 using CloudCanvas.Domain.Common.Enums;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Text.Json.Serialization;
+using MediatR;
+using System.ComponentModel.DataAnnotations;
 
-namespace CloudCanvas.Application.Posts.Photos.Commands.SavePhoto
+namespace CloudCanvas.Application.Posts.Photos.Commands.CreatePhoto
 {
-    public record CreatePhotoCommand: TimeStampz
+    public record CreatePhotoCommand: TimeStampz, IRequest<CreatePhotoResult>
     {
         public string UserId { get; set; } = default!;
         public string? Caption { get; set; } = default!;
