@@ -1,21 +1,14 @@
-﻿using CloudCanvas.Application.Abstractions.Persistence;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using ICosmosRepo = CloudCanvas.Application.Abstractions.Cosmos.IPostsRepositoryCosmos<CloudCanvas.Domain.Posts.Contracts.IPost>;
+﻿using CloudCanvas.Application.Posts.Photos.Interfaces;
+using CloudCanvas.Domain.Posts;
+using Mapster;
 
 namespace CloudCanvas.Application.Posts.Photos.Commands.UpdatePhoto
 {
-    public sealed record UpdatePhotoCommandHandler(IPhotoRepositoryEF context, ICosmosRepo cosmos)
+    public sealed record UpdatePhotoCommandHandler(IPhotoRepository context)
     {
-        private readonly IPhotoRepositoryEF _context = context;
-        private readonly ICosmosRepo _cosmos = cosmos;
+        private readonly IPhotoRepository _context = context;
 
         public async Task<bool?> Handle(UpdatePhotoCommand command, CancellationToken cancellation)
-        {
-
-            return false;
-        }
+            => await _context.UpdateAsync(command.Adapt<Photo>(), cancellation);
     }
 }

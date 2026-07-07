@@ -9,6 +9,7 @@
   <ItemGroup>
     <Folder Include="Abstractions\Messaging\" />
     <Folder Include="Abstractions\Identity\" />
+    <Folder Include="Abstractions\Storage\" />
     <Folder Include="Posts\Commands\LikePost\" />
     <Folder Include="Posts\Commands\DislikePost\" />
     <Folder Include="Posts\Commands\NewFolder\" />
@@ -26,7 +27,6 @@
     <Folder Include="Posts\Galleries\Queries\GetGetGalleryById\" />
     <Folder Include="Posts\Galleries\Queries\GetPublicGalleries\" />
     <Folder Include="Posts\Galleries\Queries\GetUnpublished\" />
-    <Folder Include="Interfaces\" />
     <Folder Include="Posts\Queries\GetPostById\" />
     <Folder Include="Posts\Queries\GetPublicPosts\" />
     <Folder Include="Posts\Queries\GetPrivatePostsByUserId\" />
@@ -43,6 +43,7 @@
     <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.20.1" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.29.1" />
     <PackageReference Include="Mapster" Version="10.0.10" />
+    <PackageReference Include="MediatR" Version="14.2.0" />
     <PackageReference Include="Newtonsoft.Json.Schema" Version="4.0.1" />
 	<FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
