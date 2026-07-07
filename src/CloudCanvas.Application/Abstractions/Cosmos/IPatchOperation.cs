@@ -2,7 +2,7 @@
 
 namespace CloudCanvas.Application.Abstractions.Cosmos
 {
-    public interface IPatchOperation<T> where T : IPost
+    public interface IPatchOperation
     {
         string PropertyName { get; set; }
         string PropertyValue { get; set; }

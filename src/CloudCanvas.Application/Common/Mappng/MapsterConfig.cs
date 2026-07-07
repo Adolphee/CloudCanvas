@@ -1,5 +1,5 @@
 ﻿using CloudCanvas.Application.Posts.DTOs;
-using CloudCanvas.Application.Posts.Photos.Commands.SavePhoto;
+using CloudCanvas.Application.Posts.Photos.Commands.CreatePhoto;
 using CloudCanvas.Domain.Posts;
 using CloudCanvas.Domain.Thumbnail;
 using Mapster;
