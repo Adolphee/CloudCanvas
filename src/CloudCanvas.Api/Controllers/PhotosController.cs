@@ -1,11 +1,15 @@
+using CloudCanvas.Application.Common;
 using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Application.Posts.DTOs;
 using CloudCanvas.Application.Posts.Photos.Commands.CreatePhoto;
+using CloudCanvas.Application.Posts.Photos.Commands.UploadFile;
 using CloudCanvas.Application.Posts.Photos.Queries.GetPhotos;
 using CloudCanvas.Application.Posts.Photos.Queries.GetPhotosByUser;
+using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
 using System.Security.Claims;
@@ -18,7 +22,6 @@ namespace CloudCanvas.Api.Controllers
     public class PhotosController(ISender sender) : ControllerBase
     {
         private readonly ISender _sender = sender;
-
 
         [HttpGet(Name = "GetAllPhotos")]
         public async Task<ActionResult<GetAllPhotosResult>> GetAsync() => Ok(await _sender.Send(new GetAllPhotosQuery()));
@@ -35,6 +38,15 @@ namespace CloudCanvas.Api.Controllers
             var displayName = User.FindFirstValue(CCClaimTypes.Name);
             command.Creator = new Creator(id: command.UserId, displayName: displayName, username: userName);
             return Ok(await _sender.Send(command, cancellation));
+        }
+
+        [Authorize]
+        [HttpPost("upload", Name = "UploadPhoto")]
+        public async Task<ActionResult<UploadFileResult>> UploadPhotoAsync(IFormFile file, CancellationToken cancellation = default)
+        {
+            var creator = new Creator(id: User.GetObjectId()!, displayName: User.FindFirstValue(CCClaimTypes.Name), username: User.FindFirstValue(ClaimTypes.Email));
+            var res = await _sender.Send(new UploadFileCommand(file, User.GetObjectId()!), cancellation);
+            return Ok(res.FileMetadata.ToPhotoDTO(creator));
         }
     }
 }

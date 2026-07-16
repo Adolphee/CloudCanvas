@@ -3,12 +3,6 @@
 /// </summary>
 namespace CloudCanvas.Application.Common.Constants
 {
-    /// <summary>
-    /// Represents constants and nested types related to Azure Blob Storage configuration.
-    /// </summary>
-    /// <remarks>This class provides predefined constants for common Azure Blob Storage settings, such as
-    /// connection strings and container names. It also includes a nested class, <see cref="Containers"/>, which defines
-    /// container-specific constants.</remarks>
     public abstract class BStorage
     {
         public const string Self = "AzureBlobStorage";
@@ -62,7 +56,7 @@ namespace CloudCanvas.Application.Common.Constants
 
         public abstract class Status
         {
-            public const string NewBlobDetected = "New Blob Detected";
+            public const string NewBlobDetected = "New Photo Detected";
             public const string ThumbnailCreated = "Thumbnail Created";
             public const string ImageResized = "Image Resized";
             public const string MetadataPersisted = "Metadata Persisted";
