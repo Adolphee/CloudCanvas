@@ -1,4 +1,4 @@
-﻿using CloudCanvas.Application.Common.Interfaces;
+﻿using CloudCanvas.Application.Abstractions.Cosmos;
 using CloudCanvas.Application.Posts.DTOs;
 
 namespace CloudCanvas.Application.Posts.Photos.Interfaces
