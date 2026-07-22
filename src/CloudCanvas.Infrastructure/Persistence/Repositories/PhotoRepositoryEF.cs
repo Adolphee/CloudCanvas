@@ -38,7 +38,7 @@ namespace CloudCanvas.Infrastructure.Persistence.Repositories
                 photo.SetModifiedOn();
                 _contex.Update(photo); 
             } else if (photo != null) _contex.Remove(photo);
-            return await _contex.SaveChangesAsync((cancellation)) > 0;
+            return await _contex.SaveChangesAsync(cancellation) > 0;
         }
     }
 }

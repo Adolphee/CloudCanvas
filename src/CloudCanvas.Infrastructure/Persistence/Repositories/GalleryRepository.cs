@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CloudCanvas.Infrastructure.Persistence.Repositories
 {
-    internal class GalleryRepository
+    public class GalleryRepository
     {
     }
 }
