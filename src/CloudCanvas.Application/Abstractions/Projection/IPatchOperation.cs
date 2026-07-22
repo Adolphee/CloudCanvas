@@ -1,4 +1,4 @@
-﻿namespace CloudCanvas.Application.Abstractions.Cosmos
+﻿namespace CloudCanvas.Application.Abstractions.Projection
 {
     public interface IPatchOperation
     {
