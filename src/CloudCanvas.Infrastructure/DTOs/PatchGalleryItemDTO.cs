@@ -1,5 +1,4 @@
-﻿using CloudCanvas.Infrastructure.Cosmos;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace CloudCanvas.Infrastructure.DTOs
 {

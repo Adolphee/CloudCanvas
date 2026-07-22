@@ -1,6 +1,4 @@
 ﻿using CloudCanvas.Application.Reactions.Common;
-using CloudCanvas.Domain.Common.Enums;
-using CloudCanvas.Domain.Thumbnail;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 

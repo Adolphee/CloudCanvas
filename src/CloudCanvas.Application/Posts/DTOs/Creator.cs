@@ -6,8 +6,8 @@ namespace CloudCanvas.Application.Posts.DTOs
 {
     public sealed record Creator
     {
-        private string? Id;
-        private string? UserName;
+        public string? Id;
+        public string? UserName;
         public string? DisplayName { get; set; }
         public Creator() { }
         public Creator(string id, string? username = null, string? displayName = null)
