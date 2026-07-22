@@ -6,7 +6,7 @@ namespace CloudCanvas.Infrastructure.Cosmos
 {
     public static class PatchOperationBuilder
     {
-        // This class basically determines which GalleryItem properties can be modified by the user 
+        // This class basically determines which GalleryItem Properties can be modified by the user 
         public static IReadOnlyList<PatchOperation> For(PatchGalleryItemDTO metadata, bool enableSoftDelte = false)
         {
             var ops = new List<PatchOperation>();
