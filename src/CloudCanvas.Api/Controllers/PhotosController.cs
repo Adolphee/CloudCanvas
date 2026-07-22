@@ -1,18 +1,8 @@
-using CloudCanvas.Application.Common;
-using CloudCanvas.Application.Common.Constants;
-using CloudCanvas.Application.Posts.DTOs;
 using CloudCanvas.Application.Posts.Photos.Commands.CreatePhoto;
 using CloudCanvas.Application.Posts.Photos.Commands.UploadFile;
 using CloudCanvas.Application.Posts.Photos.Queries.GetPhotos;
 using CloudCanvas.Application.Posts.Photos.Queries.GetPhotosByUser;
-using Mapster;
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos.Linq;
-using Microsoft.Identity.Web;
-using Microsoft.Identity.Web.Resource;
-using System.Security.Claims;
+
 namespace CloudCanvas.Api.Controllers
 {
     //[Authorize]
@@ -31,13 +21,16 @@ namespace CloudCanvas.Api.Controllers
 
         [Authorize]
         [HttpPost(Name = "CreatePhoto")]
-        public async Task<ActionResult<CreatePhotoResult>> CreatePhotoAsync([FromBody] CreatePhotoCommand command, CancellationToken cancellation = default) {
+        public async Task<ActionResult<CreatePhotoResult>> CreatePhotoAsync([FromBody] CreatePhotoCommand command, CancellationToken cancellation = default) 
+        {
 
             command.UserId = User.GetObjectId()!;
             var userName = User.FindFirstValue(ClaimTypes.Email);
             var displayName = User.FindFirstValue(CCClaimTypes.Name);
             command.Creator = new Creator(id: command.UserId, displayName: displayName, username: userName);
-            return Ok(await _sender.Send(command, cancellation));
+            var res = await _sender.Send(command, cancellation);
+
+            return Ok(new { res.Success, res.Photo });
         }
 
         [Authorize]
