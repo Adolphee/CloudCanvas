@@ -77,7 +77,7 @@ namespace CloudCanvas.Domain.Posts
             return true;
         }
 
-        public int DisLikesCount()
+        public int DislikesCount()
         {
             if (Dislikes == null) return 0;
             return Dislikes.Count;
@@ -87,6 +87,12 @@ namespace CloudCanvas.Domain.Posts
         {
             if (Likes == null) return 0;
             return Likes.Count;
+        }
+
+        public int EmojiReactionsCount()
+        {
+            if (EmojiReactions == null) return 0;
+            return EmojiReactions.Count;
         }
 
         public bool UnLike(string user)
