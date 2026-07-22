@@ -1,6 +1,4 @@
-using Azure.Storage.Blobs;
-using CloudCanvas.Application.Common.Constants;
-using CloudCanvas.Application.Posts.DTOs;
+using CloudCanvas.Application.Thumbnails.Commands.CreateThumbnail;
 
 namespace CloudCanvas.Application.Abstractions.Storage;
 
@@ -17,5 +15,5 @@ public interface IMediaStorage
     Task<FileMetadata> AddFileMetadataAsync(FileMetadata file, string key, string value, CancellationToken cancellation = default);
     Task<List<FileMetadata>> GetFilesAsync(string containerName, CancellationToken cancellation = default);
     Task<bool> DeleteAsync(string containerName, string blobName, CancellationToken cancellation = default);
-    Task<BlobContainerClient> GetOrCreateContainerClientAsync(string containerName, bool createIfNotExists = false, CancellationToken cancellation = default);
+    Task<Stream> GetFileStreamFromCommand(CreateThumbnailCommand command, CancellationToken cancellation = default);
 }
