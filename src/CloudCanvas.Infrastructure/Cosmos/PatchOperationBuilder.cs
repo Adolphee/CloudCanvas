@@ -2,7 +2,7 @@
 using Microsoft.Azure.Cosmos;
 using System.Collections.ObjectModel;
 
-namespace CloudCanvas.Infrastructure.BlobStorage
+namespace CloudCanvas.Infrastructure.Cosmos
 {
     public static class PatchOperationBuilder
     {

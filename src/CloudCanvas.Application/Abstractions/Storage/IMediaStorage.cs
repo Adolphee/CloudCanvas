@@ -2,13 +2,13 @@ using Azure.Storage.Blobs;
 using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Application.Posts.DTOs;
 
-namespace CloudCanvas.Application.Common.Interfaces;
+namespace CloudCanvas.Application.Abstractions.Storage;
 
 /// <summary>
 /// Defines methods for interacting with a blob storage service, including uploading files and retrieving file URLs from
 /// a specified container.
 /// </summary>
-public interface IFileStorageService
+public interface IMediaStorage
 {
     Task<List<string>> GetFileUrlsAsync(string containerName, CancellationToken cancellation = default);
     Task<FileMetadata> UploadAsync(Stream fileStream, string filename, Dictionary<string, string> blobProperties, string containerName = BStorage.Containers.Uploads, string customIdentifier = null!, CancellationToken cancellation = default);

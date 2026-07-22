@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace CloudCanvas.Infrastructure.Cosmos
+namespace CloudCanvas.Infrastructure.DTOs
 {
     /// <summary>
     /// Represents the base class for metadata documents stored in the Cosmos database.

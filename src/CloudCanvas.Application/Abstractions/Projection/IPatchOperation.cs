@@ -1,6 +1,4 @@
-﻿using CloudCanvas.Domain.Posts.Contracts;
-
-namespace CloudCanvas.Application.Abstractions.Cosmos
+﻿namespace CloudCanvas.Application.Abstractions.Cosmos
 {
     public interface IPatchOperation
     {

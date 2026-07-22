@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CloudCanvas.Application.Common.Interfaces
+namespace CloudCanvas.Application.Abstractions.Cosmos
 {
     public interface IProjectionStoreBase<T> where T: PostDTO
     {

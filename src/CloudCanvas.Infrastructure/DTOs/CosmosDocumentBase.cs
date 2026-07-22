@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace CloudCanvas.Infrastructure.Cosmos
+namespace CloudCanvas.Infrastructure.DTOs
 {
     /// <summary>
     /// Represents the base class for a Cosmos DB document, providing a unique identifier.
