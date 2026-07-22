@@ -1,4 +1,5 @@
 ﻿using CloudCanvas.Application.Posts.Photos.Commands.CreatePhoto;
+using CloudCanvas.Application.Posts.Photos.Commands.UploadFile;
 using CloudCanvas.Application.Posts.Photos.Queries.GetPhotos;
 using CloudCanvas.Application.Posts.Photos.Queries.GetPhotosByUser;
 using MapsterMapper;
@@ -14,10 +15,11 @@ namespace CloudCanvas.Application
         {
             services.AddMediatR(cfg =>
             {
+                cfg.RegisterServicesFromAssemblyContaining<UploadFileCommand>();
                 cfg.RegisterServicesFromAssemblyContaining<CreatePhotoCommand>();
                 cfg.RegisterServicesFromAssemblyContaining<GetAllPhotosQuery>();
                 cfg.RegisterServicesFromAssemblyContaining<GetUserPhotosQuery>();
-            }).AddScoped<IMapper, Mapper>();
+            }).AddTransient<IMapper, Mapper>();
 
             var options = new JsonSerializerOptions
             {
