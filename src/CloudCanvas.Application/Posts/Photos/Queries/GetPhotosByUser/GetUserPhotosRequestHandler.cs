@@ -1,9 +1,4 @@
-﻿using CloudCanvas.Application.Common.Constants;
-using CloudCanvas.Application.Posts.DTOs;
-using CloudCanvas.Application.Posts.Photos.Interfaces;
-using CloudCanvas.Application.Posts.Photos.Queries.GetPhotos;
-using Mapster;
-using MediatR;
+﻿using CloudCanvas.Application.Posts.Photos.Interfaces;
 
 namespace CloudCanvas.Application.Posts.Photos.Queries.GetPhotosByUser
 {

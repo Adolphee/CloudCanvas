@@ -1,9 +1,4 @@
-﻿using CloudCanvas.Application.Common.Constants;
-using CloudCanvas.Domain.Common.Enums;
-using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using CloudCanvas.Domain.Common.Enums;
 
 namespace CloudCanvas.Application.Posts.Photos.Queries.GetPhotos
 {
