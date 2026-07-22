@@ -1,8 +1,4 @@
-﻿using Azure.Storage.Blobs.Models;
-using CloudCanvas.Application.Common.Constants;
-using CloudCanvas.Application.Common.Exceptions;
-using CloudCanvas.Application.Posts.DTOs;
-using CloudCanvas.Domain.Common.Enums;
+﻿using CloudCanvas.Application.Common.Exceptions;
 using System.Text.Json;
 
 namespace CloudCanvas.Application.Common
@@ -15,7 +11,6 @@ namespace CloudCanvas.Application.Common
         };
         public static string Serialize(object target) => JsonSerializer.Serialize(Validate.Object(target), _options);
         public static string Serialize(FileMetadata target) => JsonSerializer.Serialize((target), _options);
-        public static FileMetadata FromBinaryData(BinaryData blobMetadataDto) => Deserialize<FileMetadata>(blobMetadataDto.ToString());
         
         /// <summary>
         /// Tries to deserialize a structured string into an object of a given type.

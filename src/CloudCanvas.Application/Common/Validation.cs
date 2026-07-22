@@ -1,5 +1,4 @@
-﻿using Azure.Messaging.ServiceBus;
-using CloudCanvas.Application.Common.Exceptions;
+﻿using CloudCanvas.Application.Common.Exceptions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
@@ -53,19 +52,7 @@ namespace CloudCanvas.Application.Common
                 throw new ArgumentOutOfRangeException($"Argument({paramName}): value must be between {min} and {max}. Provided instead: {paramValue}");
             return paramValue;
         }
-        public static int SBMessageSize(ServiceBusReceivedMessage message, int maxMessageLength = 16384, string errorMessage = "")
-        {
-            int messageLength = message.Body.ToArray().Length;
-            if (messageLength > maxMessageLength)                                           // Validate message size
-                throw new MessageTooLargeException(errorMessage ?? $"Message '{message.MessageId}' is too large: {messageLength}/{maxMessageLength} Bytes.")
-                {
-                    MessageId = message.MessageId,
-                    MaxMessageSize = maxMessageLength,
-                    ActualMessageSize = messageLength,
-                    CorrelationId = message.CorrelationId
-                };
-            return messageLength;
-        }
+
         public static bool JsonWithSchema(string jsonValidationTarget)
         {
             Validate.StringValue(nameof(jsonValidationTarget), jsonValidationTarget);
