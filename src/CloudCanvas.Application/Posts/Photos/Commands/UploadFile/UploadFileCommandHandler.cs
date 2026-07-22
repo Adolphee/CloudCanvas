@@ -1,12 +1,11 @@
-﻿using CloudCanvas.Application.Common.Interfaces;
-using MediatR;
+﻿using CloudCanvas.Application.Abstractions.Storage;
 using static CloudCanvas.Application.Common.Constants.BStorage;
 
 namespace CloudCanvas.Application.Posts.Photos.Commands.UploadFile
 {
-    public class UploadFileCommandHandler(IFileStorageService files) : IRequestHandler<UploadFileCommand, UploadFileResult>
+    public class UploadFileCommandHandler(IMediaStorage files) : IRequestHandler<UploadFileCommand, UploadFileResult>
     {
-        private readonly IFileStorageService _files = files;
+        private readonly IMediaStorage _files = files;
         public async Task<UploadFileResult> Handle(UploadFileCommand command, CancellationToken cancellationToken)
         {
             var file = command.File;
@@ -17,11 +16,12 @@ namespace CloudCanvas.Application.Posts.Photos.Commands.UploadFile
                 { Meta.CreatedOn, DateTimeOffset.UtcNow.ToString() },
                 { Meta.Container, Containers.Uploads }
             };
-            var res = await _files.UploadAsync(command.Stream, Guid.NewGuid().ToString(), props, Containers.Uploads, null, cancellationToken);
+            var res = await _files.UploadAsync(command.Stream, Guid.NewGuid().ToString(), props, Containers.Uploads, default!, cancellationToken);
             return new UploadFileResult
             {
                 FileMetadata = res
             };
         }
+
     }
 }

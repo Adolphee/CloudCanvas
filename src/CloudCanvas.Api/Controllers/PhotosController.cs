@@ -35,11 +35,15 @@ namespace CloudCanvas.Api.Controllers
 
         [Authorize]
         [HttpPost("upload", Name = "UploadPhoto")]
-        public async Task<ActionResult<UploadFileResult>> UploadPhotoAsync(IFormFile file, CancellationToken cancellation = default)
+        public async Task<ActionResult<CreatePhotoResult>> UploadPhotoAsync(IFormFile file, CancellationToken cancellation = default)
         {
-            var creator = new Creator(id: User.GetObjectId()!, displayName: User.FindFirstValue(CCClaimTypes.Name), username: User.FindFirstValue(ClaimTypes.Email));
-            var res = await _sender.Send(new UploadFileCommand(file, User.GetObjectId()!), cancellation);
-            return Ok(res.FileMetadata.ToPhotoDTO(creator));
+            var creator = new Creator(User.GetObjectId()!, User.FindFirstValue(ClaimTypes.Email), User.FindFirstValue(CCClaimTypes.Name));
+            var uploadRes = await _sender.Send(new UploadFileCommand(file, creator.GetId()!), cancellation);
+            
+            var creationCommand = uploadRes.FileMetadata.ToPhoto(creator.GetId()!).IssueCreationCommand(creator);
+            creationCommand.Creator = creator;
+            var projection = await _sender.Send(creationCommand, cancellation);
+            return Ok(new { projection.Success, projection.Photo });
         }
     }
 }
