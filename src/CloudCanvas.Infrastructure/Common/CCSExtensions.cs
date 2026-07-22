@@ -8,9 +8,9 @@ using CloudCanvas.Infrastructure.DTOs;
 
 namespace CloudCanvas.Infrastructure.Common.Extensions
 {
-    public class CCSExtensions: CCSerializer
+    internal class CCSExtensions: CCSerializer
     {
-        public static Post ToPost(string identifier, string blobUrl, BlobProperties props, PostClassification classification = PostClassification.Photo)
+        internal static Post ToPost(string identifier, string blobUrl, BlobProperties props, PostClassification classification = PostClassification.Photo)
         {
             bool deleted = false;
             DateTimeOffset result = DateTimeOffset.MinValue;
@@ -57,7 +57,7 @@ namespace CloudCanvas.Infrastructure.Common.Extensions
         /// <param name="props">The Properties of the blob, including metadata, content details, and versioning information.</param>
         /// <returns>A <see cref="BlobMetadata"/> object containing metadata and Properties of the blob, such as its URL, 
         /// original file name, content details, and other relevant attributes.</returns>
-        public static FileMetadata ToMetadata(string identifier, string blobUrl, BlobProperties props)
+        internal static FileMetadata ToMetadata(string identifier, string blobUrl, BlobProperties props)
         {
             bool deleted = false;
             DateTimeOffset result = DateTimeOffset.MinValue;
