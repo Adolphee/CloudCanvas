@@ -1,14 +1,16 @@
 ﻿using Azure.Messaging.ServiceBus;
 using CloudCanvas.Application.Abstractions.Messaging;
 using CloudCanvas.Application.Common.Constants;
+using CloudCanvas.Application.Events;
 using CloudCanvas.Domain.Common.Enums;
-using CloudCanvas.Infrastructure.Common;
+using CCSerializer = CloudCanvas.Infrastructure.Common.Extensions.CCSExtensions;
 
 namespace CloudCanvas.Infrastructure.Messaging
 {
     public class SBMessageBuilder : IMessageBuilder, IMessageBuilderExtensions
     {
         private readonly ServiceBusMessage _message;
+        private readonly CCEventMessage _event = new();
         public SBMessageBuilder()
         {
             _message = new ServiceBusMessage();
@@ -48,11 +50,27 @@ namespace CloudCanvas.Infrastructure.Messaging
             return this;
         }
 
-        public ServiceBusMessage Finalize(string? messageId = null)
+        //public ServiceBusMessage Finalize(string? messageId = null)
+        //{
+        //    _message.MessageId = messageId ?? Guid.NewGuid().ToString();
+        //    return _message;
+        //}
+
+        public CCEventMessage Finalize(string? messageId = null)
         {
             _message.MessageId = messageId ?? Guid.NewGuid().ToString();
-            return _message;
+            var props = _message.ApplicationProperties;
+            bool res = props.TryGetValue(ServiceBus.Props.EventType, out var type);
+            return new()
+            {
+                CorrelationId = _message.CorrelationId ?? _message.MessageId,
+                Subject = _message.Subject,
+                EventType = res ? type?.ToString()! : "Processing",
+                Properties = props.ToDictionary(),
+                Payload = _message.Body
+            };
         }
+
 
         public IMessageBuilder CreateThumbnailsMessage(string correlationId)
         {

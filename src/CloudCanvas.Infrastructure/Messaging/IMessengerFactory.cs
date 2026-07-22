@@ -1,6 +1,6 @@
 ﻿using Azure.Messaging.ServiceBus;
 
-namespace CloudCanvas.Application.Abstractions.Messaging
+namespace CloudCanvas.Infrastructure.Messaging
 {
     /// <summary>
     /// Defines a factory for creating <see cref="ServiceBusClient"/> instances configured for specific messaging

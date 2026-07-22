@@ -1,4 +1,4 @@
-﻿using Azure.Messaging.ServiceBus;
+﻿using CloudCanvas.Application.Events;
 
 namespace CloudCanvas.Application.Abstractions.Messaging
 {
@@ -9,6 +9,6 @@ namespace CloudCanvas.Application.Abstractions.Messaging
         IMessageBuilder SetCorrelationId(string correlationId);
         IMessageBuilder AddProperties(IDictionary<string, object> props);
         IMessageBuilder CreateThumbnailsMessage(string correlationId);
-        ServiceBusMessage Finalize(string? messageId = null);
+        CCEventMessage Finalize(string? messageId = null);
     }
 }

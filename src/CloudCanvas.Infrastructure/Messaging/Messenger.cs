@@ -1,6 +1,9 @@
 ﻿using Azure.Messaging.ServiceBus;
 using CloudCanvas.Application.Abstractions.Messaging;
 using CloudCanvas.Application.Common.Constants;
+using CloudCanvas.Application.Events;
+using CloudCanvas.Application.Posts.DTOs;
+using CloudCanvas.Infrastructure.Common;
 using CloudCanvas.Infrastructure.Exceptions;
 using Microsoft.Extensions.Logging;
 
@@ -11,16 +14,11 @@ namespace CloudCanvas.Infrastructure.Messaging
     /// </summary>
     /// <remarks>This adapter simplifies the process of sending messages to Azure Service Bus by managing the
     /// creation of messages batches and handling logging for successful and failed operations.</remarks>
-    public class Messenger : IMessenger
+    public class Messenger(IMessengerFactory factory, ILogger<Messenger> logger, IMessageFactory mFactory) : IMessenger
     {
-        private readonly ILogger<Messenger> _logger;
-        private readonly IMessengerFactory _factory;
-
-        public Messenger(IMessengerFactory factory, ILogger<Messenger> logger)
-        {
-            _logger = logger;
-            _factory = factory;
-        }
+        private readonly ILogger<Messenger> _logger = logger;
+        private readonly IMessengerFactory _factory = factory;
+        private readonly IMessageFactory _mFactory = mFactory;
 
         /// <summary>
         /// Sends a message to the specified Service Bus topic asynchronously.
@@ -31,16 +29,17 @@ namespace CloudCanvas.Infrastructure.Messaging
         /// <param name="topic">The name of the Service Bus topic to which the message will be sent. Cannot be null or empty.</param>
         /// <param name="msg">The <see cref="ServiceBusMessage"/> to send. Cannot be null.</param>
         /// <returns>A task that represents the asynchronous send operation.</returns>
-        public async Task<string> SendAsync(string topic, ServiceBusMessage msg, CancellationToken cancellation = default)
+        public async Task<string> SendAsync(string topic, CCEventMessage msg, CancellationToken cancellation = default)
         {
             var sender = _factory.GetSender(topic);
+            ServiceBusMessage message = msg.ToSBMessage();
             try
             {
-                await sender.SendMessageAsync(msg, cancellation);
-                return msg.MessageId;
+                await sender.SendMessageAsync(message, cancellation);
+                return message.MessageId;
             } catch(ServiceBusException e)
             {
-                _logger.LogError(e, "Failed to send message '{messageId}' to topic: '{topic}'.", msg.MessageId, topic);
+                _logger.LogError(e, "Failed to send message '{messageId}' to topic: '{topic}'.", message.MessageId, topic);
                 throw;
             }
         }
@@ -59,13 +58,14 @@ namespace CloudCanvas.Infrastructure.Messaging
         /// <returns>A task that represents the asynchronous operation.</returns>
         /// <exception cref="MessageBatchFullException">Thrown if a message cannot be added to the batch because the batch size exceeds the specified <paramref
         /// name="maxBatchSize"/>.</exception>
-        public async Task SendBatchAsync(string topic, List<ServiceBusMessage> messages, int maxBatchSize = 1, CancellationToken cancellation = default)
+        public async Task SendBatchAsync(string topic, List<CCEventMessage> messages, int maxBatchSize = 1, CancellationToken cancellation = default)
         {
             var sender = _factory.GetSender(topic);
             using var messageBatch = await sender.CreateMessageBatchAsync(cancellation);
 
-            foreach (var message in messages)
+            foreach (var msg in messages)
             {
+                ServiceBusMessage message = msg.ToSBMessage();
                 try { messageBatch.TryAddMessage(message); }
                 catch (Exception e)
                 {
@@ -82,8 +82,9 @@ namespace CloudCanvas.Infrastructure.Messaging
             }
         }
 
-        public async Task<string> SendCreateThumbnailsMessage(ServiceBusMessage msg, string correlationId, CancellationToken cancellation = default)
+        public async Task<string> SendCreateThumbnailsMessage(PhotoDTO photo, string correlationId, CancellationToken cancellation = default)
         {
+            var msg = _mFactory.BuildFor(photo).CreateThumbnailsMessage(correlationId).Finalize();
             return await SendAsync(ServiceBus.Topics.FileUpdates, msg, cancellation);
         }
     }
