@@ -1,6 +1,4 @@
 ﻿using CloudCanvas.Application.Posts.Photos.Interfaces;
-using CloudCanvas.Domain.Posts;
-using Mapster;
 
 namespace CloudCanvas.Application.Posts.Photos.Commands.UpdatePhoto
 {
@@ -8,7 +6,7 @@ namespace CloudCanvas.Application.Posts.Photos.Commands.UpdatePhoto
     {
         private readonly IPhotoRepository _context = context;
 
-        public async Task<bool?> Handle(UpdatePhotoCommand command, CancellationToken cancellation)
-            => await _context.UpdateAsync(command.Adapt<Photo>(), cancellation);
+        public async Task<bool?> Handle(UpdatePhotoCommand command, CancellationToken cancellation = default)
+            => await _context.UpdateAsync(command.ToPhoto(), cancellation);
     }
 }
