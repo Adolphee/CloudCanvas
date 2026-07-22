@@ -1,6 +1,6 @@
 ﻿using Azure.Messaging.ServiceBus;
 
-namespace CloudCanvas.Infrastructure.Messaging
+namespace CloudCanvas.Application.Abstractions.Messaging
 {
     /// <summary>
     /// Defines an adapter for interacting with a service bus, providing functionality to send messages to a specified
@@ -9,7 +9,7 @@ namespace CloudCanvas.Infrastructure.Messaging
     /// <remarks>This interface is designed to abstract the interaction with a service bus, enabling the
     /// sending of messages to specific topics. Implementations of this interface should handle the underlying service
     /// bus communication details.</remarks>
-    public interface IServiceBusPublisher
+    public interface IMessenger
     {
         /// <summary>
         /// Publishes a single message to the specified Service Bus topic.
@@ -20,7 +20,7 @@ namespace CloudCanvas.Infrastructure.Messaging
         /// <param name="topic">The name of the Service Bus topic to which the message will be published. Cannot be null or empty.</param>
         /// <param name="message">The <see cref="ServiceBusMessage"/> to be published. Cannot be null.</param>
         /// <returns>A <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public Task<string> SendAsync(string topic, ServiceBusMessage message);
+        Task<string> SendAsync(string topic, ServiceBusMessage message, CancellationToken cancellation = default);
 
         /// <summary>
         /// Publishes a batch of messages to the specified Service Bus topic.
@@ -33,6 +33,8 @@ namespace CloudCanvas.Infrastructure.Messaging
         /// <param name="batchCount">The number of times the batch of messages should be published. Must be greater than or equal to 1. Defaults
         /// to 1.</param>
         /// <returns>A <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public Task SendBatchAsync(string topic, List<ServiceBusMessage> messages, int batchCount = 1);
+        Task SendBatchAsync(string topic, List<ServiceBusMessage> messages, int batchCount = 1, CancellationToken cancellation = default);
+
+        Task<string> SendCreateThumbnailsMessage(ServiceBusMessage msg, string correlationId, CancellationToken cancellation = default);
     }
 }

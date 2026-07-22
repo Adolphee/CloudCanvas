@@ -1,4 +1,6 @@
 ﻿using Azure.Messaging.ServiceBus;
+using CloudCanvas.Application.Abstractions.Messaging;
+using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Infrastructure.Exceptions;
 using Microsoft.Extensions.Logging;
 
@@ -9,12 +11,12 @@ namespace CloudCanvas.Infrastructure.Messaging
     /// </summary>
     /// <remarks>This adapter simplifies the process of sending messages to Azure Service Bus by managing the
     /// creation of messages batches and handling logging for successful and failed operations.</remarks>
-    public class ServiceBusAdapter : IServiceBusPublisher
+    public class Messenger : IMessenger
     {
-        private readonly ILogger<ServiceBusAdapter> _logger;
-        private readonly IServiceBusClientFactory _factory;
+        private readonly ILogger<Messenger> _logger;
+        private readonly IMessengerFactory _factory;
 
-        public ServiceBusAdapter(IServiceBusClientFactory factory, ILogger<ServiceBusAdapter> logger)
+        public Messenger(IMessengerFactory factory, ILogger<Messenger> logger)
         {
             _logger = logger;
             _factory = factory;
@@ -29,12 +31,12 @@ namespace CloudCanvas.Infrastructure.Messaging
         /// <param name="topic">The name of the Service Bus topic to which the message will be sent. Cannot be null or empty.</param>
         /// <param name="msg">The <see cref="ServiceBusMessage"/> to send. Cannot be null.</param>
         /// <returns>A task that represents the asynchronous send operation.</returns>
-        public async Task<string> SendAsync(string topic, ServiceBusMessage msg)
+        public async Task<string> SendAsync(string topic, ServiceBusMessage msg, CancellationToken cancellation = default)
         {
-            var sender = _factory.GetSendClient(topic);
+            var sender = _factory.GetSender(topic);
             try
             {
-                await sender.SendMessageAsync(msg);
+                await sender.SendMessageAsync(msg, cancellation);
                 return msg.MessageId;
             } catch(ServiceBusException e)
             {
@@ -57,10 +59,10 @@ namespace CloudCanvas.Infrastructure.Messaging
         /// <returns>A task that represents the asynchronous operation.</returns>
         /// <exception cref="MessageBatchFullException">Thrown if a message cannot be added to the batch because the batch size exceeds the specified <paramref
         /// name="maxBatchSize"/>.</exception>
-        public async Task SendBatchAsync(string topic, List<ServiceBusMessage> messages, int maxBatchSize = 1)
+        public async Task SendBatchAsync(string topic, List<ServiceBusMessage> messages, int maxBatchSize = 1, CancellationToken cancellation = default)
         {
-            var sender = _factory.GetSendClient(topic);
-            using var messageBatch = await sender.CreateMessageBatchAsync();
+            var sender = _factory.GetSender(topic);
+            using var messageBatch = await sender.CreateMessageBatchAsync(cancellation);
 
             foreach (var message in messages)
             {
@@ -80,5 +82,9 @@ namespace CloudCanvas.Infrastructure.Messaging
             }
         }
 
+        public async Task<string> SendCreateThumbnailsMessage(ServiceBusMessage msg, string correlationId, CancellationToken cancellation = default)
+        {
+            return await SendAsync(ServiceBus.Topics.FileUpdates, msg, cancellation);
+        }
     }
 }

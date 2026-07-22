@@ -1,6 +1,6 @@
 ﻿using Azure.Messaging.ServiceBus;
 
-namespace CloudCanvas.Infrastructure.Messaging
+namespace CloudCanvas.Application.Abstractions.Messaging
 {
     /// <summary>
     /// Defines a factory for creating <see cref="ServiceBusClient"/> instances configured for specific messaging
@@ -9,9 +9,9 @@ namespace CloudCanvas.Infrastructure.Messaging
     /// <remarks>This interface provides methods to obtain <see cref="ServiceBusClient"/> instances tailored
     /// for listening to messages or sending messages. Implementations of this interface are responsible for managing
     /// the configuration and lifecycle of the clients.</remarks>
-    public interface IServiceBusClientFactory
+    public interface IMessengerFactory
     {
-        public ServiceBusSender GetSendClient(string topic);
-        public ServiceBusReceiver GetListenClient(string topic);
+        public ServiceBusSender GetSender(string topic);
+        public ServiceBusReceiver GetReceiver(string topic);
     }
 }
