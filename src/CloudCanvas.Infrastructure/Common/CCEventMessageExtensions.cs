@@ -5,13 +5,13 @@ using CloudCanvas.Application.Posts.DTOs;
 
 namespace CloudCanvas.Infrastructure.Common
 {
-    internal static class CCEventMessageExtensions
+    public static class CCEventMessageExtensions
     {
         /// <summary>
         /// Converts `CCEventMessage` to `ServiceBusMessage`. 
         /// </summary>
         /// <returns>ServiceBusMessage</returns>
-        internal static ServiceBusMessage ToSBMessage(this CCEventMessage message)
+        public static ServiceBusMessage ToSBMessage(this CCEventMessage message)
         {
             var msg = new ServiceBusMessage(message.Payload.ToString())
             {
