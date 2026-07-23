@@ -2,7 +2,6 @@
 using CloudCanvas.Application.Posts.Photos.Commands.UploadFile;
 using CloudCanvas.Application.Posts.Photos.Queries.GetPhotos;
 using CloudCanvas.Application.Posts.Photos.Queries.GetPhotosByUser;
-using MapsterMapper;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -19,7 +18,7 @@ namespace CloudCanvas.Application
                 cfg.RegisterServicesFromAssemblyContaining<CreatePhotoCommand>();
                 cfg.RegisterServicesFromAssemblyContaining<GetAllPhotosQuery>();
                 cfg.RegisterServicesFromAssemblyContaining<GetUserPhotosQuery>();
-            }).AddTransient<IMapper, Mapper>();
+            });
 
             var options = new JsonSerializerOptions
             {

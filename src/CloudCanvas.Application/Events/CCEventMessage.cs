@@ -2,6 +2,7 @@
 {
     public record CCEventMessage
     {
+        public string Id { get; set; } = default!;
         public string Subject { get; set; } = default!;
         public string CorrelationId { get; set; } = default!;
         public string EventType { get; set; } = default!;

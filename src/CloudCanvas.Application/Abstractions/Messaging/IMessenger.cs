@@ -35,6 +35,6 @@ namespace CloudCanvas.Application.Abstractions.Messaging
         /// <returns>A <see cref="Task"/> that represents the asynchronous operation.</returns>
         Task SendBatchAsync(string topic, List<CCEventMessage> messages, int batchCount = 1, CancellationToken cancellation = default);
 
-        Task<string> SendCreateThumbnailsMessage(PhotoDTO photo, string correlationId, CancellationToken cancellation = default);
+        Task<string> NofityProjectionCompletedAsync(PhotoDTO photo, string correlationId, CancellationToken cancellation = default);
     }
 }

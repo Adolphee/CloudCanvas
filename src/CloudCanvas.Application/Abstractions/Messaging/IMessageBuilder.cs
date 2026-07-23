@@ -6,9 +6,10 @@ namespace CloudCanvas.Application.Abstractions.Messaging
     {
         IMessageBuilder WithSubject(string subject);
         IMessageBuilder AddProperty(string key, object value);
-        IMessageBuilder SetCorrelationId(string correlationId);
+        IMessageBuilder SetCorrelationId(string? correlationId = null);
         IMessageBuilder AddProperties(IDictionary<string, object> props);
-        IMessageBuilder CreateThumbnailsMessage(string correlationId);
         CCEventMessage Finalize(string? messageId = null);
+        IMessageBuilder CreateThumbnailsMessage(string? correlationId = null);
+        IMessageBuilder ThumbnailsCreationComplete(string? correlationId = null);
     }
 }

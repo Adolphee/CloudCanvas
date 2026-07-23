@@ -38,7 +38,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Mapster" Version="10.0.10" />
     <PackageReference Include="MediatR" Version="14.2.0" />
     <PackageReference Include="Newtonsoft.Json.Schema" Version="4.0.1" />
 	<FrameworkReference Include="Microsoft.AspNetCore.App" />

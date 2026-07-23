@@ -82,9 +82,16 @@ namespace CloudCanvas.Infrastructure.Messaging
             }
         }
 
-        public async Task<string> SendCreateThumbnailsMessage(PhotoDTO photo, string correlationId, CancellationToken cancellation = default)
+        public async Task<string> NofityProjectionCompletedAsync(PhotoDTO photo, string correlationId, CancellationToken cancellation = default)
         {
             var msg = _mFactory.BuildFor(photo).CreateThumbnailsMessage(correlationId).Finalize();
+            return await SendAsync(ServiceBus.Topics.FileUpdates, msg, cancellation);
+        }
+
+        public async Task<string> SendCreateThumbnailsCompletionMessage(PhotoDTO photo, string correlationId, CancellationToken cancellation = default)
+        {
+            var sender = _factory.GetSender(ServiceBus.Topics.FileUpdates);
+            var msg = _mFactory.BuildFor(photo).ThumbnailsCreationComplete(correlationId).Finalize();
             return await SendAsync(ServiceBus.Topics.FileUpdates, msg, cancellation);
         }
     }

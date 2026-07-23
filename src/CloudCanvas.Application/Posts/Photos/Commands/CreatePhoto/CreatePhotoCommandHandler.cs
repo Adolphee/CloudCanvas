@@ -20,7 +20,7 @@ public sealed record CreatePhotoCommandHandler(IPhotoProjector store, IPhotoRepo
         var projection = photo.ToProjection(command.Creator ?? throw new ArgumentNullException("Creator is null"));
         projection = await _store.SaveProjectionAsync(projection, CloudCosmos.Containers.UserPhotos, false, cancellation);
         // Announce: projection ready for thumbnails
-        var res = await _messenger.SendCreateThumbnailsMessage(projection, projection.Id!, cancellation);
+        var res = await _messenger.NofityProjectionCompletedAsync(projection, projection.Id!, cancellation);
         // Hide Id and Username for now
         projection.Creator!.SetDisplayNameOnly(projection.Creator.DisplayName);
         return new(){ Success = true, Photo = projection };
