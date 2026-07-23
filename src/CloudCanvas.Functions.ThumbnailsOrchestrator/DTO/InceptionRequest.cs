@@ -1,9 +1,9 @@
-﻿using CloudCanvas.Infrastructure.DTOs;
+﻿using CloudCanvas.Application.Posts.DTOs;
 
 namespace CloudCanvas.Functions.ThumbnailOrchestrator.DTO
 {
-    public class InceptionRequest(BlobMetadata blob, string correlationId) : CorrelatedRequest(correlationId)
+    public class InceptionRequest(PhotoDTO photo, string correlationId) : CorrelatedRequest(correlationId)
     {
-        public BlobMetadata Blob { get; } = blob;
+        public PhotoDTO Photo { get; } = photo;
     }
 }
