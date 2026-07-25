@@ -9,7 +9,9 @@ namespace CloudCanvas.Application.Abstractions.Messaging
         IMessageBuilder SetCorrelationId(string? correlationId = null);
         IMessageBuilder AddProperties(IDictionary<string, object> props);
         CCEventMessage Finalize(string? messageId = null);
-        IMessageBuilder CreateThumbnailsMessage(string? correlationId = null);
-        IMessageBuilder ThumbnailsCreationComplete(string? correlationId = null);
+
+
+        IMessageBuilder ProjectionCompleteMessage(string src_container, string correlationId);
+        IMessageBuilder ThumbnailsCreatedMessage(string? correlationId);
     }
 }

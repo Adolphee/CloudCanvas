@@ -3,6 +3,8 @@ using CloudCanvas.Application.Abstractions.Messaging;
 using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Application.Events;
 using CloudCanvas.Application.Posts.DTOs;
+using CloudCanvas.Application.Posts.Photos.Commands.CreatePhoto;
+using CloudCanvas.Application.Thumbnails.Commands.CreateThumbnail;
 using CloudCanvas.Infrastructure.Common;
 using CloudCanvas.Infrastructure.Exceptions;
 using Microsoft.Extensions.Logging;
@@ -82,16 +84,15 @@ namespace CloudCanvas.Infrastructure.Messaging
             }
         }
 
-        public async Task<string> NofityProjectionCompletedAsync(PhotoDTO photo, string correlationId, CancellationToken cancellation = default)
+        public async Task<string> NofityProjectionCompletedAsync(string srcContainer, PhotoDTO photo, string correlationId, CancellationToken cancellation = default)
         {
-            var msg = _mFactory.BuildFor(photo).CreateThumbnailsMessage(correlationId).Finalize();
+            var msg = _mFactory.BuildForPhoto(photo).ProjectionCompleteMessage(srcContainer, correlationId).Finalize();
             return await SendAsync(ServiceBus.Topics.FileUpdates, msg, cancellation);
         }
 
         public async Task<string> SendCreateThumbnailsCompletionMessage(PhotoDTO photo, string correlationId, CancellationToken cancellation = default)
         {
-            var sender = _factory.GetSender(ServiceBus.Topics.FileUpdates);
-            var msg = _mFactory.BuildFor(photo).ThumbnailsCreationComplete(correlationId).Finalize();
+            var msg = _mFactory.BuildForPhoto(photo).ThumbnailsCreatedMessage(correlationId).Finalize();
             return await SendAsync(ServiceBus.Topics.FileUpdates, msg, cancellation);
         }
     }
