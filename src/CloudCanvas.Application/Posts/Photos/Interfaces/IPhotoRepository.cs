@@ -1,9 +1,5 @@
-﻿using CloudCanvas.Application.Abstractions.Persistence;
-using CloudCanvas.Application.Posts.DTOs;
-using CloudCanvas.Domain.Posts;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using CloudCanvas.Domain.Posts;
+using CloudCanvas.Domain.Thumbnail;
 
 namespace CloudCanvas.Application.Posts.Photos.Interfaces
 {
@@ -14,5 +10,7 @@ namespace CloudCanvas.Application.Posts.Photos.Interfaces
         Task<bool> DeleteAsync(string id, bool softDelete = true, CancellationToken cancellation = default);
         Task<Photo?> GetByIdAsync(string id, CancellationToken cancellation = default);
         Task<bool> ExistsAsync(string id, CancellationToken cancellation = default);
+
+        Task<bool> SaveThumbnailAsync(PhotoThumbnail thumnail, CancellationToken cancellation = default);
     }
 }

@@ -23,7 +23,7 @@ namespace CloudCanvas.Application.Posts.Photos.Commands.CreatePhoto
         public long ContentLength { get; set; }
         public List<string>? UserTags { get; set; } = new();
         public TimeStampz? TimeStamps { get; set; } = new();
-        [JsonIgnore]
         public Creator? Creator = null;
+        public string ContainerName = BStorage.Containers.Uploads;
     }
 }

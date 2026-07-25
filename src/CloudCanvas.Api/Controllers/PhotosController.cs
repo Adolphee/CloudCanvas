@@ -23,7 +23,6 @@ namespace CloudCanvas.Api.Controllers
         [HttpPost(Name = "CreatePhoto")]
         public async Task<ActionResult<CreatePhotoResult>> CreatePhotoAsync([FromBody] CreatePhotoCommand command, CancellationToken cancellation = default) 
         {
-
             command.UserId = User.GetObjectId()!;
             var userName = User.FindFirstValue(ClaimTypes.Email);
             var displayName = User.FindFirstValue(CCClaimTypes.Name);

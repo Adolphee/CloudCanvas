@@ -9,5 +9,6 @@ namespace CloudCanvas.Application.Posts.Photos.Commands.CreatePhoto
     {
         public bool Success { get; set; } = false;
         public PhotoDTO? Photo { get; set; } = default!;
+        public string OriginalContainer { get; set; } = BStorage.Containers.Uploads;
     }
 }
