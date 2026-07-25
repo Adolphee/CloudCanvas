@@ -1,4 +1,5 @@
 ﻿using CloudCanvas.Application.Posts.Photos.Commands.CreatePhoto;
+using CloudCanvas.Application.Users;
 using CloudCanvas.Domain.Common.Enums;
 using CloudCanvas.Domain.Posts;
 using CloudCanvas.Domain.Thumbnail;
@@ -122,7 +123,7 @@ namespace CloudCanvas.Application.Common.Mapping
                 Title = photo.Title,
                 ContentLength = photo.ContentLength,
                 UserTags = photo.UserTags,
-                Thumbnails = photo.Thumbnails.ToDictionary(p => p.Size.ToString(), p => p.Url),
+                //Thumbnails = photo.Thumbnails.ToDictionary(p => p.Size.ToString(), p => p.Url),
                 GalleryId = photo.GalleryId,
                 Reactions = new()
                 {
@@ -144,9 +145,10 @@ namespace CloudCanvas.Application.Common.Mapping
                     DeletedOn = photo.DeletedOn
                 }, 
             };
-
+            photoDTO.Thumbnails = photo.Thumbnails.ToDictionary(p => p.Size.ToString(), p => p.Url);
             return photoDTO;
         }
+        
         #endregion
 
         #region CONVERT TO COMMANDS

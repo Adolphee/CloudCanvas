@@ -1,51 +1,15 @@
 ﻿using Azure.Storage.Blobs.Models;
-using CloudCanvas.Application.Common;
 using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Application.Posts.DTOs;
+using CloudCanvas.Application.Users;
 using CloudCanvas.Domain.Common.Enums;
-using CloudCanvas.Domain.Posts;
 using CloudCanvas.Infrastructure.DTOs;
+using CloudCanvas.Infrastructure.Identity;
 
 namespace CloudCanvas.Infrastructure.Common.Extensions
 {
-    internal class CCSExtensions: CCSerializer
+    public static class InfraMapper
     {
-        internal static Post ToPost(string identifier, string blobUrl, BlobProperties props, PostClassification classification = PostClassification.Photo)
-        {
-            bool deleted = false;
-            DateTimeOffset result = DateTimeOffset.MinValue;
-            if (props.Metadata.Keys.Contains(BStorage.Meta.DeletedOn))
-            {
-                try
-                {
-                    deleted = DateTimeOffset.TryParse(props.Metadata[BStorage.Meta.DeletedOn], out result);
-                }
-                catch (Exception) { }  // swallowing this because it tells us deletedOn wasn't set so we can proceed as planned
-            }
-
-            // TODO: uploadedBy / userID will be implemented with the Auth milestone --> Done
-            var uploadedBy = props.Metadata[BStorage.Meta.UploadedBy] ?? null;
-            var oFilename = props.Metadata[BStorage.Meta.OriginalFilename] ?? identifier;
-            var containerName = props.Metadata["container"] ?? BStorage.Containers.Uploads;
-            var post = new Post();
-            switch(classification) {
-                case PostClassification.Photo: //TODO: enhance
-                    var photo = ((Photo)post);
-                    photo.Title = oFilename;
-                    photo.SetCreatedOn();
-                    photo.OriginalFilename = oFilename;
-                    return photo;
-                case PostClassification.Gallery: //TODO: enhance
-                    var gallery = ((Gallery)post);
-                    gallery.DisplayName = oFilename;
-                    gallery.SetCreatedOn();
-                    gallery.Description = String.Empty;
-                    return gallery;
-                default: break;
-            }
-            return post;
-        }
-        
         /// <summary>
         /// Converts the provided blob Properties and metadata into a <see cref="BlobMetadata"/> object.
         /// </summary>
@@ -57,7 +21,7 @@ namespace CloudCanvas.Infrastructure.Common.Extensions
         /// <param name="props">The Properties of the blob, including metadata, content details, and versioning information.</param>
         /// <returns>A <see cref="BlobMetadata"/> object containing metadata and Properties of the blob, such as its URL, 
         /// original file name, content details, and other relevant attributes.</returns>
-        internal static FileMetadata ToMetadata(string identifier, string blobUrl, BlobProperties props)
+        public static FileMetadata ToMetadata(this BlobProperties props, string identifier, string blobUrl)
         {
             bool deleted = false;
             DateTimeOffset result = DateTimeOffset.MinValue;
@@ -111,5 +75,23 @@ namespace CloudCanvas.Infrastructure.Common.Extensions
             };
         }
 
+
+        public static User ToIdentityUser(this ApplicationUser user) => new()
+        {
+            Id = user.Id,
+            Email = user.Email,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            UserName = user.UserName
+        };
+
+        public static ApplicationUser ToAppUser(this User user) => new()
+        {
+            Id = user.Id,
+            Email = user.Email,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            UserName = user.UserName
+        };
     }
 }

@@ -1,7 +1,9 @@
-﻿using Azure.Messaging.ServiceBus;
+﻿using Azure.Core;
+using Azure.Messaging.ServiceBus;
 using CloudCanvas.Application.Common;
 using CloudCanvas.Application.Events;
 using CloudCanvas.Application.Posts.DTOs;
+using System.Net.Mime;
 
 namespace CloudCanvas.Infrastructure.Common
 {
@@ -13,8 +15,9 @@ namespace CloudCanvas.Infrastructure.Common
         /// <returns>ServiceBusMessage</returns>
         public static ServiceBusMessage ToSBMessage(this CCEventMessage message)
         {
-            var msg = new ServiceBusMessage(message.Payload.ToString())
+            var msg = new ServiceBusMessage(message.Payload)
             {
+                ContentType = message.ContentType ?? Azure.Core.ContentType.ApplicationJson.ToString(),
                 MessageId = Guid.NewGuid().ToString(),
                 Subject = message.Subject,
                 CorrelationId = message.CorrelationId

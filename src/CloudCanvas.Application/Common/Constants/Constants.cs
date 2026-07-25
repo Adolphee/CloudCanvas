@@ -44,6 +44,7 @@ namespace CloudCanvas.Application.Common.Constants
         {
             public const string EventType = "eventType";
             public const string ThumbnailSize = "thumbnailSize";
+            public const string ContainerName = "ContainerName";
         }
 
         public abstract class Subs
@@ -64,7 +65,7 @@ namespace CloudCanvas.Application.Common.Constants
         }
     }
 
-    public abstract class CloudCosmos
+    public abstract class Projection
     {
         public const string Sql = "cloudcosmos_sql";
         public const string Uri = "CosmosEndpointURI";

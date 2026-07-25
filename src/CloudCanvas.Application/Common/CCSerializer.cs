@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace CloudCanvas.Application.Common
 {
-    public class CCSerializer
+    public abstract class CCSerializer
     {
         private static JsonSerializerOptions _options = new JsonSerializerOptions
         {
