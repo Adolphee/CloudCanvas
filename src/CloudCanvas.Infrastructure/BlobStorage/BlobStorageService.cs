@@ -4,10 +4,10 @@ using Azure.Storage.Blobs.Models;
 using CloudCanvas.Application.Abstractions.Storage;
 using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Application.Posts.DTOs;
-using CCSerializer = CloudCanvas.Infrastructure.Common.Extensions.CCSExtensions;
 using CloudCanvas.Infrastructure.Exceptions;
 using Microsoft.Extensions.Logging;
 using CloudCanvas.Application.Thumbnails.Commands.CreateThumbnail;
+using CloudCanvas.Infrastructure.Common.Extensions;
 
 namespace CloudCanvas.Infrastructure.BlobStorage
 {
@@ -58,6 +58,7 @@ namespace CloudCanvas.Infrastructure.BlobStorage
                 _logger.LogError(e, "Error: Failed to initiate new BlobContainerClient for container {0}", containerName);
                 // This layer doesn’t know what to do with this low-level transport exception
                 //  — let whoever owns the retry logic or orchestration deal with it.
+                // SPOILER ALERT: that's me -_-'
                 throw new BlobContainerClientInitializationFailedException(e.Message, e);
             }
         }
@@ -86,9 +87,9 @@ namespace CloudCanvas.Infrastructure.BlobStorage
        /// <summary>
        /// Uploads a file to the specified blob storage container.
        /// </summary>
-       /// <remarks>This method uploads the provided file stream to the specified container in blob
+       /// <remarks>This method uploads the provided file memStream to the specified container in blob
        /// storage.  If a blob with the same name already exists, it will be overwritten.</remarks>
-       /// <param name="filestream">The stream containing the file data to upload. The stream must be readable and its position will be reset to
+       /// <param name="filestream">The memStream containing the file data to upload. The memStream must be readable and its position will be reset to
        /// 0 before uploading.</param>
        /// <param name="filename">The name of the file to be created in the blob storage. Cannot be null or empty.</param>
        /// <param name="containerName">The name of the blob storage container where the file will be uploaded. Defaults to the "Uploads" container
@@ -99,17 +100,18 @@ namespace CloudCanvas.Infrastructure.BlobStorage
         {
             filestream.Position = 0;
             var identifier = !String.IsNullOrWhiteSpace(customIdentifier) ? customIdentifier : Guid.NewGuid().ToString();
-            return await UploadToBlobStorage(containerName, identifier, filestream, blobProperties);
+            return await UploadToBlobStorage(containerName, identifier, filestream, blobProperties, cancellation);
         }
 
-        private async Task<FileMetadata> UploadToBlobStorage(string containerName, string identifier, Stream fileStream, Dictionary<string, string> metadata)
+        private async Task<FileMetadata> UploadToBlobStorage(string containerName, string identifier, Stream fileStream, Dictionary<string, string> metadata, CancellationToken cancellation = default)
         {
             try
             {
-                var client = await GetOrCreateContainerClientAsync(containerName);
-                var blob = client.GetBlobClient(identifier);
-                var info = await blob.UploadAsync(fileStream, new BlobUploadOptions { Metadata = metadata });
-                FileMetadata dto = CCSerializer.ToMetadata(identifier, blob.Uri.ToString(), blob.GetProperties());
+                var client = await GetOrCreateContainerClientAsync(containerName, default, cancellation);
+                var blob = client.GetBlobClient($"{identifier}.jpeg");
+                var info = await blob.UploadAsync(fileStream, new BlobUploadOptions { Metadata = metadata }, cancellation);
+                var props = (await blob.GetPropertiesAsync(default, cancellation)).Value;
+                FileMetadata dto = props.ToMetadata(identifier, blob.Uri.ToString());
                 return dto;
             }
             catch (Exception e)
@@ -126,7 +128,7 @@ namespace CloudCanvas.Infrastructure.BlobStorage
         /// <param name="uploadedById"></param>
         /// <param name="createdOn"></param>
         /// <returns type="Dictionary<string, string>">Dictionary of metadata Properties</returns>
-        public Dictionary<string, string> SetOriginalMetadata(string filename, string uploadedById, CancellationToken cancellation = default)
+        public Dictionary<string, string> SetOriginalMetadata(string filename, string uploadedById)
         {
             Dictionary<string, string> properties = new();
             properties.Add(BStorage.Meta.OriginalFilename, filename); // this is to enforce data consistency, convertability between BlobProperties & FileMetadata
@@ -139,8 +141,8 @@ namespace CloudCanvas.Infrastructure.BlobStorage
         {
             var container = await GetOrCreateContainerClientAsync(fromContainer);
             var bclient = container.GetBlobClient(identifier);
-            var props = await bclient.GetPropertiesAsync();
-            return CCSerializer.ToMetadata(identifier, bclient.Uri.ToString(), props);
+            var props = (await bclient.GetPropertiesAsync(default, cancellation)).Value;
+            return props.ToMetadata(identifier, bclient.Uri.ToString());
         }
 
         public async Task<FileMetadata> AddFileMetadataAsync(FileMetadata blob, string key, string value, CancellationToken cancellation = default)
@@ -159,7 +161,7 @@ namespace CloudCanvas.Infrastructure.BlobStorage
             await foreach(var item in blobItems)
             {
                var blob = container.GetBlobClient(item.Name);
-                FileMetadata meta = CCSerializer.ToMetadata(blob.Name, blob.Uri.ToString(), await blob.GetPropertiesAsync());
+                FileMetadata meta = (await blob.GetPropertiesAsync()).Value.ToMetadata(blob.Name, blob.Uri.ToString());
                 results.Add(meta);
             }
             return results;
@@ -180,11 +182,16 @@ namespace CloudCanvas.Infrastructure.BlobStorage
             }
         }
 
-        public async Task<Stream> GetFileStreamFromCommand(CreateThumbnailCommand command, CancellationToken cancellation = default)
+        public async Task<Stream> GetFileStreamFromCommandAsync(CreateThumbnailCommand command, CancellationToken cancellation = default)
         {
-            var bclient = await GetOrCreateContainerClientAsync(command.OriginalContainer ?? BStorage.Containers.Uploads, default, cancellation); // original file blob container
-            using var stream = await bclient.GetBlobClient(command.Photo.Id).OpenReadAsync(); // download file
-            return stream;
+            var bclient = await GetOrCreateContainerClientAsync(command.OriginalContainer ?? throw new InvalidArgumentException("Command.OriginalContainer cannot be null.")); // original file blob container
+            var fileName = command.Photo.Location.Split("/").Last();
+            var containerName = command.Photo.Location.Split("/").SkipLast(1).Last();
+            await using var blobStream = await bclient.GetBlobClient(fileName).OpenReadAsync(); // download file
+            var memStream = new MemoryStream(); // No using clause because I expect to return it
+            await blobStream.CopyToAsync(memStream, cancellation);
+            memStream.Position = 0;
+            return memStream;
         }
     }
 }
