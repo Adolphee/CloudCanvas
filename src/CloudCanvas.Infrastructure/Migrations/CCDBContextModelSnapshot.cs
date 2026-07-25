@@ -203,6 +203,10 @@ namespace CloudCanvas.Infrastructure.Migrations
 
                     b.HasIndex("PhotoId");
 
+                    b.HasIndex(new[] { "Size", "PhotoId" }, "SinglePhotoManyThumbnails_OnlyDifferentSizes")
+                        .IsUnique()
+                        .HasFilter("[PhotoId] IS NOT NULL");
+
                     b.ToTable("PhotoThumbnails", (string)null);
                 });
 

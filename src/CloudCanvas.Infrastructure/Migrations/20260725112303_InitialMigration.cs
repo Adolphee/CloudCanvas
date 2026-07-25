@@ -413,6 +413,13 @@ namespace CloudCanvas.Infrastructure.Migrations
                 column: "PhotoId");
 
             migrationBuilder.CreateIndex(
+                name: "SinglePhotoManyThumbnails_OnlyDifferentSizes",
+                table: "PhotoThumbnails",
+                columns: new[] { "Size", "PhotoId" },
+                unique: true,
+                filter: "[PhotoId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Posts_UserId",
                 table: "Posts",
                 column: "UserId");

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CloudCanvas.Infrastructure.Migrations
 {
     [DbContext(typeof(CCDBContext))]
-    [Migration("20260721190507_InitialMigration")]
+    [Migration("20260725112303_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -205,6 +205,10 @@ namespace CloudCanvas.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("PhotoId");
+
+                    b.HasIndex(new[] { "Size", "PhotoId" }, "SinglePhotoManyThumbnails_OnlyDifferentSizes")
+                        .IsUnique()
+                        .HasFilter("[PhotoId] IS NOT NULL");
 
                     b.ToTable("PhotoThumbnails", (string)null);
                 });

@@ -46,7 +46,7 @@ public class CCDBContext(DbContextOptions<CCDBContext> options) : IdentityDbCont
         });
 
         modelBuilder.Entity<Comment>().ToTable("Comments");
-        modelBuilder.Entity<PhotoThumbnail>().ToTable("PhotoThumbnails");
+        modelBuilder.Entity<PhotoThumbnail>().ToTable("PhotoThumbnails").HasIndex(t => new { t.Size, t.PhotoId }, "SinglePhotoManyThumbnails_OnlyDifferentSizes").IsUnique();
         modelBuilder.Entity<Gallery>(g =>
         {
             g.ToTable("Galleries");
