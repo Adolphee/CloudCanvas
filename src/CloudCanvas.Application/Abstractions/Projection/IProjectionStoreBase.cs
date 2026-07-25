@@ -13,6 +13,6 @@ namespace CloudCanvas.Application.Abstractions.Projection
         Task<List<T>> GetByUserIdAsync(string userId, string containerName, CancellationToken cancellationToken = default);
         Task<T> SingleAsync(string documentId, string partitionKey, string containerName, CancellationToken cancellationToken = default);
         Task<bool> ExistsAsync(string containerName, string id, string partitionKey, CancellationToken cancellationToken = default);
-        Task<T> PatchAsync(string id, string partitionKey, string containerName, IReadOnlyList<IDictionary<string, string?>> ops, CancellationToken cancellationToken = default);
+        Task<PhotoDTO> PatchAsync(string identifier, string userId, string containerName, IDictionary<string, object> ops, CancellationToken cancellationToken = default);
     }
 }

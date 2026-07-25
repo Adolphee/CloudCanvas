@@ -3,9 +3,10 @@ using CloudCanvas.Application.Posts.DTOs;
 using CloudCanvas.Application.Posts.Photos.Interfaces;
 using CloudCanvas.Infrastructure.DTOs;
 using CloudCanvas.Infrastructure.Exceptions;
+using CloudCanvas.Infrastructure.Identity;
 using Mapster;
 using Microsoft.Azure.Cosmos;
-using CCContainers = CloudCanvas.Application.Common.Constants.CloudCosmos.Containers;
+using CCContainers = CloudCanvas.Application.Common.Constants.Projection.Containers;
 namespace CloudCanvas.Infrastructure.Cosmos
 {
     public class PhotoProjectionStore(CosmosClient client) : IPhotoProjectionStore
@@ -16,7 +17,7 @@ namespace CloudCanvas.Infrastructure.Cosmos
 
         public async Task<PhotoDTO> SaveProjectionAsync(PhotoDTO photo, string containerName = _containerName, bool overWrite = true, CancellationToken cancellationToken = default)
         {
-            var container = _client.GetContainer(CloudCosmos.Sql, containerName);
+            var container = _client.GetContainer(Projection.Sql, containerName);
             ItemResponse<PhotoDTO> result;
             if (photo.Id == null) photo.Id = Guid.NewGuid().ToString();
             var partitionKey = new PartitionKey(photo.UserId);
@@ -31,14 +32,14 @@ namespace CloudCanvas.Infrastructure.Cosmos
             // At this point, either _container is null or it's not the one we want, so we get it from the client
             try
             {
-                _container = _client.GetContainer(CloudCosmos.Sql, containerId);
+                _container = _client.GetContainer(Projection.Sql, containerId);
             }
             catch (Exception e)
             {   // Custom exception wrapped around the original, for more context
                 throw new CosmosContainerNotFoundException($"Container Not Found: '{containerId}'", e)
                 {
                     ContainerName = containerId,
-                    DatabaseName = CloudCosmos.Sql
+                    DatabaseName = Projection.Sql
                 };
             }
             return _container;
@@ -107,16 +108,12 @@ namespace CloudCanvas.Infrastructure.Cosmos
             }
         }
 
-        public async Task<PhotoDTO> PatchAsync(string identifier, string userId, string containerName, IReadOnlyList<PatchOperation> ops, CancellationToken cancellationToken = default)
+        public async Task<PhotoDTO> PatchAsync(string identifier, string userId, string containerName, IDictionary<string, object> ops, CancellationToken cancellationToken = default)
         {
+            var patches = ops.Select(p => PatchOperation.Set(p.Key, p.Value)).ToList();
             _container = GetContainer(containerName);
-            var res = await _container.PatchItemAsync<PhotoDTO>(id: identifier, partitionKey: new PartitionKey(userId), patchOperations: ops, cancellationToken: cancellationToken);
+            var res = await _container.PatchItemAsync<PhotoDTO>(id: identifier, partitionKey: new PartitionKey(userId), patchOperations: patches, cancellationToken: cancellationToken);
             return res.Resource;
-        }
-
-        public async Task<PhotoDTO> PatchAsync(string id, string partitionKey, string containerName, IReadOnlyList<IDictionary<string, string?>> ops, CancellationToken cancellationToken = default)
-        {
-            return null;
         }
     }
 }
