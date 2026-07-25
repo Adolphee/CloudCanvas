@@ -1,6 +1,7 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
 using CloudCanvas.Application.Abstractions.Messaging;
+using CloudCanvas.Application.Abstractions.Persistence;
 using CloudCanvas.Application.Abstractions.Storage;
 using CloudCanvas.Application.Common;
 using CloudCanvas.Application.Common.Constants;
@@ -22,15 +23,19 @@ namespace CloudCanvas.Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration config)
         {
-            var tenant = config["AzureAd:TenantId"];
-            services.AddScoped<IImageTool, ImageTool>();
             services.AddScoped<IPhotoRepository, PhotoRepositoryEF>();
-            services.AddTransient<IPhotoProjectionStore, PhotoProjectionStore>();
             services.AddScoped<IMediaStorage, BlobStorageService>();
-            services.AddDbContext<CCDBContext>(options => options.UseSqlServer(config.GetConnectionString(SQLServer.ConnectionString)));
+            services.AddScoped<IPhotoProjectionStore, PhotoProjectionStore>();
+            services.AddScoped<IMessenger, Messenger>();
+            services.AddScoped<IMessageBuilder, SBMessageBuilder>();
+            services.AddScoped<IMessageFactory, MessageFactory>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddTransient<IImageTool, ImageTool>();
+
+            services.AddDbContext<CCDBContext>(options => options.UseSqlServer(config.GetConnectionString(SQLServer.ConnectionString), sql => sql.EnableRetryOnFailure()));
             services.AddSingleton(cc =>
             {
-                var endpoint = config.GetConnectionString(CloudCosmos.Uri);
+                var endpoint = config.GetConnectionString(Projection.Uri);
 
                 return new CosmosClient(endpoint, new CosmosClientOptions
                 {
@@ -42,21 +47,16 @@ namespace CloudCanvas.Infrastructure
                     }
                 });
             });
-
             services.AddSingleton(cc =>
             {
                 var uri = config.GetConnectionString(BStorage.BSConnection);
                 return new BlobServiceClient(uri);
             });
-
-            services.AddTransient<IMessenger, Messenger>();
-            services.AddScoped<IMessageBuilder, SBMessageBuilder>();
-            services.AddScoped<IMessageFactory, MessageFactory>();
             services.AddSingleton<IMessengerFactory>(sp =>
             {
-                var endpoint = config.GetConnectionString(Secrets.FUMSGO);
-                Validate.StringValue(nameof(endpoint), endpoint);     // Quick Validation even in startup, Fail-Fast principle
-                var client = new ServiceBusClient(endpoint);
+                var sendpoint = config.GetConnectionString(Secrets.FUMSGO);
+                Validate.StringValue(nameof(sendpoint), sendpoint);     // Quick Validation even in startup, Fail-Fast principle
+                var client = new ServiceBusClient(sendpoint);
                 return new SBClientFactory(client);
             });
             return services;
