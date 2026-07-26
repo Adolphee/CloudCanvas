@@ -31,11 +31,11 @@ namespace CloudCanvas.Application.Common.Mapping
                 CommentsEnabled = cmd.CommentsEnabled
             };
         }
-        public static Photo ToPhoto(this PhotoDTO dto)
+        public static Photo ToPhoto(this PhotoDTO dto, bool assignThumbnaiIds = true)
         {
             return new()
             {
-                Id = dto.Id,
+                Id = dto.Id ?? Guid.NewGuid().ToString(),
                 OriginalFilename = dto.OriginalFilename,
                 Title = dto.Title,
                 Caption = dto.Description,
@@ -46,6 +46,7 @@ namespace CloudCanvas.Application.Common.Mapping
                 Classification = PostClassification.Photo,
                 Thumbnails = dto.Thumbnails.Select(t => new PhotoThumbnail
                 {
+                    Id = assignThumbnaiIds? Guid.NewGuid().ToString(): default,
                     PhotoId = dto.Id,
                     OriginalImageURL = dto.Location,
                     Size = (ThumbnailSize) Enum.Parse(typeof(ThumbnailSize), t.Key.ToString()),
@@ -62,7 +63,7 @@ namespace CloudCanvas.Application.Common.Mapping
             var thumb = fmdt.Thumbnails;
             return new Photo
             {
-                Id = fmdt.Id,
+                Id = fmdt.Id ?? Guid.NewGuid().ToString(),
                 OriginalFilename = fmdt.OriginalFilename,
                 Title = fmdt.OriginalFilename,
                 Caption = fmdt.Description,
@@ -73,7 +74,7 @@ namespace CloudCanvas.Application.Common.Mapping
                 Classification = PostClassification.Photo,
                 Thumbnails = thumb.Select(t => new PhotoThumbnail
                 {
-                    PhotoId = fmdt.Id,
+                    PhotoId = fmdt.Id ?? Guid.NewGuid().ToString(),
                     OriginalImageURL = fmdt.Location,
                     Size = t.Key,
                     Url = t.Value
@@ -91,7 +92,7 @@ namespace CloudCanvas.Application.Common.Mapping
         {
             return new PhotoDTO
             {
-                Id = fmdt.Id,
+                Id = fmdt.Id ?? Guid.NewGuid().ToString(),
                 OriginalFilename = fmdt.OriginalFilename,
                 Title = fmdt.OriginalFilename,
                 Description = fmdt.Description,
@@ -114,7 +115,7 @@ namespace CloudCanvas.Application.Common.Mapping
         public static PhotoDTO ToProjection(this Photo photo, Creator creator) {
             PhotoDTO photoDTO = new()
             {
-                Id = photo.Id,
+                Id = photo.Id ?? Guid.NewGuid().ToString(),
                 UserId = photo.UserId, 
                 OriginalFilename = photo.OriginalFilename,
                 Location = photo.Location ?? throw new ArgumentNullException("Photo.Location is null while converting to PhotoDTO"),
