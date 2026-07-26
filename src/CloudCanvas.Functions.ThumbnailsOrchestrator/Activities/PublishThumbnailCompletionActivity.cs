@@ -1,11 +1,5 @@
 using CloudCanvas.Application.Abstractions.Messaging;
-using CloudCanvas.Application.Common.Constants;
-using CloudCanvas.Application.Common.Exceptions;
-using CloudCanvas.Application.Posts.DTOs;
-using CloudCanvas.Functions.ThumbnailOrchestrator.DTO;
 using CloudCanvas.Infrastructure.DTOs;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
 
 namespace CloudCanvas.Functions.ThumbnailOrchestrator.Activities;
 
@@ -20,7 +14,7 @@ public class PublishThumbnailCompletionActivity(IMessenger messenger)
         logger.LogInformation("{correlationId} Thumbnails orchestration complete. BlobId: {identifier}, InstanceId: {instanceId}", req.CorrelationId, req.Photo.Id, req.InstanceId);
         try
         {
-            var res = await _messanger.NofityProjectionCompletedAsync(req.Photo, req.CorrelationId);
+            var res = await _messanger.SendCreateThumbnailsCompletionMessage(req.Photo, req.CorrelationId, cancellation);
             logger.LogInformation("{correlationId} Sent Message '{messageId}' to topic '{topic}': {subject}", 
                 req.CorrelationId, res, ServiceBus.Topics.FileUpdates, ServiceBus.Status.OrchestrationFinished);
         }

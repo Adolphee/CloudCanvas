@@ -33,13 +33,13 @@
     <Folder Include="Reactions\Command\" />
     <Folder Include="Reactions\Queries\" />
     <Folder Include="Reactions\Queries\" />
-    <Folder Include="Users\Commands\" />
     <Folder Include="Users\Queries\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="MediatR" Version="14.2.0" />
     <PackageReference Include="Newtonsoft.Json.Schema" Version="4.0.1" />
+    <PackageReference Include="System.Memory.Data" Version="10.0.3" />
 	<FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 

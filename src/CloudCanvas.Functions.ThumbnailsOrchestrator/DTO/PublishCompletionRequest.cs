@@ -1,11 +1,7 @@
-﻿using CloudCanvas.Application.Posts.DTOs;
-
-namespace CloudCanvas.Functions.ThumbnailOrchestrator.DTO
+﻿namespace CloudCanvas.Functions.ThumbnailOrchestrator.DTO
 {
-    public sealed class PublishCompletionRequest(PhotoDTO Photo, string correlationId, string instanceId) 
-        : SaveThumbnailsActivityRequest(Photo, correlationId, instanceId)
+    public sealed record PublishCompletionRequest(PhotoDTO photo, string correlationId, string instanceId) 
+        : ThumbnailOrchestrationRequest(photo, default!, correlationId, instanceId)
     {
-        public PublishCompletionRequest(CreateThumbnailActivityRequest req)
-            : this(req.Photo, req.CorrelationId, req.InstanceId) { }
     }
 }

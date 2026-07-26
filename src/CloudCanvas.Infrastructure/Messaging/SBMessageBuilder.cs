@@ -70,7 +70,7 @@ namespace CloudCanvas.Infrastructure.Messaging
             return WithSubject(Status.OrchestrationFinished)
                .SetCorrelationId(correlationId)
                 .AddProperty(Props.EventType, Subs.CreateThumbnail) // So that it makes it through subscription filters
-               .AddProperty(BStorage.Meta.CompletedOn, DateTimeOffset.Now);
+               .AddProperty(BStorage.Meta.CompletedOn, DateTimeOffset.Now.ToString());
         }
     }
 }
