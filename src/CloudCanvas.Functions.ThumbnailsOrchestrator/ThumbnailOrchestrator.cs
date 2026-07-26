@@ -1,10 +1,6 @@
-using CloudCanvas.Application.Posts.DTOs;
 using CloudCanvas.Domain.Common.Enums;
 using CloudCanvas.Functions.ThumbnailOrchestrator.Activities;
-using CloudCanvas.Functions.ThumbnailOrchestrator.DTO;
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask;
-using Microsoft.Extensions.Logging;
 
 namespace CloudCanvas.Functions.ThumbnailOrchestrator;
 
@@ -16,7 +12,7 @@ public class ThumbnailOrchestrator
     {   // log the invocation of the orchestrator
         var logger = context.CreateReplaySafeLogger(nameof(ThumbnailOrchestrator));
         logger.LogInformation("{correlationId} Thumbnail orchestration invoked. instanceId: {instanceId}, blobId: {identifier}",
-            req.CorrelationId, context.InstanceId, req.Photo.Id);
+            req.correlationId, context.InstanceId, req.photo.Id);
 
         // initial/future state
         var thumbnails = new Dictionary<ThumbnailSize, Task<string>>();
@@ -24,27 +20,27 @@ public class ThumbnailOrchestrator
         // fan-out
         foreach (var size in Enum.GetValues<ThumbnailSize>()) 
         {
-            var thumb_req = new CreateThumbnailActivityRequest(req.Photo, size, req.CorrelationId, context.InstanceId);
+            var thumb_req = new CreateThumbnailActivityRequest(req.photo, size, req.srcContainer, req.correlationId, context.InstanceId);
             thumbnails.Add(size, context.CallActivityAsync<string>(nameof(CreateThumbnailActivity), thumb_req));
         }
 
         // fan-in
         var results = await Task.WhenAll(thumbnails.Values); 
         logger.LogInformation("{correlationId} Fan-out/Fan-in completed. instanceId: {instanceId}, blobId: {identifier}",
-            req.CorrelationId, context.InstanceId, req.Photo.Id);
+            req.correlationId, context.InstanceId, req.photo.Id);
 
         // add thumbnails
         foreach ((var size, var url) in thumbnails) 
         {
-            req.Photo.Thumbnails.Add(size.ToString(), await url);
+            req.photo.Thumbnails.Add(size.ToString(), await url);
         }
 
         // save result to CosmosDB
-        var meta_req = new SaveThumbnailsActivityRequest(req.Photo, req.CorrelationId, context.InstanceId);
-        var finalMetadata = await context.CallActivityAsync<PhotoDTO>(nameof(SaveThumbnailActivity), meta_req);
+        var meta_req = new SaveThumbnailsActivityRequest(req.photo, req.srcContainer, req.correlationId, context.InstanceId);
+        var finalMetadata = await context.CallActivityAsync<PhotoDTO>(nameof(SaveThumbnailsActivity), meta_req);
 
         // publish results to service bus
-        var pub_req = new PublishCompletionRequest(req.Photo, req.CorrelationId, context.InstanceId);
+        var pub_req = new PublishCompletionRequest(req.photo, req.correlationId, context.InstanceId);
         await context.CallActivityAsync(nameof(PublishThumbnailCompletionActivity), pub_req);
         
         return finalMetadata;

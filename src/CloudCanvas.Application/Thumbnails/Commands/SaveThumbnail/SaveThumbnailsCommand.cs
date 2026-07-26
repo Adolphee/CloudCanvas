@@ -2,11 +2,10 @@
 
 namespace CloudCanvas.Application.Thumbnails.Commands.SaveThumbnail
 {
-    public record SaveThumbnailCommand: IRequest<SaveThumbnailResult>
+    public record SaveThumbnailsCommand: IRequest<SaveThumbnailsResult>
     {
         public PhotoDTO Photo { get; set; } = default!;
-        public ThumbnailSize ThumbnailSize { get; set; }
-        public string ThumbnailURL { get; set; } = default!;
         public Creator creator { get; set; } = default!;
+        public string OriginalContainer { get; set; } = default!;
     }
 }
