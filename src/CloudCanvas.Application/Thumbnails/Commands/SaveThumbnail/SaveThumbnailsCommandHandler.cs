@@ -1,4 +1,4 @@
-﻿using CloudCanvas.Application.Common;
+using CloudCanvas.Application.Common;
 using CloudCanvas.Application.Posts.Photos.Interfaces;
 using Microsoft.Extensions.Logging;
 
