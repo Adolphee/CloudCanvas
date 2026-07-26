@@ -1,8 +1,6 @@
 using CloudCanvas.Application;
 using CloudCanvas.Infrastructure;
-using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Identity.Web;
 
 using WebApplication = Microsoft.AspNetCore.Builder.WebApplication;
 var builder = WebApplication.CreateBuilder(args);
@@ -17,11 +15,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddSingleton(TypeAdapterConfig.GlobalSettings);
 //builder.Services.AddOpenApi();
-
 var app = builder.Build();
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

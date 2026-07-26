@@ -2,6 +2,7 @@
 using CloudCanvas.Application.Posts.Photos.Commands.UploadFile;
 using CloudCanvas.Application.Posts.Photos.Queries.GetPhotos;
 using CloudCanvas.Application.Posts.Photos.Queries.GetPhotosByUser;
+using CloudCanvas.Application.Users.Commands.EnsureUserExists;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -16,14 +17,16 @@ namespace CloudCanvas.Application
             {
                 cfg.RegisterServicesFromAssemblyContaining<UploadFileCommand>();
                 cfg.RegisterServicesFromAssemblyContaining<CreatePhotoCommand>();
+                cfg.RegisterServicesFromAssemblyContaining<EnsureUserExistsCommand>();
                 cfg.RegisterServicesFromAssemblyContaining<GetAllPhotosQuery>();
                 cfg.RegisterServicesFromAssemblyContaining<GetUserPhotosQuery>();
             });
 
-            var options = new JsonSerializerOptions
-            {
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-            };
+            services.Configure<JsonSerializerOptions>(options =>
+            {   
+                options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            });
 
             return services;
         }
