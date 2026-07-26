@@ -1,4 +1,4 @@
-﻿using CloudCanvas.Application.Common;
+using CloudCanvas.Application.Common;
 using CloudCanvas.Application.Posts.Photos.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -21,7 +21,7 @@ namespace CloudCanvas.Application.Thumbnails.Commands.SaveThumbnail
                 if (await _context.UpdateAsync(photo, cancellation))
                 {
                     var ops = new Dictionary<string, object> { ["/thumbnails"] = command.Photo.Thumbnails };
-                    var projection = await _projection.PatchAsync(photo.Id, photo.UserId, Projection.Containers.UserPhotos, ops, cancellation);
+                    var projection = await _projection.PatchAsync(photo.Id!, photo.UserId, Projection.Containers.UserPhotos, ops, cancellation);
 
                     return new SaveThumbnailsResult
                     {
