@@ -11,7 +11,7 @@ namespace CloudCanvas.Application.Posts.Photos.Queries.GetPhotos
 
         public async Task<GetAllPhotosResult> Handle(GetAllPhotosQuery query, CancellationToken cancellationToken = default)
         {
-            var photos = await _store.GetAllAsync(query.ContainerName ?? CloudCosmos.Containers.UserPhotos, cancellationToken);
+            var photos = await _store.GetAllAsync(query.ContainerName ?? Projection.Containers.UserPhotos, cancellationToken);
             return new GetAllPhotosResult(photos);
         }
     }
