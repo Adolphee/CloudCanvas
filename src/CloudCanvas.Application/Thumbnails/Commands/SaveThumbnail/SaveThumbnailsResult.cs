@@ -3,11 +3,9 @@ using CloudCanvas.Domain.Common.Enums;
 
 namespace CloudCanvas.Application.Thumbnails.Commands.SaveThumbnail
 {
-    public sealed record SaveThumbnailResult
+    public sealed record SaveThumbnailsResult
     {
         public CCOperationStatus Status { get; set; } = CCOperationStatus.Failed;
-        public PhotoDTO Photo { get; set; } = default!;
-        public ThumbnailSize Size { get; set; }
-        public string? Location { get; set; } = null;
+        public PhotoDTO? Photo { get; set; } = default!;
     }
 }
