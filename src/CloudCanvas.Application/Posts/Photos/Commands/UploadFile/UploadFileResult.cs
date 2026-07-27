@@ -1,6 +1,4 @@
-﻿using CloudCanvas.Application.Posts.DTOs;
-using CloudCanvas.Domain.Posts;
-using CloudCanvas.Domain.Posts.Contracts;
+﻿using CloudCanvas.Domain.Posts.Entities;
 
 namespace CloudCanvas.Application.Posts.Photos.Commands.UploadFile
 {

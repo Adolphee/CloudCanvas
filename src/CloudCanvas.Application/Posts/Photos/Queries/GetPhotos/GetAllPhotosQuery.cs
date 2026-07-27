@@ -1,4 +1,4 @@
-﻿using CloudCanvas.Domain.Common.Enums;
+﻿using CloudCanvas.Domain.Enums;
 
 namespace CloudCanvas.Application.Posts.Photos.Queries.GetPhotos
 {
@@ -8,5 +8,4 @@ namespace CloudCanvas.Application.Posts.Photos.Queries.GetPhotos
         public string? ContainerName { get; set; } = Projection.Containers.UserPhotos;
         public PostClassification Type { get; set; } = PostClassification.Photo;
     }
-
 }

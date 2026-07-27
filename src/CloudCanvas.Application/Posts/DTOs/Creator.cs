@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CloudCanvas.Application.Posts.DTOs
+﻿namespace CloudCanvas.Application.Posts.DTOs
 {
     public sealed record Creator
     {
-        public string? Id;
-        public string? UserName;
-        public string? DisplayName { get; set; }
+        public string? Id { get; init; }
+        public string? UserName { get; init; }
+        public string? DisplayName { get; init; }
         public Creator() { }
         public Creator(string id, string? username = null, string? displayName = null)
         {
@@ -19,14 +15,9 @@ namespace CloudCanvas.Application.Posts.DTOs
 
         public string? GetId() => Id;
         public string? GetUserName() => UserName;
-        private void ResetId() { Id = null; }
-        private void ResetUserName() { UserName = null; }
+        private Creator ResetId() => new Creator(default, UserName, DisplayName);
+        private void ResetUserName() => new Creator(Id, default, DisplayName);
 
-        public void SetDisplayNameOnly(string? displayName)
-        {
-            DisplayName = displayName;
-            ResetId();
-            ResetUserName();
-        }
+        public Creator SetDisplayNameOnly(string? displayName) => new Creator(Id, UserName, displayName);
     }
 }

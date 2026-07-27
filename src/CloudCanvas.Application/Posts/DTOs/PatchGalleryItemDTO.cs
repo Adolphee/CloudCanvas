@@ -2,17 +2,17 @@
 
 namespace CloudCanvas.Application.Posts.DTOs
 {
-    public class PatchGalleryItemDTO: MetadataDocumentBase
+    public record PatchGalleryItemDTO: MetadataDocumentBase
     {
         [JsonPropertyName("displayName")]
-        public string? DisplayName { get; set; }
+        public string? DisplayName { get; init; }
         [JsonPropertyName("description")]
-        public string? Description { get; set; }
+        public string? Description { get; init; }
         [JsonPropertyName("project")]
-        public string? Project { get; set; }
+        public string? Project { get; init; }
         [JsonPropertyName("galleryName")]
-        public string? GalleryName { get; set; }
+        public string? GalleryName { get; init; }
         [JsonPropertyName("userTags")]
-        public List<string>? UserTags { get; set; } = new();
+        public List<string>? UserTags { get; init; } = new();
     }
 }

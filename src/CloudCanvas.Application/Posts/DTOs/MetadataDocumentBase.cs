@@ -8,10 +8,10 @@ namespace CloudCanvas.Application.Posts.DTOs
     /// </summary>
     /// <remarks>This class provides a common structure for metadata documents, including the partition-key (the associated user).
     /// It is intended to be inherited by specific metadata document types.</remarks>
-    public abstract class MetadataDocumentBase: CosmosDocumentBase
+    public abstract record MetadataDocumentBase: CosmosDocumentBase
     {
         [Required]
         [JsonPropertyName("userId")]
-        public string? UserId { get; set; } // should be overwritten for more structured Id's
+        public string? UserId { get; init; } // should be overwritten for more structured Id's
     }
 }

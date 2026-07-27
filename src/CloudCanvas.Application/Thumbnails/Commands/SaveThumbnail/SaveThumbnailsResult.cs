@@ -1,5 +1,4 @@
 ﻿using CloudCanvas.Application.Common;
-using CloudCanvas.Domain.Common.Enums;
 
 namespace CloudCanvas.Application.Thumbnails.Commands.SaveThumbnail
 {

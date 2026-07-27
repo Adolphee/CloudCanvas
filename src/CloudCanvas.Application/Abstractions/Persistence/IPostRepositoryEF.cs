@@ -1,7 +1,4 @@
-﻿using CloudCanvas.Domain.Posts;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using CloudCanvas.Domain.Posts.Entities;
 
 namespace CloudCanvas.Application.Abstractions.Persistence
 {

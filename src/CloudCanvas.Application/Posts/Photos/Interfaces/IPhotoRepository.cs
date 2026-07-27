@@ -1,4 +1,4 @@
-﻿using CloudCanvas.Domain.Posts;
+﻿using CloudCanvas.Domain.Posts.Entities;
 using CloudCanvas.Domain.Thumbnail;
 
 namespace CloudCanvas.Application.Posts.Photos.Interfaces

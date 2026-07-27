@@ -1,4 +1,4 @@
-﻿using CloudCanvas.Domain.Common.Enums;
+﻿using CloudCanvas.Domain.Enums;
 
 namespace CloudCanvas.Application.Thumbnails.Commands.CreateThumbnail
 {

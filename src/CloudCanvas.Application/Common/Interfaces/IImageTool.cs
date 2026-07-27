@@ -1,7 +1,4 @@
-﻿using CloudCanvas.Domain.Common.Enums;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using CloudCanvas.Domain.Enums;
 
 namespace CloudCanvas.Application.Common.Interfaces
 {

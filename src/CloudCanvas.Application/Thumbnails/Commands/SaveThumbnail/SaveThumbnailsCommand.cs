@@ -1,6 +1,4 @@
-﻿using CloudCanvas.Domain.Common.Enums;
-
-namespace CloudCanvas.Application.Thumbnails.Commands.SaveThumbnail
+﻿namespace CloudCanvas.Application.Thumbnails.Commands.SaveThumbnail
 {
     public record SaveThumbnailsCommand: IRequest<SaveThumbnailsResult>
     {

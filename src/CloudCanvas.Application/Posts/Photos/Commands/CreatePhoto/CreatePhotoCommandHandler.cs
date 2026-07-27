@@ -1,6 +1,6 @@
 ﻿using CloudCanvas.Application.Abstractions.Messaging;
 using CloudCanvas.Application.Posts.Photos.Interfaces;
-using CloudCanvas.Domain.Posts;
+using CloudCanvas.Domain.Posts.Entities;
 using IPhotoProjector = CloudCanvas.Application.Posts.Photos.Interfaces.IPhotoProjectionStore;
 
 namespace CloudCanvas.Application.Posts.Photos.Commands.CreatePhoto;

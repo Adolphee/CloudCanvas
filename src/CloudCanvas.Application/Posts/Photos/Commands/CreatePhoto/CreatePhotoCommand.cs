@@ -1,14 +1,9 @@
-﻿using CloudCanvas.Application.Posts.DTOs;
-using CloudCanvas.Domain.Common;
-using CloudCanvas.Domain.Common.Enums;
-using CloudCanvas.Domain.Posts;
-using MediatR;
+﻿using CloudCanvas.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 
 namespace CloudCanvas.Application.Posts.Photos.Commands.CreatePhoto
 {
-    public record CreatePhotoCommand: TimeStampz, IRequest<CreatePhotoResult>
+    public record CreatePhotoCommand: IRequest<CreatePhotoResult>
     {
         public string? Id { get; set; } = default!;
         public string UserId { get; set; } = default!;
@@ -22,7 +17,6 @@ namespace CloudCanvas.Application.Posts.Photos.Commands.CreatePhoto
         public PostClassification Classification { get; set; } = PostClassification.Photo;
         public long ContentLength { get; set; }
         public List<string>? UserTags { get; set; } = new();
-        public TimeStampz? TimeStamps { get; set; } = new();
         public Creator? Creator = null;
         public string ContainerName = BStorage.Containers.Uploads;
     }

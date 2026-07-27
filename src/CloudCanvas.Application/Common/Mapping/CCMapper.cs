@@ -1,7 +1,6 @@
 ﻿using CloudCanvas.Application.Posts.Photos.Commands.CreatePhoto;
-using CloudCanvas.Application.Users;
-using CloudCanvas.Domain.Common.Enums;
-using CloudCanvas.Domain.Posts;
+using CloudCanvas.Domain.Enums;
+using CloudCanvas.Domain.Posts.Entities;
 using CloudCanvas.Domain.Thumbnail;
 using static CloudCanvas.Application.Common.Constants.BStorage;
 
@@ -25,9 +24,9 @@ namespace CloudCanvas.Application.Common.Mapping
                 UserId = cmd.UserId!,
                 Classification = PostClassification.Photo,
                 Thumbnails = new List<PhotoThumbnail>(),
-                CreatedOn = cmd.CreatedOn,
-                ModifiedOn = cmd.ModifiedOn,
-                DeletedOn = cmd.DeletedOn,
+                CreatedOn = DateTimeOffset.Now,
+                ModifiedOn = default,
+                DeletedOn = default,
                 CommentsEnabled = cmd.CommentsEnabled
             };
         }
@@ -139,7 +138,7 @@ namespace CloudCanvas.Application.Common.Mapping
                     UserName = "unknown_user",
                     DisplayName = "Unknown User"
                 },
-                TimeStamps = new Domain.Common.TimeStampz
+                TimeStamps = new Domain.Abstractions.AuditableEntity
                 {
                     CreatedOn = photo.CreatedOn,
                     ModifiedOn = photo.ModifiedOn,
@@ -162,21 +161,13 @@ namespace CloudCanvas.Application.Common.Mapping
                 Classification = photo.Classification,
                 CommentsEnabled = photo.CommentsEnabled,
                 ContentLength = photo.ContentLength,
-                CreatedOn = photo.CreatedOn,
                 Creator = creator ?? throw new ArgumentNullException("Creator is null."),
-                DeletedOn = photo.DeletedOn,
                 GalleryId = photo.GalleryId,
                 Location = photo.Location ?? throw new ArgumentNullException("Location is null."),
                 OriginalFilename = photo.OriginalFilename,
                 Title = photo.Title ?? throw new ArgumentNullException("Title is null."),
                 UserId = photo.UserId,
-                UserTags = photo.UserTags,
-                TimeStamps = new()
-                {
-                    ModifiedOn = photo.ModifiedOn,
-                    DeletedOn = photo.DeletedOn,
-                        CreatedOn = photo.CreatedOn
-                }
+                UserTags = photo.UserTags
             };
         }
         #endregion

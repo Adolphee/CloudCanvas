@@ -1,11 +1,5 @@
-﻿using CloudCanvas.Application.Posts.DTOs;
-using CloudCanvas.Application.Posts.Photos.Commands.CreatePhoto;
-using CloudCanvas.Domain.Common;
-using CloudCanvas.Domain.Common.Enums;
-using System;
-using System.Collections.Generic;
+﻿using CloudCanvas.Application.Posts.Photos.Commands.CreatePhoto;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 
 namespace CloudCanvas.Application.Posts.Photos.Commands.UpdatePhoto
 {

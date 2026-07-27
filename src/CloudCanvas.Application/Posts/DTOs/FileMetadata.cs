@@ -9,47 +9,47 @@ namespace CloudCanvas.Application.Posts.DTOs
     /// metadata,  content Properties, and various operational states such as copy status, encryption details,  and
     /// access tier. It is designed to encapsulate all relevant data for managing and interacting  with blobs in a
     /// storage context.</remarks>
-    public class FileMetadata: GalleryItemDTO
+    public record FileMetadata: GalleryItemDTO
     {
         [Required, MaxLength(100)]
-        public string Name { get; set; } = default!;
+        public string Name { get; init; } = default!;
         [Required, Range(0, 4)]
-        public int ProcessingStage { get; set; }
-        public string? ContentEncoding { get; set; }
-        public string? ContainerName { get; set; }
-        public string? BlobType { get; set; }
-        public List<string> Tags { get; set; } = new(); // for future A.I. integration for auto-tagging
-        public string? ContentType { get; set; }
-        public long TagCount { get; set; }
-        public string? ContentLanguage { get; set; }
-        public bool HasLegalHold { get; internal set; }
-        public Dictionary<string, string> Metadata { get; set; } = new(); // any additional/custom metadata
-        public DateTimeOffset CopyCompletedOn { get; set; } = new();
-        public string? CopyStatusDescription { get; set; }
-        public string? CopyId { get; set; }
-        public string? CopyProgress { get; set; }
-        public string? CopySourceUrl { get; set; }
-        public string? CopyStatus { get; set; }
-        public bool IsIncrementalCopy { get; set; }
-        public string? DestinationSnapshot { get; set; }
-        public string? ETag { get; set; }
-        public string? ContentDisposition { get; set; }
-        public string? CacheControl { get; set; }
-        public long BlobSequenceNumber { get; set; }
-        public string? AcceptRanges { get; set; }
-        public int BlobCommittedBlockCount { get; set; }
-        public bool IsServerEncrypted { get; set; }
-        public string? EncryptionKeySha256 { get; set; }
-        public string? EncryptionScope { get; set; }
-        public string? AccessTier { get; set; }
-        public bool AccessTierInferred { get; set; }
-        public string? ArchiveStatus { get; set; }
-        public DateTimeOffset AccessTierChangedOn { get; set; }
-        public string? VersionId { get; set; }
-        public bool IsLatestVersion { get; set; }
-        public DateTimeOffset ExpiresOn { get; set; }
-        public bool IsSealed { get; set; }
-        public DateTimeOffset LastAccessed { get; set; }
-        public DateTimeOffset DeletedOn { get; set; } = default!;
+        public int ProcessingStage { get; init; }
+        public string? ContentEncoding { get; init; }
+        public string? ContainerName { get; init; }
+        public string? BlobType { get; init; }
+        public List<string> Tags { get; init; } = new(); // for future A.I. integration for auto-tagging
+        public string? ContentType { get; init; }
+        public long TagCount { get; init; }
+        public string? ContentLanguage { get; init; }
+        public bool HasLegalHold { get; internal init; }
+        public Dictionary<string, string> Metadata { get; init; } = new(); // any additional/custom metadata
+        public DateTimeOffset CopyCompletedOn { get; init; } = new();
+        public string? CopyStatusDescription { get; init; }
+        public string? CopyId { get; init; }
+        public string? CopyProgress { get; init; }
+        public string? CopySourceUrl { get; init; }
+        public string? CopyStatus { get; init; }
+        public bool IsIncrementalCopy { get; init; }
+        public string? DestinationSnapshot { get; init; }
+        public string? ETag { get; init; }
+        public string? ContentDisposition { get; init; }
+        public string? CacheControl { get; init; }
+        public long BlobSequenceNumber { get; init; }
+        public string? AcceptRanges { get; init; }
+        public int BlobCommittedBlockCount { get; init; }
+        public bool IsServerEncrypted { get; init; }
+        public string? EncryptionKeySha256 { get; init; }
+        public string? EncryptionScope { get; init; }
+        public string? AccessTier { get; init; }
+        public bool AccessTierInferred { get; init; }
+        public string? ArchiveStatus { get; init; }
+        public DateTimeOffset AccessTierChangedOn { get; init; }
+        public string? VersionId { get; init; }
+        public bool IsLatestVersion { get; init; }
+        public DateTimeOffset ExpiresOn { get; init; }
+        public bool IsSealed { get; init; }
+        public DateTimeOffset LastAccessed { get; init; }
+        public DateTimeOffset DeletedOn { get; init; } = default!;
 }
 }
