@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CloudCanvas.Domain.Common.Enums
+namespace CloudCanvas.Domain.Enums
 {
     public enum ReactionType
     {

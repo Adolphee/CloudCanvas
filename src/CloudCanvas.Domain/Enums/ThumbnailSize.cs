@@ -1,4 +1,4 @@
-﻿namespace CloudCanvas.Domain.Common.Enums
+﻿namespace CloudCanvas.Domain.Enums
 {
     public enum ThumbnailSize
     {

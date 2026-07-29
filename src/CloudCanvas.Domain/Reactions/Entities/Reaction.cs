@@ -1,13 +1,13 @@
-﻿using CloudCanvas.Domain.Common;
-using CloudCanvas.Domain.Common.Enums;
-using CloudCanvas.Domain.Posts;
+﻿using CloudCanvas.Domain.Abstractions;
+using CloudCanvas.Domain.Enums;
+using CloudCanvas.Domain.Posts.Entities;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 
-namespace CloudCanvas.Domain.Reactions
+namespace CloudCanvas.Domain.Reactions.Entities
 {
-    public record class Reaction: TimeStampz
+    public class Reaction: AuditableEntity
     {
         [Required]
         public string? Id { get; set; }

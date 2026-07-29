@@ -1,8 +1,8 @@
-﻿using CloudCanvas.Domain.Common.Enums;
+﻿using CloudCanvas.Domain.Enums;
 
-namespace CloudCanvas.Domain.Reactions
+namespace CloudCanvas.Domain.Reactions.Entities
 {
-    public record class EmojiReaction: Reaction
+    public class EmojiReaction: Reaction
     {
         public string? EmojiValue { get; set; }
         EmojiReaction(string value) : base()

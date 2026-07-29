@@ -2,12 +2,12 @@
 
 namespace CloudCanvas.Application.Posts.Photos.Queries.GetPhotosByUser
 {
-    public record GetUserPhotosRequestHandler(IPhotoProjectionStore cosmos): IRequestHandler<GetUserPhotosQuery, GetUserPhotosResult>
+    public sealed class GetUserPhotosQueryHandler(IPhotoProjectionStore projectionStore): IRequestHandler<GetUserPhotosQuery, GetUserPhotosResult>
     {
-        private IPhotoProjectionStore _cosmos = cosmos;
+        private IPhotoProjectionStore _store = projectionStore;
         public async Task<GetUserPhotosResult> Handle(GetUserPhotosQuery query, CancellationToken cancellation = default)
         {
-            var posts = await _cosmos.GetByUserIdAsync(query.UserId, query?.ContainerName ?? Projection.Containers.UserPhotos, cancellation);
+            var posts = await _store.GetByUserIdAsync(query.UserId, cancellation);
             return new GetUserPhotosResult(posts);
         }
     }

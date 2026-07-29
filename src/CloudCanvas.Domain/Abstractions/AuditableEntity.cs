@@ -1,10 +1,6 @@
-﻿
-
-using CloudCanvas.Domain.Abstractions;
-
-namespace CloudCanvas.Domain.Common
+﻿namespace CloudCanvas.Domain.Abstractions
 {
-    public record TimeStampz: IHasTimestamps
+    public class AuditableEntity: IHasTimestamps
     {
         public DateTimeOffset CreatedOn { get; set; } = DateTimeOffset.Now;
         public DateTimeOffset DeletedOn { get; set; } = default!;

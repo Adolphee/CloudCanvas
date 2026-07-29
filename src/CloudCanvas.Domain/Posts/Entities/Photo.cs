@@ -1,10 +1,9 @@
-﻿using CloudCanvas.Domain.Common.Enums;
-using CloudCanvas.Domain.Thumbnail;
+﻿using CloudCanvas.Domain.Thumbnail;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace CloudCanvas.Domain.Posts
+namespace CloudCanvas.Domain.Posts.Entities
 {
-    public record class Photo: Post
+    public class Photo: Post
     {
         public string? Title { get;  set; }
         public string OriginalFilename { get; set; } = default!;

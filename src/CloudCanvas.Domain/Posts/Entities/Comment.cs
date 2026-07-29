@@ -1,14 +1,12 @@
-﻿using CloudCanvas.Domain.Common;
-using CloudCanvas.Domain.Common.Enums;
+﻿using CloudCanvas.Domain.Abstractions;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace CloudCanvas.Domain.Posts
+namespace CloudCanvas.Domain.Posts.Entities
 {
-    public record class Comment: TimeStampz
+    public class Comment: AuditableEntity
     {
-        public string? Id { get; set; }
-        private readonly static PostClassification Type = PostClassification.Comment;
+        public required string Id { get; set; }
         [MaxLength(255), Required]
         public string Text { get; set; } = default!;
         [Required]

@@ -1,18 +1,15 @@
-﻿using CloudCanvas.Domain.Common;
-using CloudCanvas.Domain.Common.Enums;
+﻿using CloudCanvas.Domain.Abstractions;
+using CloudCanvas.Domain.Enums;
 using CloudCanvas.Domain.Posts.Contracts;
-using CloudCanvas.Domain.Reactions;
+using CloudCanvas.Domain.Reactions.Entities;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace CloudCanvas.Domain.Posts
+namespace CloudCanvas.Domain.Posts.Entities
 {
-    public record class Post: TimeStampz, IPost, ICommentable
+    public abstract class Post: AuditableEntity, IPost, ICommentable
     {
-
         #region PROPERTIES
-        [Required]
-        public PostClassification Classification { get; set; } = PostClassification.Photo;
         [Required]
         public string? Id { get; set; }
         [Required]
@@ -20,26 +17,24 @@ namespace CloudCanvas.Domain.Posts
         public string? Location { get; set; } = default!;
         public long ContentLength { get; set; }
         public bool CommentsEnabled { get; set; } = true;
-
-        public List<Reaction> Reactions { get; set; } = new();
-
-        public List<Comment> Comments { get; set; } = new();
+        public List<Reaction> Reactions { get; set; } = [];
+        public List<Comment> Comments { get; set; } = [];
         public DateTimeOffset PublishedOn { get; set; }
         public DateTimeOffset UnpublishedOn { get; set; }
 
-        public List<string> UserTags { get; set; } = new();
+        public List<string> UserTags { get; set; } = [];
         #endregion
 
         #region REACTIONS
 
         [NotMapped]
-        public List<Like> Likes => Reactions.Where(r => r.Type == ReactionType.Like).OfType<Like>().ToList();
+        public List<Like> Likes => [.. Reactions.Where(r => r.Type == ReactionType.Like).OfType<Like>()];
         
         [NotMapped]
-        public List<Dislike> Dislikes => Reactions.Where(r => r.Type == ReactionType.Dislike).OfType<Dislike>().ToList();
+        public List<Dislike> Dislikes => [.. Reactions.Where(r => r.Type == ReactionType.Dislike).OfType<Dislike>()];
         
         [NotMapped]
-        public List<EmojiReaction> EmojiReactions => Reactions.Where(r => r.Type == ReactionType.Emoji).OfType<EmojiReaction>().ToList();
+        public List<EmojiReaction> EmojiReactions => [.. Reactions.Where(r => r.Type == ReactionType.Emoji).OfType<EmojiReaction>()];
         
         public bool Delete(string user, bool softDelete = true)
         {
@@ -173,6 +168,5 @@ namespace CloudCanvas.Domain.Posts
             return true;
         }
         #endregion
-    
     }
 }
