@@ -1,18 +1,14 @@
-﻿using CloudCanvas.Application.Posts.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CloudCanvas.Application.Abstractions.Projection
+﻿namespace CloudCanvas.Application.Abstractions.Projection
 {
     public interface IProjectionStoreBase<T> where T: PostDTO
     {
-        Task<T> SaveProjectionAsync(T photo, string containerName, bool overWrite = true, CancellationToken cancellationToken = default);
-        Task<bool> DeleteAsync(T item, string containerName, CancellationToken cancellationToken = default);
-        Task<List<T>> GetAllAsync(string containerName, CancellationToken cancellationToken = default);
-        Task<List<T>> GetByUserIdAsync(string userId, string containerName, CancellationToken cancellationToken = default);
-        Task<T> SingleAsync(string documentId, string partitionKey, string containerName, CancellationToken cancellationToken = default);
-        Task<bool> ExistsAsync(string containerName, string id, string partitionKey, CancellationToken cancellationToken = default);
-        Task<PhotoDTO> PatchAsync(string identifier, string userId, string containerName, IDictionary<string, object> ops, CancellationToken cancellationToken = default);
+        Task<T> CreateProjectionAsync(T photo, CancellationToken cancellationToken = default);
+        Task<bool> DeleteAsync(T item, CancellationToken cancellationToken = default);
+        Task<List<T>> GetAllAsync(CancellationToken cancellationToken = default);
+        Task<List<T>> GetByUserIdAsync(string userId, CancellationToken cancellationToken = default);
+        Task<bool> ReplaceProjectionAsync(PhotoDTO photo, CancellationToken cancellation = default);
+        Task<T> SingleAsync(string documentId, string partitionKey, CancellationToken cancellationToken = default);
+        Task<bool> ExistsAsync(string id, string partitionKey, CancellationToken cancellationToken = default);
+        Task<PhotoDTO> PatchAsync(string identifier, string userId, IDictionary<string, object> ops, CancellationToken cancellationToken = default);
     }
 }
