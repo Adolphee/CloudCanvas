@@ -1,5 +1,5 @@
-﻿using CloudCanvas.Application.Common.Interfaces;
-using CloudCanvas.Domain.Common.Enums;
+using CloudCanvas.Application.Common.Interfaces;
+using CloudCanvas.Domain.Enums;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 

@@ -1,5 +1,5 @@
-using CloudCanvas.Domain.Posts;
-using CloudCanvas.Domain.Reactions;
+using CloudCanvas.Domain.Posts.Entities;
+using CloudCanvas.Domain.Reactions.Entities;
 using CloudCanvas.Domain.Thumbnail;
 using CloudCanvas.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;

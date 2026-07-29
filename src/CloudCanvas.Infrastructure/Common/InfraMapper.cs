@@ -1,4 +1,4 @@
-﻿using Azure.Storage.Blobs.Models;
+using Azure.Storage.Blobs.Models;
 using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Application.Posts.DTOs;
 using CloudCanvas.Application.Users;
@@ -6,7 +6,7 @@ using CloudCanvas.Domain.Common.Enums;
 using CloudCanvas.Infrastructure.DTOs;
 using CloudCanvas.Infrastructure.Identity;
 
-namespace CloudCanvas.Infrastructure.Common.Extensions
+namespace CloudCanvas.Infrastructure.Common
 {
     public static class InfraMapper
     {

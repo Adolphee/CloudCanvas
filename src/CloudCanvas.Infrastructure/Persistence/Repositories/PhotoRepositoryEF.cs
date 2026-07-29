@@ -1,5 +1,5 @@
 ﻿using CloudCanvas.Application.Posts.Photos.Interfaces;
-using CloudCanvas.Domain.Posts;
+using CloudCanvas.Domain.Posts.Entities;
 using CloudCanvas.Domain.Thumbnail;
 using Microsoft.EntityFrameworkCore;
 

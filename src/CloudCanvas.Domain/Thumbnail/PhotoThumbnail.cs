@@ -1,9 +1,10 @@
-﻿using CloudCanvas.Domain.Common.Enums;
-using CloudCanvas.Domain.Posts;
+using CloudCanvas.Domain.Abstractions;
+using CloudCanvas.Domain.Enums;
+using CloudCanvas.Domain.Posts.Entities;
 
 namespace CloudCanvas.Domain.Thumbnail
 {
-    public class PhotoThumbnail
+    public class PhotoThumbnail: AuditableEntity
     {
         public string? Id { get; set; }
         public ThumbnailSize Size { get; set; }

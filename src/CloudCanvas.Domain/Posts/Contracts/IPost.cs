@@ -1,7 +1,8 @@
-﻿
+
 using CloudCanvas.Domain.Abstractions;
-using CloudCanvas.Domain.Common.Enums;
-using CloudCanvas.Domain.Reactions;
+using CloudCanvas.Domain.Enums;
+using CloudCanvas.Domain.Posts.Entities;
+using CloudCanvas.Domain.Reactions.Entities;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 

@@ -1,7 +1,7 @@
 ﻿using CloudCanvas.Application.Abstractions.Persistence;
 using CloudCanvas.Application.Users;
 using CloudCanvas.Application.Users.Commands.EnsureUserExists;
-using CloudCanvas.Infrastructure.Common.Extensions;
+using CloudCanvas.Infrastructure.Common;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 

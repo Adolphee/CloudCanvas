@@ -7,7 +7,7 @@ using CloudCanvas.Application.Posts.DTOs;
 using CloudCanvas.Infrastructure.Exceptions;
 using Microsoft.Extensions.Logging;
 using CloudCanvas.Application.Thumbnails.Commands.CreateThumbnail;
-using CloudCanvas.Infrastructure.Common.Extensions;
+using CloudCanvas.Infrastructure.Common;
 
 namespace CloudCanvas.Infrastructure.BlobStorage
 {
@@ -56,8 +56,8 @@ namespace CloudCanvas.Infrastructure.BlobStorage
             } catch (Exception e)
             {
                 _logger.LogError(e, "Error: Failed to initiate new BlobContainerClient for container {0}", containerName);
-                // This layer doesn’t know what to do with this low-level transport exception
-                //  — let whoever owns the retry logic or orchestration deal with it.
+                // This layer doesnï¿½t know what to do with this low-level transport exception
+                //  ï¿½ let whoever owns the retry logic or orchestration deal with it.
                 // SPOILER ALERT: that's me -_-'
                 throw new BlobContainerClientInitializationFailedException(e.Message, e);
             }
