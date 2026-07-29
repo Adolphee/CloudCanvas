@@ -84,9 +84,9 @@ namespace CloudCanvas.Infrastructure.Messaging
             }
         }
 
-        public async Task<string> NofityProjectionCompletedAsync(string srcContainer, PhotoDTO photo, string correlationId, CancellationToken cancellation = default)
+        public async Task<string> NofityProjectionCompletedAsync(PhotoDTO photo, string correlationId, CancellationToken cancellation = default)
         {
-            var msg = _mFactory.BuildForPhoto(photo).ProjectionCompleteMessage(srcContainer, correlationId).Finalize();
+            var msg = _mFactory.BuildForPhoto(photo).ProjectionCompleteMessage(correlationId).Finalize();
             return await SendAsync(ServiceBus.Topics.FileUpdates, msg, cancellation);
         }
 
