@@ -2,13 +2,13 @@
 {
     public record ApplicationUser
     {
-        public string Id { get; set; } = default!;
-        public string Email { get; set; } = default!;
-        public string FirstName { get; set; } = default!;
-        public string LastName { get; set; } = default!;
-        public string UserName { get; set; } = default!;
-        public string AboutMe { get; set; } = default!;
-        public string DisplayName { get; set; } = default!;
-        public string ProPicUrl { get; set; } = default!;
+        public required string Id { get; init; } = default!;
+        public required string Email { get; init; } = default!;
+        public string FirstName { get; init; } = default!;
+        public string LastName { get; init; } = default!;
+        public string UserName { get; init; } = default!;
+        public string AboutMe { get; init; } = default!;
+        public string DisplayName { get; init; } = default!;
+        public string ProPicUrl { get; init; } = default!;
     }
 }

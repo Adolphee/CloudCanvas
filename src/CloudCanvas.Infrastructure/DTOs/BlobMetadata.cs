@@ -1,10 +1,4 @@
-﻿using Azure.Storage.Blobs.Models;
-using CloudCanvas.Application.Posts.DTOs;
-using CloudCanvas.Domain.Common.Enums;
-using CloudCanvas.Domain.Posts;
-using CloudCanvas.Domain.Posts.Contracts;
-using Mapster;
-using System.ComponentModel.DataAnnotations;
+﻿using CloudCanvas.Application.Posts.DTOs;
 
 namespace CloudCanvas.Infrastructure.DTOs
 {
@@ -15,7 +9,7 @@ namespace CloudCanvas.Infrastructure.DTOs
     /// metadata,  content Properties, and various operational states such as copy status, encryption details,  and
     /// access tier. It is designed to encapsulate all relevant data for managing and interacting  with blobs in a
     /// storage context.</remarks>
-    public class BlobMetadata: FileMetadata
+    public record BlobMetadata: FileMetadata
     {
     }
 }
