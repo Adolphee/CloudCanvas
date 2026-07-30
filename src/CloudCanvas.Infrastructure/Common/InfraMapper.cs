@@ -1,15 +1,61 @@
+﻿using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs.Models;
+using CloudCanvas.Application.Abstractions.Projection;
 using CloudCanvas.Application.Common.Constants;
+using CloudCanvas.Application.Events;
 using CloudCanvas.Application.Posts.DTOs;
-using CloudCanvas.Application.Users;
-using CloudCanvas.Domain.Common.Enums;
 using CloudCanvas.Infrastructure.DTOs;
-using CloudCanvas.Infrastructure.Identity;
+using User = CloudCanvas.Infrastructure.Identity.User;
+using Microsoft.Azure.Cosmos;
+using CloudCanvas.Application.Abstractions.Identity;
 
 namespace CloudCanvas.Infrastructure.Common
 {
-    public static class InfraMapper
+    internal static class InfraMapper
     {
+
+        /// <summary>
+        /// Converts `CCEventMessage` to `ServiceBusMessage`. 
+        /// </summary>
+        /// <returns>ServiceBusMessage</returns>
+        public static ServiceBusMessage ToSBMessage(this CCEventMessage message)
+        {
+            var msg = new ServiceBusMessage(message.Payload)
+            {
+                ContentType = message.ContentType ?? Azure.Core.ContentType.ApplicationJson.ToString(),
+                MessageId = message.Id ?? Guid.NewGuid().ToString(),
+                Subject = message.Subject,
+                CorrelationId = message.CorrelationId
+            };
+            foreach (var prop in message.Properties)
+                msg.ApplicationProperties[prop.Key] = prop.Value;
+            return msg;
+        }
+
+        public static PartitionKey AsPartitionKey(this ProjectionKey key) => new(key.UserId);
+
+        public static User ToIdentityUser(this ApplicationUser user) => new()
+        {
+            Id = user.Id,
+            Email = user.Email,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            UserName = user.UserName, 
+            Description = user.AboutMe, 
+            DisplayName = user.DisplayName,
+        };
+
+        public static ApplicationUser ToAppUser(this User user) => new()
+        {
+            Id = user.Id,
+            Email = user.Email!,
+            FirstName = user.FirstName!,
+            LastName = user.LastName!,
+            UserName = user.UserName!, 
+            DisplayName = user.DisplayName, 
+            AboutMe = user.Description ?? default!,
+        };
+
         /// <summary>
         /// Converts the provided blob Properties and metadata into a <see cref="BlobMetadata"/> object.
         /// </summary>
@@ -25,14 +71,14 @@ namespace CloudCanvas.Infrastructure.Common
         {
             bool deleted = false;
             DateTimeOffset result = DateTimeOffset.MinValue;
-                if (props.Metadata.Keys.Contains(BStorage.Meta.DeletedOn))
+            if (props.Metadata.TryGetValue(BStorage.Meta.DeletedOn, out var deletedOn))
+            {
+                try
                 {
-                    try
-                    {
-                        deleted = DateTimeOffset.TryParse(props.Metadata[BStorage.Meta.DeletedOn], out result);
-                    }
-                    catch (Exception) {}  // swallowing this because it tells us deletedOn wasn't set so we can proceed as planned
+                    deleted = DateTimeOffset.TryParse(deletedOn, out result);
                 }
+                catch (Exception) {/*swallowing this because it tells us deletedOn wasn't set so we can proceed as planned*/}
+            }
 
             // TODO: uploadedBy / userID will be implemented with the Auth milestone --> Done
             var uploadedBy = props.Metadata.TryGetValue(BStorage.Meta.UploadedBy, out var uploader) ? uploader : null;
@@ -48,11 +94,11 @@ namespace CloudCanvas.Infrastructure.Common
                 ContainerName = containerName,
                 ProcessingStage = 0, // TOFIX: this is misleading when this method is not 
                 Metadata = props.Metadata.ToDictionary(),
-                Thumbnails = new Dictionary<ThumbnailSize, string>(),
+                Thumbnails = [],
                 UploadedBy = uploadedBy,
                 Name = identifier,
                 Description = String.Empty, // future A.I. implementation will further process and fill in this description
-                Tags = new List<string>(), // future A.I. implementation will further process and fill in these tags
+                Tags = [], // future A.I. implementation will further process and fill in these tags
                 TagCount = props.TagCount,
                 BlobType = props.BlobType.ToString(),
                 ETag = props.ETag.ToString().Trim('\"'),
@@ -74,24 +120,5 @@ namespace CloudCanvas.Infrastructure.Common
                 DeletedOn = deleted ? result : DateTimeOffset.MinValue //only assign 'result' when it has been altered succesfully and deleted = true
             };
         }
-
-
-        public static User ToIdentityUser(this ApplicationUser user) => new()
-        {
-            Id = user.Id,
-            Email = user.Email,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            UserName = user.UserName
-        };
-
-        public static ApplicationUser ToAppUser(this User user) => new()
-        {
-            Id = user.Id,
-            Email = user.Email,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            UserName = user.UserName
-        };
     }
 }

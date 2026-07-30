@@ -1,4 +1,4 @@
-﻿namespace CloudCanvas.Application.Users
+﻿namespace CloudCanvas.Application.Abstractions.Identity
 {
     public record ApplicationUser
     {

@@ -1,6 +1,6 @@
-﻿using CloudCanvas.Application.Common.Exceptions;
+﻿using CloudCanvas.Application.Abstractions.Identity;
+using CloudCanvas.Application.Common.Exceptions;
 using CloudCanvas.Application.Posts.Photos.Commands.CreatePhoto;
-using CloudCanvas.Application.Users;
 using CloudCanvas.Domain.Enums;
 using CloudCanvas.Domain.Posts.Entities;
 using CloudCanvas.Domain.Thumbnail;

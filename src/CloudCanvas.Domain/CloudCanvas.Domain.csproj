@@ -7,7 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Entities\" />
+    <Folder Include="Abstractions\Identity" />
+    <Folder Include="Common\" />
     <Folder Include="Posts\Events\" />
     <Folder Include="Posts\ValueObjects\" />
     <Folder Include="Reactions\Events\" />
