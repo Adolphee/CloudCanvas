@@ -1,4 +1,4 @@
-using CloudCanvas.Domain.Common.Enums;
+using CloudCanvas.Domain.Enums;
 using CloudCanvas.Functions.ThumbnailOrchestrator.Activities;
 using Microsoft.DurableTask;
 

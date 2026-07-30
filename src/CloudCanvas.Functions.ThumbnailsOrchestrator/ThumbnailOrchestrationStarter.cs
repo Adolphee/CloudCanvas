@@ -21,7 +21,7 @@ public class ThumbnailOrchestrationStarter
             var request = new InceptionRequest(photo!, containerName, incoming.CorrelationId); // Forced correlation for App Insights
             string instanceId = await client.ScheduleNewOrchestrationInstanceAsync(nameof(ThumbnailOrchestrator), request, cancellation);
             return instanceId; 
-        } catch (Exception e) when (e is CCSerializationException || e is ArgumentNullException)
+        } catch (Exception e) when (e is CCMapperException || e is ArgumentNullException)
         {
             await messageActions.AbandonMessageAsync(incoming, default, cancellation);
             logger.LogInformation(e, "{correlationId} Failed to deserialize request payload. Message abandoned: {messageId}", incoming.CorrelationId, incoming.MessageId);
