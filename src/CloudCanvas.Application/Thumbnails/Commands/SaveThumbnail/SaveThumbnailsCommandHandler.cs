@@ -1,40 +1,32 @@
-using CloudCanvas.Application.Common;
 using CloudCanvas.Application.Posts.Photos.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace CloudCanvas.Application.Thumbnails.Commands.SaveThumbnail
 {
-    public sealed class SaveThumbnailsCommandHandler(IPhotoRepository context, IPhotoProjectionStore projection, ILogger<SaveThumbnailsCommandHandler> logger) : IRequestHandler<SaveThumbnailsCommand, SaveThumbnailsResult>
+    public sealed class SaveThumbnailsCommandHandler(IPhotoRepository repository, IPhotoProjectionStore projectionStore, ILogger<SaveThumbnailsCommandHandler> logger) : IRequestHandler<SaveThumbnailsCommand, SaveThumbnailsResult>
     {
-        private readonly IPhotoRepository _context = context;
-        private readonly IPhotoProjectionStore _projection = projection;
+        private readonly IPhotoRepository _repository = repository;
+        private readonly IPhotoProjectionStore _projection = projectionStore;
         private readonly ILogger<SaveThumbnailsCommandHandler> _logger = logger; ///TODO: Add logging to this handler for better traceability and debugging.
 
-        public async Task<SaveThumbnailsResult> Handle(SaveThumbnailsCommand command, CancellationToken cancellation)
+        public async Task<SaveThumbnailsResult> Handle(SaveThumbnailsCommand command, CancellationToken cancellation = default)
         {
-            var photo = await _context.GetByIdAsync(command.Photo.Id!, cancellation);
-            if (photo == null) throw new ArgumentNullException(nameof(photo));
-            photo.Thumbnails = command.Photo.ToPhoto().Thumbnails; // respecting the responsability boundary 'thumbnails'
-
+            var photo = await _repository.GetByIdAsync(command.Photo.Id!, cancellation) ?? throw new SaveThumbnailException("OriginalPhoto is missing.");
+            photo.Thumbnails = command.Photo.ToPhoto().Thumbnails; // use case boundary is 'thumbnails' here
             try
             {
-                if (await _context.UpdateAsync(photo, cancellation))
+                if (await _repository.UpdateAsync(photo, cancellation))
                 {
                     var ops = new Dictionary<string, object> { ["/thumbnails"] = command.Photo.Thumbnails };
-                    var projection = await _projection.PatchAsync(photo.Id!, photo.UserId, Projection.Containers.UserPhotos, ops, cancellation);
-
-                    return new SaveThumbnailsResult
-                    {
-                        Status = CCOperationStatus.Success,
-                        Photo = projection
-                    };
+                    var projection = await _projection.PatchAsync(new(photo.Id!, photo.UserId), ops, cancellation);
+                    return new SaveThumbnailsResult(projection);
                 }
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"EF Failed to save {photo.Thumbnails.Count} thumbnails for ({photo.Id}).");
+                _logger.LogError(e, "EF Failed to save {ThumbnailsCount} thumbnails for ({PhotoId}).", command.Photo.Thumbnails.Count, photo.Id);
             }
-            return new() { Status = CCOperationStatus.Failed, Photo = photo?.ToProjection(command.creator) ?? null };
+            return new(null);
         }
     }
 }

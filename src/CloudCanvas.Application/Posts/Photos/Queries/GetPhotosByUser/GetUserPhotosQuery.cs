@@ -1,11 +1,4 @@
-﻿using CloudCanvas.Application.Common.Constants;
-using CloudCanvas.Application.Posts.Photos.Queries.GetPhotos;
-using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CloudCanvas.Application.Posts.Photos.Queries.GetPhotosByUser
+﻿namespace CloudCanvas.Application.Posts.Photos.Queries.GetPhotosByUser
 {
     public record GetUserPhotosQuery: IRequest<GetUserPhotosResult>
     {
