@@ -1,7 +1,11 @@
-﻿using CloudCanvas.Application.Common.Constants;
+﻿using CloudCanvas.Application.Abstractions.Projection;
+using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Application.Common.Exceptions;
+using CloudCanvas.Application.Common.Mapping;
 using CloudCanvas.Application.Posts.DTOs;
 using CloudCanvas.Application.Posts.Photos.Interfaces;
+using CloudCanvas.Domain.Posts.Entities;
+using CloudCanvas.Infrastructure.Common;
 using CloudCanvas.Infrastructure.Exceptions;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
@@ -18,15 +22,23 @@ namespace CloudCanvas.Infrastructure.Cosmos
         {
             if (photo.UserId is null) 
                 throw new ArgumentNullException(nameof(photo), message: "PhotoUserId is required.");
-            photo.Id ??= Guid.NewGuid().ToString();
+            //photo.Id ??= Guid.NewGuid().ToString();
             return await GetContainer(_containerName).CreateItemAsync(photo, new PartitionKey(photo.UserId), default, cancellation);
+        }
+
+        public async Task<PhotoDTO> CreateProjectionAsync(Photo photo, Creator creator, CancellationToken cancellation = default)
+        {
+            if (photo.UserId is null) 
+                throw new ArgumentNullException(nameof(photo), message: "PhotoUserId is required.");
+            photo.Id ??= Guid.NewGuid().ToString();
+            return await GetContainer(_containerName).CreateItemAsync(photo.ToProjection(creator), new PartitionKey(photo.UserId), default, cancellation);
         }
 
         public async Task<bool> ReplaceProjectionAsync(PhotoDTO photo, CancellationToken cancellation = default)
         {
             if (photo.Id is null || photo.UserId is null) 
                 throw new ProjectionException(message: "both {PhotoId, PhotoUserId} are required.");
-            if(await ExistsAsync(photo.Id, photo.UserId, cancellation))
+            if(await ExistsAsync(new ProjectionKey(photo.Id, photo.UserId), cancellation))
             {
                 var res = await GetContainer(_containerName).ReplaceItemAsync(photo, photo.Id, new PartitionKey(photo.UserId), default, cancellation);
                 return res.StatusCode == System.Net.HttpStatusCode.OK;
@@ -89,37 +101,44 @@ namespace CloudCanvas.Infrastructure.Cosmos
             return result == null;
         }
 
-        public async Task<PhotoDTO> SingleAsync(string Id, string userId, CancellationToken cancellationToken = default)
+        public async Task<PhotoDTO> SingleAsync(ProjectionKey key, CancellationToken cancellation = default)
         {
             var container = GetContainer(_containerName);
-            var photo = await container.ReadItemAsync<PhotoDTO>(Id, new PartitionKey(userId), cancellationToken: cancellationToken);
-            return photo != null ? photo.Resource : throw new CosmosDocumentNotFoundException
+            try
             {
-                ContainerName = _containerName,
-                DocumentId = Id,
-                UserId = userId
-            };
+                var photo = await container.ReadItemAsync<PhotoDTO>(key.Id, key.AsPartitionKey(), default, cancellation);
+                return photo.Resource;
+            }
+            catch (CosmosException e)
+            {
+                throw new ProjectionNotFoundException($"Couldn't find requested projection (id={key.Id}.", e)
+                {
+                    ContainerName = _containerName,
+                    DocumentId = key.Id,
+                    UserId = key.UserId,
+                };
+            }
         }
 
-        public async Task<bool> ExistsAsync(string id, string userId, CancellationToken cancellationToken = default)
+        public async Task<bool> ExistsAsync(ProjectionKey key, CancellationToken cancellationToken = default)
         {
             try
             {
-                await SingleAsync(id, userId, cancellationToken);
+                await SingleAsync(key, cancellationToken);
             }
-            catch (Exception e) when (e is CosmosException ||  e is CosmosDocumentNotFoundException)
+            catch (Exception e) when (e is CosmosException ||  e is ProjectionNotFoundException)
             {
-                _logger.LogTrace(e, "Photo projection not found: {PhotoId}.", id);
+                _logger.LogTrace(e, "Photo projection not found: {PhotoId}.", key.Id);
                 return false; // item doesn't exist if we get to this point
             }
             return true;
         }
 
-        public async Task<PhotoDTO> PatchAsync(string identifier, string userId, IDictionary<string, object> ops, CancellationToken cancellationToken = default)
+        public async Task<PhotoDTO> PatchAsync(ProjectionKey key, IDictionary<string, object> ops, CancellationToken cancellationToken = default)
         {
             var patches = ops.Select(p => PatchOperation.Set(p.Key, p.Value)).ToList();
             _container = GetContainer(_containerName);
-            var res = await _container.PatchItemAsync<PhotoDTO>(id: identifier, partitionKey: new PartitionKey(userId), patchOperations: patches, cancellationToken: cancellationToken);
+            var res = await _container.PatchItemAsync<PhotoDTO>(key.Id, key.AsPartitionKey(), patchOperations: patches, cancellationToken: cancellationToken);
             return res.Resource;
         }
     }

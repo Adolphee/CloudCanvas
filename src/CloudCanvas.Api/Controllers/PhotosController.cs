@@ -16,6 +16,14 @@ namespace CloudCanvas.Api.Controllers
         [HttpGet(Name = "GetAllPhotos")]
         public async Task<ActionResult<GetAllPhotosResult>> GetAsync() => Ok(await _sender.Send(new GetAllPhotosQuery()));
 
+        [HttpGet("single", Name = "GetPhotoById")]
+        public async Task<ActionResult<PhotoDTO>> GetSingleByKeyAsync([FromQuery] string id, [FromQuery] string userId, CancellationToken cancellation = default)
+        {
+            _logger.LogInformation("Photo projection lookup with key: [id:{PhotoId}, userId:{userId}].", id, userId);
+            var res = await _sender.Send(new GetPhotoByIdQuery(new(id, userId)), cancellation);
+            return res?.Photo != null? Ok(res.Photo): NotFound();
+        }
+
         [HttpGet("user/{userId}", Name = "GetUserPhotos")]
         public async Task<ActionResult<GetUserPhotosResult>> GetUserPhotosAsync(string userId) => Ok(await _sender.Send(new GetUserPhotosQuery(userId)));
 
