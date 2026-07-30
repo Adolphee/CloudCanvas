@@ -1,6 +1,6 @@
 ﻿using CloudCanvas.Domain.Enums;
 
-namespace CloudCanvas.Application.Posts.Photos.Queries.GetPhotos
+namespace CloudCanvas.Application.Posts.Photos.Queries.GetAllPhotos
 {
     public record GetAllPhotosQuery : IRequest<GetAllPhotosResult>
     {

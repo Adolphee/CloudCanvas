@@ -1,6 +1,6 @@
 ﻿using CloudCanvas.Application.Posts.Photos.Commands.CreatePhoto;
 using CloudCanvas.Application.Posts.Photos.Commands.UploadFile;
-using CloudCanvas.Application.Posts.Photos.Queries.GetPhotos;
+using CloudCanvas.Application.Posts.Photos.Queries.GetAllPhotos;
 using CloudCanvas.Application.Posts.Photos.Queries.GetPhotosByUser;
 using CloudCanvas.Application.Users.Commands.EnsureUserExists;
 using Microsoft.Extensions.DependencyInjection;

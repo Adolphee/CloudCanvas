@@ -18,7 +18,7 @@ namespace CloudCanvas.Application.Common
         /// <typeparam name="T">The type of the object to try and create.</typeparam>
         /// <param name="blobMetadataJson"></param>
         /// <returns></returns>
-        /// <exception cref="CCSerializationException">When the operation fails</exception>
+        /// <exception cref="CCMapperException">When the operation fails</exception>
         public static T Deserialize<T>(string blobMetadataJson)
         {
             try
@@ -29,7 +29,7 @@ namespace CloudCanvas.Application.Common
             }
             catch (Exception e) when (e is JsonException || e is  InvalidArgumentException || e is NotSupportedException)
             {
-                throw new CCSerializationException($"Invalid argument '{nameof(blobMetadataJson)}' provided with value: '{blobMetadataJson}'.", e);
+                throw new CCMapperException($"Invalid argument '{nameof(blobMetadataJson)}' provided with value: '{blobMetadataJson}'.", e);
             }
         }
     }

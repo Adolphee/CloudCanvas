@@ -15,9 +15,11 @@
 
         public string? GetId() => Id;
         public string? GetUserName() => UserName;
-        private Creator ResetId() => new Creator(default, UserName, DisplayName);
-        private void ResetUserName() => new Creator(Id, default, DisplayName);
 
-        public Creator SetDisplayNameOnly(string? displayName) => new Creator(Id, UserName, displayName);
+        private Creator WithUserNameOnly()
+            => this with { Id = null, UserName = UserName, DisplayName = null };
+
+        public Creator WithDisplayNameOnly(string? displayName = default) 
+            => this with { Id = null, UserName = null, DisplayName = displayName ?? DisplayName };
     }
 }

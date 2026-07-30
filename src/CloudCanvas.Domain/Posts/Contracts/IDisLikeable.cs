@@ -1,4 +1,4 @@
-﻿using CloudCanvas.Domain.Reactions;
+﻿using CloudCanvas.Domain.Reactions.Entities;
 
 namespace CloudCanvas.Domain.Posts.Contracts
 {

@@ -1,4 +1,6 @@
 ﻿
+using CloudCanvas.Domain.Posts.Entities;
+
 namespace CloudCanvas.Domain.Posts.Contracts
 {
     public interface ICommentable
