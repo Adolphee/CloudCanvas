@@ -3,8 +3,6 @@ using CloudCanvas.Application.Abstractions.Messaging;
 using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Application.Events;
 using CloudCanvas.Application.Posts.DTOs;
-using CloudCanvas.Application.Posts.Photos.Commands.CreatePhoto;
-using CloudCanvas.Application.Thumbnails.Commands.CreateThumbnail;
 using CloudCanvas.Infrastructure.Common;
 using CloudCanvas.Infrastructure.Exceptions;
 using Microsoft.Extensions.Logging;
@@ -76,7 +74,7 @@ namespace CloudCanvas.Infrastructure.Messaging
                 }
             }
 
-            try { await sender.SendMessagesAsync(messageBatch); }
+            try { await sender.SendMessagesAsync(messageBatch, cancellation); }
             catch (ServiceBusException e)
             {
                 _logger.LogError(e, "MessageBatch (count: {batchSize}) failed to send.", messageBatch.Count);

@@ -1,4 +1,4 @@
-using CloudCanvas.Application.Common.Interfaces;
+﻿using CloudCanvas.Application.Common.Interfaces;
 using CloudCanvas.Domain.Enums;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
@@ -36,13 +36,13 @@ namespace CloudCanvas.Infrastructure.Common
         }
         public int GetPixelSize(ThumbnailSize tnSize)
         {
-            switch (tnSize)
+            return tnSize switch
             {
-                case ThumbnailSize.xsmall: return 25;
-                case ThumbnailSize.small: return 50;
-                case ThumbnailSize.medium: return 75;
-                default: return 50;
-            }
+                ThumbnailSize.xsmall => 25,
+                ThumbnailSize.small => 50,
+                ThumbnailSize.medium => 75,
+                _ => 50,
+            };
         }
     }
 }

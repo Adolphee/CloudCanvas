@@ -19,16 +19,11 @@ namespace CloudCanvas.Infrastructure.BlobStorage
     /// operations with Azure Photo Storage. It includes methods for retrieving blob container clients, listing blob
     /// URLs, and uploading files. The service ensures proper validation of input parameters and handles exceptions
     /// related to blob storage operations.</remarks>
-    public class BlobStorageService: IMediaStorage
+    public class BlobStorageService(BlobServiceClient client, ILogger<BlobStorageService> logger): IMediaStorage
     { 
-        private readonly BlobServiceClient _client;
+        private readonly BlobServiceClient _client = client;
         private BlobContainerClient _bcClient = default!;
-        private readonly ILogger<BlobStorageService> _logger;
-        public BlobStorageService(BlobServiceClient client, ILogger<BlobStorageService> logger)
-        {
-            _client = client;
-            _logger = logger;
-        }
+        private readonly ILogger<BlobStorageService> _logger = logger;
 
         /// <summary>
         /// Asynchronously retrieves a <see cref="BlobContainerClient"/> for the specified container name. Optionally
@@ -51,13 +46,13 @@ namespace CloudCanvas.Infrastructure.BlobStorage
             {
                 _bcClient = _client.GetBlobContainerClient(containerName);
                 //if statement gives more control over creation, default true, returns zero if false && blob not exists
-                if (createIfNotExists) await _bcClient.CreateIfNotExistsAsync(); 
+                if (createIfNotExists) await _bcClient.CreateIfNotExistsAsync(default, default, cancellation); 
                 return _bcClient;
             } catch (Exception e)
             {
-                _logger.LogError(e, "Error: Failed to initiate new BlobContainerClient for container {0}", containerName);
-                // This layer doesnï¿½t know what to do with this low-level transport exception
-                //  ï¿½ let whoever owns the retry logic or orchestration deal with it.
+                _logger.LogError(e, "Error: Failed to initiate new BlobContainerClient for container {containerName}", containerName);
+                // This layer doesn’t know what to do with this low-level transport exception
+                //  — let whoever owns the retry logic or orchestration deal with it.
                 // SPOILER ALERT: that's me -_-'
                 throw new BlobContainerClientInitializationFailedException(e.Message, e);
             }
@@ -75,8 +70,8 @@ namespace CloudCanvas.Infrastructure.BlobStorage
         public async Task<List<string>> GetFileUrlsAsync(string containerName, CancellationToken cancellation = default)
         {
             var urls = new List<string>();
-            var containerClient = await GetOrCreateContainerClientAsync(containerName);
-            await foreach (var item in containerClient.GetBlobsAsync())
+            var containerClient = await GetOrCreateContainerClientAsync(containerName, default, cancellation);
+            await foreach (var item in containerClient.GetBlobsAsync(default, default, default, cancellation))
             {
                 var blob = containerClient.GetBlobClient(item.Name);
                 urls.Add(blob.Uri.ToString());
@@ -130,7 +125,7 @@ namespace CloudCanvas.Infrastructure.BlobStorage
         /// <returns type="Dictionary<string, string>">Dictionary of metadata Properties</returns>
         public Dictionary<string, string> SetOriginalMetadata(string filename, string uploadedById)
         {
-            Dictionary<string, string> properties = new();
+            Dictionary<string, string> properties = [];
             properties.Add(BStorage.Meta.OriginalFilename, filename); // this is to enforce data consistency, convertability between BlobProperties & FileMetadata
             properties.Add(BStorage.Meta.UploadedBy, uploadedById); // Idem dito, these blob metadata are not available OOTB (afaik)
             properties.Add(BStorage.Meta.CreatedOn, DateTime.UtcNow.ToString());
@@ -139,7 +134,7 @@ namespace CloudCanvas.Infrastructure.BlobStorage
 
         public async Task<FileMetadata> GetFileMetadataAsync(string identifier, string fromContainer, CancellationToken cancellation = default)
         {
-            var container = await GetOrCreateContainerClientAsync(fromContainer);
+            var container = await GetOrCreateContainerClientAsync(fromContainer, default, cancellation);
             var bclient = container.GetBlobClient(identifier);
             var props = (await bclient.GetPropertiesAsync(default, cancellation)).Value;
             return props.ToMetadata(identifier, bclient.Uri.ToString());
@@ -148,20 +143,20 @@ namespace CloudCanvas.Infrastructure.BlobStorage
         public async Task<FileMetadata> AddFileMetadataAsync(FileMetadata blob, string key, string value, CancellationToken cancellation = default)
         {
             blob.Metadata[key] = value;
-            var bclient = await GetOrCreateContainerClientAsync(blob.ContainerName);
-            await bclient.GetBlobClient(blob.Name).SetMetadataAsync(blob.Metadata);
+            var bclient = await GetOrCreateContainerClientAsync(blob.ContainerName!, default, cancellation);
+            await bclient.GetBlobClient(blob.Name).SetMetadataAsync(blob.Metadata, default, cancellation);
             return blob;
         }
 
         public async Task<List<FileMetadata>> GetFilesAsync(string containerName, CancellationToken cancellation = default)
         {
             var container = _client.GetBlobContainerClient(containerName);
-            var blobItems = container.GetBlobsAsync();
-            List<FileMetadata> results = new();
+            var blobItems = container.GetBlobsAsync(default, default, default, cancellation);
+            List<FileMetadata> results = [];
             await foreach(var item in blobItems)
             {
                var blob = container.GetBlobClient(item.Name);
-                FileMetadata meta = (await blob.GetPropertiesAsync()).Value.ToMetadata(blob.Name, blob.Uri.ToString());
+                FileMetadata meta = (await blob.GetPropertiesAsync(default, cancellation)).Value.ToMetadata(blob.Name, blob.Uri.ToString());
                 results.Add(meta);
             }
             return results;
@@ -173,7 +168,7 @@ namespace CloudCanvas.Infrastructure.BlobStorage
             var bclient = _client.GetBlobContainerClient(containerName).GetBlobClient(identifier);
             try
             {
-                return await bclient.DeleteIfExistsAsync();
+                return await bclient.DeleteIfExistsAsync(default, default, cancellation);
             } 
             catch (Exception e) when (e is RequestFailedException|| e is AggregateException)
             {
@@ -184,10 +179,9 @@ namespace CloudCanvas.Infrastructure.BlobStorage
 
         public async Task<Stream> GetFileStreamFromCommandAsync(CreateThumbnailCommand command, CancellationToken cancellation = default)
         {
-            var bclient = await GetOrCreateContainerClientAsync(command.OriginalContainer ?? throw new InvalidArgumentException("Command.OriginalContainer cannot be null.")); // original file blob container
+            var bclient = await GetOrCreateContainerClientAsync(command.OriginalContainer ?? throw new InvalidArgumentException("Command.OriginalContainer cannot be null."), default, cancellation); // original file blob container
             var fileName = command.Photo.Location.Split("/").Last();
-            var containerName = command.Photo.Location.Split("/").SkipLast(1).Last();
-            await using var blobStream = await bclient.GetBlobClient(fileName).OpenReadAsync(); // download file
+            await using var blobStream = await bclient.GetBlobClient(fileName).OpenReadAsync(default, cancellation); // download file
             var memStream = new MemoryStream(); // No using clause because I expect to return it
             await blobStream.CopyToAsync(memStream, cancellation);
             memStream.Position = 0;

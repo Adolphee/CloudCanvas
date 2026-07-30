@@ -1,4 +1,4 @@
-using CloudCanvas.Domain.Abstractions;
+﻿using CloudCanvas.Domain.Abstractions;
 using CloudCanvas.Domain.Enums;
 using CloudCanvas.Domain.Posts.Entities;
 
@@ -12,7 +12,5 @@ namespace CloudCanvas.Domain.Thumbnail
         public required string? PhotoId { get; set; } = default!;
         public Photo OriginalPhoto { get; set; } = default!; 
         public string OriginalImageURL { get; set; } = default!;
-
-        public KeyValuePair<string, string> ToKVPair() => new (Size.ToString(), Url);
     }
 }
