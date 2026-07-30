@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CloudCanvas.Infrastructure.Migrations
 {
     [DbContext(typeof(CCDBContext))]
-    [Migration("20260725112303_InitialMigration")]
+    [Migration("20260730101743_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -61,7 +61,7 @@ namespace CloudCanvas.Infrastructure.Migrations
                     b.ToTable("Address");
                 });
 
-            modelBuilder.Entity("CloudCanvas.Domain.Posts.Comment", b =>
+            modelBuilder.Entity("CloudCanvas.Domain.Posts.Entities.Comment", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -97,13 +97,10 @@ namespace CloudCanvas.Infrastructure.Migrations
                     b.ToTable("Comments", (string)null);
                 });
 
-            modelBuilder.Entity("CloudCanvas.Domain.Posts.Post", b =>
+            modelBuilder.Entity("CloudCanvas.Domain.Posts.Entities.Post", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("Classification")
-                        .HasColumnType("int");
 
                     b.Property<bool>("CommentsEnabled")
                         .HasColumnType("bit");
@@ -146,7 +143,7 @@ namespace CloudCanvas.Infrastructure.Migrations
                     b.UseTptMappingStrategy();
                 });
 
-            modelBuilder.Entity("CloudCanvas.Domain.Reactions.Reaction", b =>
+            modelBuilder.Entity("CloudCanvas.Domain.Reactions.Entities.Reaction", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -187,6 +184,15 @@ namespace CloudCanvas.Infrastructure.Migrations
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("DeletedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("ModifiedOn")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("OriginalImageURL")
                         .IsRequired()
@@ -241,6 +247,7 @@ namespace CloudCanvas.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DisplayName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
@@ -441,9 +448,9 @@ namespace CloudCanvas.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("CloudCanvas.Domain.Posts.Gallery", b =>
+            modelBuilder.Entity("CloudCanvas.Domain.Posts.Entities.Gallery", b =>
                 {
-                    b.HasBaseType("CloudCanvas.Domain.Posts.Post");
+                    b.HasBaseType("CloudCanvas.Domain.Posts.Entities.Post");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -459,9 +466,9 @@ namespace CloudCanvas.Infrastructure.Migrations
                     b.ToTable("Galleries", (string)null);
                 });
 
-            modelBuilder.Entity("CloudCanvas.Domain.Posts.Photo", b =>
+            modelBuilder.Entity("CloudCanvas.Domain.Posts.Entities.Photo", b =>
                 {
-                    b.HasBaseType("CloudCanvas.Domain.Posts.Post");
+                    b.HasBaseType("CloudCanvas.Domain.Posts.Entities.Post");
 
                     b.Property<string>("Caption")
                         .HasColumnType("nvarchar(max)");
@@ -488,9 +495,9 @@ namespace CloudCanvas.Infrastructure.Migrations
                         .HasForeignKey("CloudCanvas.Domain.Addresses.Address", "UserId");
                 });
 
-            modelBuilder.Entity("CloudCanvas.Domain.Posts.Comment", b =>
+            modelBuilder.Entity("CloudCanvas.Domain.Posts.Entities.Comment", b =>
                 {
-                    b.HasOne("CloudCanvas.Domain.Posts.Post", "Post")
+                    b.HasOne("CloudCanvas.Domain.Posts.Entities.Post", "Post")
                         .WithMany("Comments")
                         .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -507,7 +514,7 @@ namespace CloudCanvas.Infrastructure.Migrations
                     b.Navigation("Post");
                 });
 
-            modelBuilder.Entity("CloudCanvas.Domain.Posts.Post", b =>
+            modelBuilder.Entity("CloudCanvas.Domain.Posts.Entities.Post", b =>
                 {
                     b.HasOne("CloudCanvas.Infrastructure.Identity.User", null)
                         .WithMany("Posts")
@@ -517,9 +524,9 @@ namespace CloudCanvas.Infrastructure.Migrations
                         .HasConstraintName("SingleUser_ManyPosts");
                 });
 
-            modelBuilder.Entity("CloudCanvas.Domain.Reactions.Reaction", b =>
+            modelBuilder.Entity("CloudCanvas.Domain.Reactions.Entities.Reaction", b =>
                 {
-                    b.HasOne("CloudCanvas.Domain.Posts.Post", "Post")
+                    b.HasOne("CloudCanvas.Domain.Posts.Entities.Post", "Post")
                         .WithMany("Reactions")
                         .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -538,7 +545,7 @@ namespace CloudCanvas.Infrastructure.Migrations
 
             modelBuilder.Entity("CloudCanvas.Domain.Thumbnail.PhotoThumbnail", b =>
                 {
-                    b.HasOne("CloudCanvas.Domain.Posts.Photo", "OriginalPhoto")
+                    b.HasOne("CloudCanvas.Domain.Posts.Entities.Photo", "OriginalPhoto")
                         .WithMany("Thumbnails")
                         .HasForeignKey("PhotoId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -598,11 +605,11 @@ namespace CloudCanvas.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("CloudCanvas.Domain.Posts.Gallery", b =>
+            modelBuilder.Entity("CloudCanvas.Domain.Posts.Entities.Gallery", b =>
                 {
-                    b.HasOne("CloudCanvas.Domain.Posts.Post", null)
+                    b.HasOne("CloudCanvas.Domain.Posts.Entities.Post", null)
                         .WithOne()
-                        .HasForeignKey("CloudCanvas.Domain.Posts.Gallery", "Id")
+                        .HasForeignKey("CloudCanvas.Domain.Posts.Entities.Gallery", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -611,24 +618,24 @@ namespace CloudCanvas.Infrastructure.Migrations
                         .HasForeignKey("UserId1");
                 });
 
-            modelBuilder.Entity("CloudCanvas.Domain.Posts.Photo", b =>
+            modelBuilder.Entity("CloudCanvas.Domain.Posts.Entities.Photo", b =>
                 {
-                    b.HasOne("CloudCanvas.Domain.Posts.Gallery", "Gallery")
+                    b.HasOne("CloudCanvas.Domain.Posts.Entities.Gallery", "Gallery")
                         .WithMany("Photos")
                         .HasForeignKey("GalleryId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .HasConstraintName("SingleGallery_ManyPhotos");
 
-                    b.HasOne("CloudCanvas.Domain.Posts.Post", null)
+                    b.HasOne("CloudCanvas.Domain.Posts.Entities.Post", null)
                         .WithOne()
-                        .HasForeignKey("CloudCanvas.Domain.Posts.Photo", "Id")
+                        .HasForeignKey("CloudCanvas.Domain.Posts.Entities.Photo", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Gallery");
                 });
 
-            modelBuilder.Entity("CloudCanvas.Domain.Posts.Post", b =>
+            modelBuilder.Entity("CloudCanvas.Domain.Posts.Entities.Post", b =>
                 {
                     b.Navigation("Comments");
 
@@ -648,12 +655,12 @@ namespace CloudCanvas.Infrastructure.Migrations
                     b.Navigation("Reactions");
                 });
 
-            modelBuilder.Entity("CloudCanvas.Domain.Posts.Gallery", b =>
+            modelBuilder.Entity("CloudCanvas.Domain.Posts.Entities.Gallery", b =>
                 {
                     b.Navigation("Photos");
                 });
 
-            modelBuilder.Entity("CloudCanvas.Domain.Posts.Photo", b =>
+            modelBuilder.Entity("CloudCanvas.Domain.Posts.Entities.Photo", b =>
                 {
                     b.Navigation("Thumbnails");
                 });

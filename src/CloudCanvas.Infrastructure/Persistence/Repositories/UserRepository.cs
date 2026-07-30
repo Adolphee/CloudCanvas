@@ -29,8 +29,8 @@ namespace CloudCanvas.Infrastructure.Persistence.Repositories
                 }
             }
 
-            var updatedUser = await _context.Users.FindAsync(user.Id, cancellation);
-            return new EnsureUserExistsResult(updatedUser?.ToAppUser(), true);
+            var identityUser = await _context.Users.FindAsync(user.Id, cancellation);
+            return new EnsureUserExistsResult(identityUser!.ToAppUser(), true);
         }
 
         public async Task<bool> ExistsAsync(string userId, CancellationToken cancellation = default)

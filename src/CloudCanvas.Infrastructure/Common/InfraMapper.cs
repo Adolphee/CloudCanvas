@@ -42,7 +42,7 @@ namespace CloudCanvas.Infrastructure.Common
             LastName = user.LastName,
             UserName = user.UserName, 
             Description = user.AboutMe, 
-            DisplayName = user.DisplayName,
+            DisplayName = user.DisplayName ?? user.FirstName
         };
 
         public static ApplicationUser ToAppUser(this User user) => new()

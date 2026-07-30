@@ -4,6 +4,7 @@ using CloudCanvas.Application.Posts.Photos.Commands.UploadFile;
 using CloudCanvas.Application.Posts.Photos.Queries.GetAllPhotos;
 using CloudCanvas.Application.Posts.Photos.Queries.GetPhotoByKey;
 using CloudCanvas.Application.Posts.Photos.Queries.GetPhotosByUser;
+using CloudCanvas.Application.Users.Commands.EnsureUserExists;
 
 namespace CloudCanvas.Api.Controllers
 {
@@ -39,7 +40,7 @@ namespace CloudCanvas.Api.Controllers
         [HttpPost("upload", Name = "UploadPhoto")]
         public async Task<ActionResult<CreatePhotoResult>> UploadPhotoAsync(IFormFile file, CancellationToken cancellation = default)
         {
-            var appUser = User.ToAppUser();
+            var appUser = (await _sender.Send(new EnsureUserExistsCommand(User.ToAppUser()), cancellation)).User;
             var uploadRes = await _sender.Send(new UploadFileCommand(file, appUser.Id), cancellation);
             var creationCommand = uploadRes.FileMetadata.ToPhoto(appUser.Id).IssueCreationCommand(appUser.ToCreator());
             var result = await _sender.Send(creationCommand, cancellation);
