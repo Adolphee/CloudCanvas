@@ -1,43 +1,31 @@
 using Azure.Messaging.ServiceBus;
-using CloudCanvas.Application.Common.Constants;
-using CloudCanvas.Application.Common.Exceptions;
-using CloudCanvas.Functions.ThumbnailOrchestrator.DTO;
-using CloudCanvas.Infrastructure.Common;
-using CloudCanvas.Infrastructure.DTOs;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.DurableTask.Client;
-using Microsoft.Extensions.Logging;
-
+using static CloudCanvas.Application.Common.Constants.ServiceBus;
 namespace CloudCanvas.Functions.ThumbnailOrchestrator;
 
 public class ThumbnailOrchestrationStarter
 {
-
     [Function(nameof(ThumbnailOrchestrationStarter))]
     public async Task<string?> Run(
-        [ServiceBusTrigger(ServiceBus.Topics.FileUpdates, ServiceBus.Subs.CreateThumbnail, Connection = ServiceBus.ManagedIdentity)]
+        [ServiceBusTrigger(Topics.FileUpdates, Subs.CreateThumbnail, Connection = Secrets.FUMSGI)]
         ServiceBusReceivedMessage incoming,
         ServiceBusMessageActions messageActions,
         [DurableClient] DurableTaskClient client,
-        FunctionContext executionContext)
+        FunctionContext executionContext, CancellationToken cancellation = default)
     {
         var logger = executionContext.GetLogger<ThumbnailOrchestrationStarter>();
         logger.LogInformation("{correlationId} Received thumbnail orchestration trigger", incoming.CorrelationId);
-        using var reader = new StreamReader(incoming.Body.ToStream());
-        var payload = await reader.ReadToEndAsync();
-        try
+        
+        try {
+            var photo = incoming.Body.ToObjectFromJson<PhotoDTO>(); 
+            var containerName = incoming.ApplicationProperties[Props.ContainerName]?.ToString()!;
+            var request = new InceptionRequest(photo!, containerName, incoming.CorrelationId); // Forced correlation for App Insights
+            string instanceId = await client.ScheduleNewOrchestrationInstanceAsync(nameof(ThumbnailOrchestrator), request, cancellation);
+            return instanceId; 
+        } catch (Exception e) when (e is CCMapperException || e is ArgumentNullException)
         {
-            var blob = CCSerializer.Deserialize<BlobMetadata>(payload); // Validation behind the scenes
-            var request = new InceptionRequest(blob, incoming.CorrelationId); // forced correlation for App Insights
-            string instanceId = await client.ScheduleNewOrchestrationInstanceAsync(nameof(ThumbnailOrchestrator), request);
-            return instanceId;
-        }
-        catch (Exception e) when (e is CCSerializationException || e is ArgumentNullException)
-        {
-            await messageActions.AbandonMessageAsync(incoming);
+            await messageActions.AbandonMessageAsync(incoming, default, cancellation);
             logger.LogInformation(e, "{correlationId} Failed to deserialize request payload. Message abandoned: {messageId}", incoming.CorrelationId, incoming.MessageId);
             return null;
         }
-
     }
 }

@@ -1,26 +1,50 @@
-using CloudCanvas.Application.Posts.Photos.Commands;
-using CloudCanvas.Application.Posts.Photos.Queries.GetPhotos;
+using CloudCanvas.Application.Posts.DTOs;
+using CloudCanvas.Application.Posts.Photos.Commands.CreatePhoto;
+using CloudCanvas.Application.Posts.Photos.Commands.UploadFile;
+using CloudCanvas.Application.Posts.Photos.Queries.GetAllPhotos;
+using CloudCanvas.Application.Posts.Photos.Queries.GetPhotoByKey;
 using CloudCanvas.Application.Posts.Photos.Queries.GetPhotosByUser;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Web.Resource;
-using ICosmosRepo = CloudCanvas.Application.Abstractions.Persistence.IPostsRepository<CloudCanvas.Domain.Posts.Contracts.IPost>;
+using CloudCanvas.Application.Users.Commands.EnsureUserExists;
+
 namespace CloudCanvas.Api.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
-    public class PhotosController(ICosmosRepo client) : ControllerBase
+    public sealed class PhotosController(ISender sender, ILogger<PhotosController> logger) : ControllerBase
     {
-        private readonly ICosmosRepo _client = client;
+        private readonly ISender _sender = sender;
+        private readonly ILogger<PhotosController> _logger = logger;
 
         [HttpGet(Name = "GetAllPhotos")]
-        public async Task<GetAllPhotosQueryResult> GetAsync() => await new GetAllPhotosRequestHandler(_client).Handle(new GetAllPhotosQuery());
+        public async Task<ActionResult<GetAllPhotosResult>> GetAsync(CancellationToken cancellation = default) 
+            => Ok(await _sender.Send(new GetAllPhotosQuery(), cancellation));
+
+        [HttpGet("single", Name = "GetPhotoById")]
+        public async Task<ActionResult<PhotoDTO>> GetSingleByKeyAsync([FromQuery] string id, [FromQuery] string userId, CancellationToken cancellation = default)
+        {
+            _logger.LogInformation("Photo projection lookup with key: [id={PhotoId}, userId={userId}].", id, userId);
+            var res = await _sender.Send(new GetPhotoByKeyQuery(new(id, userId)), cancellation);
+            return res?.Photo != null? Ok(res.Photo): NotFound();
+        }
 
         [HttpGet("user/{userId}", Name = "GetUserPhotos")]
-        public async Task<GetUserPhotosQueryResult> GetUserPhotosAsync(string userId) => await new GetUserPhotosRequestHandler(_client).Handle(new GetUserPhotosQuery(userId));
+        public async Task<ActionResult<GetUserPhotosResult>> GetUserPhotosAsync(string userId, CancellationToken cancellation = default) 
+            => Ok(await _sender.Send(new GetUserPhotosQuery(userId), cancellation));
 
-        [HttpPost(Name = "SavePhoto")]
-        public async Task<SavePhotoQueryResult> CreatePhotoAsync([FromBody] SavePhotoCommand command) => await new SavePhotoRequestHandler(_client).Handle(command);
+        [HttpPost(Name = "CreatePhoto")]
+        public async Task<ActionResult<CreatePhotoResult>> CreatePhotoAsync([FromBody] CreatePhotoCommand command, CancellationToken cancellation = default) 
+            => Ok(await _sender.Send(command, cancellation));
+
+        [HttpPost("upload", Name = "UploadPhoto")]
+        public async Task<ActionResult<CreatePhotoResult>> UploadPhotoAsync(IFormFile file, CancellationToken cancellation = default)
+        {
+            var appUser = (await _sender.Send(new EnsureUserExistsCommand(User.ToAppUser()), cancellation)).User;
+            var uploadRes = await _sender.Send(new UploadFileCommand(file, appUser.Id), cancellation);
+            var creationCommand = uploadRes.FileMetadata.ToPhoto(appUser.Id).IssueCreationCommand(appUser.ToCreator());
+            var result = await _sender.Send(creationCommand, cancellation);
+            return Ok(result);
+        }
     }
 }

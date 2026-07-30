@@ -1,39 +1,38 @@
-﻿using CloudCanvas.Application.Common.Constants;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace CloudCanvas.Application.Posts.Commands.UpdatePost
 {
-    public class UpdateBasicPostInfoRequest
+    public record UpdateBasicPostInfoRequest
     {
         [Required]
         [JsonPropertyName("id")]
-        public string Id { get; set; } = default!;
+        public string Id { get; init; } = default!;
 
         [Required]
         [JsonPropertyName("userId")]
-        public string? UserId { get; set; } // should be overwritten for more structured Id's
+        public string? UserId { get; init; }
 
         [JsonPropertyName("displayName")]
-        public string? DisplayName { get; set; }
+        public string? DisplayName { get; init; }
 
         [JsonPropertyName("description")]
-        public string? Description { get; set; }
+        public string? Description { get; init; }
 
         [JsonPropertyName("galleryName")]
-        public string? GalleryName { get; set; }
+        public string? GalleryName { get; init; }
 
         [JsonPropertyName("userTags")]
-        public List<string>? UserTags { get; set; } = new();
+        public List<string>? UserTags { get; init; } = new();
         
         [JsonPropertyName("galleryId")]
-        public string? GalleryId { get; set; }
+        public string? GalleryId { get; init; }
 
         [JsonPropertyName("commentsEnabled")]
-        public bool? CommentsEnabled { get; set; } = true;
+        public bool? CommentsEnabled { get; init; } = true;
 
         [JsonPropertyName("published")]
-        public bool? IsPublished { get; set; }
+        public bool? IsPublished { get; init; }
 
     }
 }

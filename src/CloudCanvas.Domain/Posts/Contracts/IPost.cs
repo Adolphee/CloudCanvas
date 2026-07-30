@@ -1,7 +1,8 @@
 ﻿
 using CloudCanvas.Domain.Abstractions;
-using CloudCanvas.Domain.Common.Enums;
-using CloudCanvas.Domain.Reactions;
+using CloudCanvas.Domain.Enums;
+using CloudCanvas.Domain.Posts.Entities;
+using CloudCanvas.Domain.Reactions.Entities;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -16,16 +17,13 @@ namespace CloudCanvas.Domain.Posts.Contracts
         string UserId { get; set; }
         string? Location { get; set; }
 
-        [Required]
-        PostClassification Classification { get; set; }
-
         List<Reaction> Reactions { get; set; } 
         [NotMapped]
-        List<Like> Likes => Reactions.Where(r => r.Type == ReactionType.Like).OfType<Like>().ToList();
+        List<Like> Likes => [.. Reactions.Where(r => r.Type == ReactionType.Like).OfType<Like>()];
         [NotMapped]
-        List<Dislike> Dislikes => Reactions.Where(r => r.Type == ReactionType.Dislike).OfType<Dislike>().ToList();
-         [NotMapped]
-        List<EmojiReaction> EmojiReactions => Reactions.Where(r => r.Type == ReactionType.Emoji).OfType<EmojiReaction>().ToList();
+        List<Dislike> Dislikes => [.. Reactions.Where(r => r.Type == ReactionType.Dislike).OfType<Dislike>()];
+        [NotMapped]
+        List<EmojiReaction> EmojiReactions => [.. Reactions.Where(r => r.Type == ReactionType.Emoji).OfType<EmojiReaction>()];
         List<Comment> Comments { get; set; }
         bool CommentsEnabled { get; set; }
         long ContentLength { get; set; }

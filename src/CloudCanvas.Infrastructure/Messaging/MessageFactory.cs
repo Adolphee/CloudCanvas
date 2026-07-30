@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CloudCanvas.Application.Abstractions.Messaging;
+using CloudCanvas.Application.Posts.DTOs;
 
 namespace CloudCanvas.Infrastructure.Messaging
 {
-    public static class MessageFactory
+    public class MessageFactory: IMessageFactory
     {
-        public static IServiceBusMessageBuilder BuildFor(object payload)
+        public IMessageBuilder BuildForPhoto(PhotoDTO photo)
         {
-            return new SBMessageBuilder(payload);
+            return new SBMessageBuilder(photo);
         }
     }
 }

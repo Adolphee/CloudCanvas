@@ -1,39 +1,29 @@
-using CloudCanvas.Application.Common.Constants;
-using CloudCanvas.Application.Common.Exceptions;
-using CloudCanvas.Functions.ThumbnailOrchestrator.DTO;
-using CloudCanvas.Infrastructure.DTOs;
-using CloudCanvas.Infrastructure.Messaging;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
+using CloudCanvas.Application.Abstractions.Messaging;
+using static CloudCanvas.Application.Common.Constants.ServiceBus;
 
 namespace CloudCanvas.Functions.ThumbnailOrchestrator.Activities;
 
-public class PublishThumbnailCompletionActivity(ServiceBusAdapter serviceBusAdapter)
+public class PublishThumbnailCompletionActivity(IMessenger messenger, ILogger<PublishThumbnailCompletionActivity> logger)
 {
-    private readonly ServiceBusAdapter _sbAdapter = serviceBusAdapter;
+    private readonly IMessenger _messanger = messenger;
+    private readonly ILogger<PublishThumbnailCompletionActivity> _logger = logger;
 
     [Function(nameof(PublishThumbnailCompletionActivity))]
-    public async Task<BlobMetadata> Run([ActivityTrigger] RequestContext req, FunctionContext context)
+    public async Task<PhotoDTO> Run([ActivityTrigger] RequestContext req, CancellationToken cancellation = default)
     {
-        var logger = context.GetLogger<PublishThumbnailCompletionActivity>();
-        logger.LogInformation("{correlationId} Thumbnails orchestration complete. BlobId: {identifier}, InstanceId: {instanceId}", req.CorrelationId, req.Blob.Name, req.InstanceId);
+        _logger.LogInformation("{correlationId} Thumbnails orchestration complete. BlobId: {identifier}, InstanceId: {instanceId}", req.CorrelationId, req.Photo.Id, req.InstanceId);
         try
         {
-            var SbNotification = MessageFactory.BuildFor(req.Blob)
-                .WithSubject(ServiceBus.Status.OrchestrationFinished)
-                .SetCorrelationId(req.CorrelationId)
-                .AddProperty(BStorage.Meta.CompletedOn, DateTimeOffset.Now)
-                .Finalize(req.InstanceId);
-
-            await _sbAdapter.SendAsync(ServiceBus.Topics.FileUpdates, SbNotification);
-            logger.LogInformation("{correlationId} Done. Sent Message '{messageId}' to topic '{topic}': {subject}", 
-                SbNotification.CorrelationId, SbNotification.MessageId, ServiceBus.Topics.FileUpdates, SbNotification.Subject);
+            var res = await _messanger.SendCreateThumbnailsCompletionMessage(req.Photo, req.CorrelationId, cancellation);
+            _logger.LogInformation("{correlationId} Sent Message '{messageId}' to topic '{topic}': {subject}", 
+                req.CorrelationId, res, Topics.FileUpdates, Status.OrchestrationFinished);
         }
-        catch (Exception e) when (e is CCSerializationException || e is InvalidArgumentException)
+        catch (Exception e) when (e is CCMapperException || e is InvalidArgumentException)
         {
-            logger.LogError(e, "{correlationId} Failed to deserialize metadata into an object of type {type}. Operation aborted. ", req.CorrelationId, nameof(BlobMetadata));
+            _logger.LogError(e, "{correlationId} Failed to send Message to '{topic}': {subject}",
+                req.CorrelationId, Topics.FileUpdates, Status.OrchestrationFinished);
             throw;
         }
-        return req.Blob;
+        return req.Photo;
     }
 }

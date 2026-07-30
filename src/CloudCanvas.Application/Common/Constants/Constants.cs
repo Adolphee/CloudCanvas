@@ -3,12 +3,6 @@
 /// </summary>
 namespace CloudCanvas.Application.Common.Constants
 {
-    /// <summary>
-    /// Represents constants and nested types related to Azure Blob Storage configuration.
-    /// </summary>
-    /// <remarks>This class provides predefined constants for common Azure Blob Storage settings, such as
-    /// connection strings and container names. It also includes a nested class, <see cref="Containers"/>, which defines
-    /// container-specific constants.</remarks>
     public abstract class BStorage
     {
         public const string Self = "AzureBlobStorage";
@@ -24,6 +18,8 @@ namespace CloudCanvas.Application.Common.Constants
             public static string CompletedOn = "completedOn";
             public static string CreatedOn = "createdOn";
             public const string DeletedOn = "deletedOn";
+            public const string Container = "container";
+
         }
 
         public abstract class Containers
@@ -48,6 +44,7 @@ namespace CloudCanvas.Application.Common.Constants
         {
             public const string EventType = "eventType";
             public const string ThumbnailSize = "thumbnailSize";
+            public const string ContainerName = "ContainerName";
         }
 
         public abstract class Subs
@@ -60,7 +57,7 @@ namespace CloudCanvas.Application.Common.Constants
 
         public abstract class Status
         {
-            public const string NewBlobDetected = "New Blob Detected";
+            public const string NewBlobDetected = "New Photo Detected";
             public const string ThumbnailCreated = "Thumbnail Created";
             public const string ImageResized = "Image Resized";
             public const string MetadataPersisted = "Metadata Persisted";
@@ -68,13 +65,19 @@ namespace CloudCanvas.Application.Common.Constants
         }
     }
 
-    public abstract class CloudCosmos
+    public abstract class Projection
     {
         public const string Sql = "cloudcosmos_sql";
         public const string Uri = "CosmosEndpointURI";
         public abstract class Containers {
             public const string BlobMeta = "blob_metadata";
+            public const string UserPhotos = "user_photos";
         }
+    }
+
+    public abstract class SQLServer
+    {
+        public const string ConnectionString = "sqlserver";
     }
 
     public abstract class Secrets
@@ -88,5 +91,11 @@ namespace CloudCanvas.Application.Common.Constants
     public abstract class Config
     {
         public const string MaxMessageLength = "MAX_MSG_LEN";
+    }
+
+    public abstract class CCClaimTypes
+    {
+        public const string ObjectIdentfier = "http://schemas.microsoft.com/identity/claims/objectidentifier";
+        public const string Name = "name";
     }
 }

@@ -1,11 +1,10 @@
 ﻿namespace CloudCanvas.Domain.Abstractions
 {
     public interface IHasTimestamps
-    {        
-        DateTimeOffset CreatedOn { get; set; }
-        DateTimeOffset DeletedOn { get; set; }
-        DateTimeOffset ModifiedOn { get; set; }
-
+    {
+        public DateTimeOffset GetCreatedOn();
+        public DateTimeOffset GetDeletedOn();
+        public DateTimeOffset GetModifiedOn();
 
         public void SetCreatedOn();
         public void SetDeletedOn();

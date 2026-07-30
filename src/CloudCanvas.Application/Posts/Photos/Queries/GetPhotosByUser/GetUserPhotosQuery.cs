@@ -1,16 +1,11 @@
-﻿using CloudCanvas.Application.Common.Constants;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CloudCanvas.Application.Posts.Photos.Queries.GetPhotosByUser
+﻿namespace CloudCanvas.Application.Posts.Photos.Queries.GetPhotosByUser
 {
-    public record GetUserPhotosQuery
+    public record GetUserPhotosQuery: IRequest<GetUserPhotosResult>
     {
         public string UserId { get; set; }
         public string ContainerName { get; set; }
 
-        public GetUserPhotosQuery(string id, string container = CloudCosmos.Containers.BlobMeta)
+        public GetUserPhotosQuery(string id, string container = Projection.Containers.UserPhotos)
         {
             UserId = id;
             ContainerName = container;

@@ -1,5 +1,5 @@
-using CloudCanvas.Domain.Posts;
-using CloudCanvas.Domain.Reactions;
+using CloudCanvas.Domain.Posts.Entities;
+using CloudCanvas.Domain.Reactions.Entities;
 using CloudCanvas.Domain.Thumbnail;
 using CloudCanvas.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -9,6 +9,13 @@ namespace CloudCanvas.Infrastructure.Persistence;
 
 public class CCDBContext(DbContextOptions<CCDBContext> options) : IdentityDbContext<User>(options)
 {
+    public DbSet<Photo> Photos { get; set; }
+    public DbSet<Gallery> Galleries { get; set; }
+    public DbSet<Comment> Comments { get; set; }
+    public DbSet<Reaction> Reactions { get; set; }
+    public DbSet<PhotoThumbnail> Thumbnails { get; set; }
+    public DbSet<Post> Posts { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -39,7 +46,7 @@ public class CCDBContext(DbContextOptions<CCDBContext> options) : IdentityDbCont
         });
 
         modelBuilder.Entity<Comment>().ToTable("Comments");
-        modelBuilder.Entity<PhotoThumbnail>().ToTable("PhotoThumbnails");
+        modelBuilder.Entity<PhotoThumbnail>().ToTable("PhotoThumbnails").HasIndex(t => new { t.Size, t.PhotoId }, "SinglePhotoManyThumbnails_OnlyDifferentSizes").IsUnique();
         modelBuilder.Entity<Gallery>(g =>
         {
             g.ToTable("Galleries");

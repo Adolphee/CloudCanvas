@@ -1,18 +1,16 @@
 ﻿using CloudCanvas.Application.Posts.Commands.UpdatePost;
-using CloudCanvas.Domain.Common.Enums;
+using CloudCanvas.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
 namespace CloudCanvas.Application.Posts.DTOs
 {
-    public class GalleryItemDTO: UpdateBasicPostInfoRequest
+    public record GalleryItemDTO: UpdateBasicPostInfoRequest
     {
-        [Required]
-        public string Location { get; set; } = default!;
-        [Required]
-        public string OriginalFilename { get; set; } = default!;
-        public Dictionary<ThumbnailSize, string> Thumbnails { get; set; } = new(); // BlobUrls for the thumbnails
-        public string? UploadedBy { get; set; }
-        public DateTimeOffset LastModified { get; set; }
-        public DateTimeOffset CreatedOn { get; set; }
-        public long ContentLength { get; set; }
+        public required string Location { get; init; }
+        public required string OriginalFilename { get; init; }
+        public Dictionary<ThumbnailSize, string> Thumbnails { get; init; } = new();
+        public string? UploadedBy { get; init; }
+        public DateTimeOffset LastModified { get; init; } = DateTimeOffset.Now;
+        public DateTimeOffset CreatedOn { get; init; } = DateTimeOffset.Now;
+        public long ContentLength { get; init; }
     }
 }
