@@ -1,56 +1,30 @@
-﻿using CloudCanvas.Application.Abstractions.Persistence;
-using CloudCanvas.Application.Users;
-using CloudCanvas.Application.Users.Commands.EnsureUserExists;
-using CloudCanvas.Infrastructure.Persistence;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
-using System.Data;
-
-using User = CloudCanvas.Infrastructure.Identity.User;
+﻿using CloudCanvas.Application.Users.Commands.EnsureUserExists;
+using User = CloudCanvas.Application.Users.ApplicationUser;
 
 namespace CloudCanvas.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController(ISender sender, IUserRepository repo, IConfiguration config) : ControllerBase
+    public sealed class AuthController(ISender sender) : ControllerBase
     {
-        private readonly IConfiguration _config = config;
-        private readonly IUserRepository _repo = repo;
         private readonly ISender _sender = sender;
 
-        [Authorize]
+        [Authorize] // Only until I build a frontend UI flow for OAuth2.0 auth management
         [HttpGet("login")]
-        public async Task<ActionResult<ApplicationUser?>> Login(string? returnUrl = "/", CancellationToken cancellation = default)
+        public async Task<ActionResult<User?>> LoginAsync(CancellationToken cancellation = default)
         {
-            var user = GetApplicationUser();
-            var res = await _sender.Send(new EnsureUserExistsCommand(user), cancellation);
+            var res = await _sender.Send(new EnsureUserExistsCommand(User.ToAppUser()), cancellation);
             return Ok(res);
         }
 
-        [HttpGet("me")]
         [Authorize]
-        public IActionResult Me()
-        {
-            var user = GetApplicationUser();
-            return Ok(user);
-        }
+        [HttpGet("me")]
+        public IActionResult Me() => Ok(User.ToAppUser()); // later we'll get the full user object from persistence
 
         [HttpPost("signOut")]
-        public IActionResult SignOutUser()
+        public IActionResult SignOutUser() => NotFound(new
         {
-            return Ok(new
-            {
-                message = "Client should discard the bearer token to sign out."
-            });
-        }
-
-        private ApplicationUser GetApplicationUser() => new ApplicationUser()
-        {
-            Id = User.FindFirstValue(CCClaimTypes.ObjectIdentfier)!,
-            Email = User.FindFirstValue(ClaimTypes.Email)!,
-            FirstName = User.FindFirstValue(ClaimTypes.GivenName)!,
-            LastName = User.FindFirstValue(ClaimTypes.Surname)!,
-            UserName = User.FindFirstValue(ClaimTypes.Email)!,
-        };
+            message = "Client should discard the bearer token to sign out."
+        });
     }
 }

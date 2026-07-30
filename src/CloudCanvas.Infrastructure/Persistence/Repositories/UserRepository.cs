@@ -11,7 +11,7 @@ namespace CloudCanvas.Infrastructure.Persistence.Repositories
     {
         private readonly CCDBContext _context = context;
 
-        public async Task<EnsureUserExistsResult> EnsureUserExistsAsync(ApplicationUser user, CancellationToken cancellation)
+        public async Task<EnsureUserExistsResult> EnsureUserExistsAsync(ApplicationUser user, CancellationToken cancellation = default)
         {
 
             if (!await ExistsAsync(user.Id, cancellation))
@@ -33,7 +33,7 @@ namespace CloudCanvas.Infrastructure.Persistence.Repositories
             return new EnsureUserExistsResult(updatedUser?.ToAppUser(), true);
         }
 
-        public async Task<bool> ExistsAsync(string userId, CancellationToken cancellation)
+        public async Task<bool> ExistsAsync(string userId, CancellationToken cancellation = default)
         => await _context.Users.AnyAsync(u => u.Id == userId, cancellation);
     }
 }
