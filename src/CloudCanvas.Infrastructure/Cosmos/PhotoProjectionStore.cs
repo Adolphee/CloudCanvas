@@ -2,13 +2,14 @@
 using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Application.Common.Exceptions;
 using CloudCanvas.Application.Common.Mapping;
-using CloudCanvas.Application.Posts.DTOs;
+using CloudCanvas.Application.Posts.Photos;
 using CloudCanvas.Application.Posts.Photos.Interfaces;
 using CloudCanvas.Domain.Posts.Entities;
 using CloudCanvas.Infrastructure.Common;
 using CloudCanvas.Infrastructure.Exceptions;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
+using System.Linq.Expressions;
 namespace CloudCanvas.Infrastructure.Cosmos
 {
     public class PhotoProjectionStore(CosmosClient client, ILogger<PhotoProjectionStore> logger) : IPhotoProjectionStore
@@ -24,14 +25,6 @@ namespace CloudCanvas.Infrastructure.Cosmos
                 throw new ArgumentNullException(nameof(photo), message: "PhotoUserId is required.");
             //photo.Id ??= Guid.NewGuid().ToString();
             return await GetContainer(_containerName).CreateItemAsync(photo, new PartitionKey(photo.UserId), default, cancellation);
-        }
-
-        public async Task<PhotoDTO> CreateProjectionAsync(Photo photo, Creator creator, CancellationToken cancellation = default)
-        {
-            if (photo.UserId is null) 
-                throw new ArgumentNullException(nameof(photo), message: "PhotoUserId is required.");
-            photo.Id ??= Guid.NewGuid().ToString();
-            return await GetContainer(_containerName).CreateItemAsync(photo.ToProjection(creator), new PartitionKey(photo.UserId), default, cancellation);
         }
 
         public async Task<bool> ReplaceProjectionAsync(PhotoDTO photo, CancellationToken cancellation = default)
@@ -94,14 +87,14 @@ namespace CloudCanvas.Infrastructure.Cosmos
             return res;
         }
 
-        public async Task<bool> DeleteAsync(PhotoDTO meta, CancellationToken cancellationToken = default)
+        public async Task<bool> DeleteAsync(PhotoDTO meta, bool softDelete = true, CancellationToken cancellationToken = default)
         {
             var container = GetContainer(_containerName);
             var result = await container.DeleteItemAsync<PhotoDTO>(meta.Id, new PartitionKey(meta.UserId), cancellationToken: cancellationToken);
             return result == null;
         }
 
-        public async Task<PhotoDTO> SingleAsync(ProjectionKey key, CancellationToken cancellation = default)
+        public async Task<PhotoDTO?> SingleAsync(ProjectionKey key, CancellationToken cancellation = default)
         {
             var container = GetContainer(_containerName);
             try
@@ -140,6 +133,24 @@ namespace CloudCanvas.Infrastructure.Cosmos
             _container = GetContainer(_containerName);
             var res = await _container.PatchItemAsync<PhotoDTO>(key.Id, key.AsPartitionKey(), patchOperations: patches, cancellationToken: cancellationToken);
             return res.Resource;
+        }
+
+        public async Task<List<PhotoDTO>> GetAllFilteredAsync(Expression<Func<PhotoDTO, bool>> filter = null, CancellationToken cancellationToken = default)
+        {
+            var con = GetContainer(_containerName);
+            var res = new List<PhotoDTO>();
+            using var queryable = con.GetItemQueryIterator<PhotoDTO>();
+            while (queryable.HasMoreResults)
+            {
+                var feedResponse = await queryable.ReadNextAsync(cancellationToken: cancellationToken);
+                var availableItems = feedResponse.Where(i => i.TimeStamps.DeletedOn <= DateTimeOffset.MinValue);
+                if (filter != null)
+                {
+                    availableItems = availableItems.AsQueryable().Where(filter);
+                }
+                res.AddRange(availableItems);
+            }
+            return [.. res];
         }
     }
 }

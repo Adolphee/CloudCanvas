@@ -6,6 +6,7 @@ using CloudCanvas.Application.Abstractions.Storage;
 using CloudCanvas.Application.Common;
 using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Application.Common.Interfaces;
+using CloudCanvas.Application.Posts.Galleries.Interfaces;
 using CloudCanvas.Application.Posts.Photos.Interfaces;
 using CloudCanvas.Infrastructure.BlobStorage;
 using CloudCanvas.Infrastructure.Common;
@@ -23,13 +24,16 @@ namespace CloudCanvas.Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration config)
         {
-            services.AddScoped<IPhotoRepository, PhotoRepositoryEF>();
-            services.AddScoped<IMediaStorage, BlobStorageService>();
-            services.AddScoped<IPhotoProjectionStore, PhotoProjectionStore>();
             services.AddScoped<IMessenger, Messenger>();
+            services.AddScoped<IMediaStorage, BlobStorageService>();
             services.AddScoped<IMessageBuilder, SBMessageBuilder>();
             services.AddScoped<IMessageFactory, MessageFactory>();
+
+            services.AddScoped<IPhotoRepository, PhotoRepositoryEF>();
+            services.AddScoped<IPhotoProjectionStore, PhotoProjectionStore>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IGalleryRepository, GalleryRepository>();
+            services.AddScoped<IGalleryProjectionStore, GalleryProjectionStore>();
             services.AddTransient<IImageTool, ImageTool>();
 
             services.AddDbContext<CCDBContext>(options => options.UseSqlServer(config.GetConnectionString(SQLServer.ConnectionString), sql => sql.EnableRetryOnFailure()));
