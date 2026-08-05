@@ -1,7 +1,4 @@
 ﻿using CloudCanvas.Application.Posts.Photos;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace CloudCanvas.Application.Posts.Queries.GetAllPosts
 {

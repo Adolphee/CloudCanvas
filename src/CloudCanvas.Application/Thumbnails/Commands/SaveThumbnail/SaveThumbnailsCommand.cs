@@ -1,4 +1,6 @@
-﻿namespace CloudCanvas.Application.Thumbnails.Commands.SaveThumbnail
+﻿using CloudCanvas.Application.Posts.Photos;
+
+namespace CloudCanvas.Application.Thumbnails.Commands.SaveThumbnail
 {
     public sealed record SaveThumbnailsCommand: IRequest<SaveThumbnailsResult>
     {
