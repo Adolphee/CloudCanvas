@@ -1,9 +1,8 @@
 ﻿using CloudCanvas.Application.Posts.Commands.UpdatePost;
 using CloudCanvas.Domain.Enums;
-using System.ComponentModel.DataAnnotations;
 namespace CloudCanvas.Application.Posts.DTOs
 {
-    public record GalleryItemDTO: UpdateBasicPostInfoRequest
+    public record EssentialFileInfo: UpdateBasicPostInfoRequest
     {
         public required string Location { get; init; }
         public required string OriginalFilename { get; init; }

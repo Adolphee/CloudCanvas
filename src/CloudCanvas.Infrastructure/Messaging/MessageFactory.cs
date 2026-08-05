@@ -1,5 +1,5 @@
 ﻿using CloudCanvas.Application.Abstractions.Messaging;
-using CloudCanvas.Application.Posts.DTOs;
+using CloudCanvas.Application.Posts.Photos;
 
 namespace CloudCanvas.Infrastructure.Messaging
 {

@@ -1,15 +1,15 @@
 ﻿using CloudCanvas.Application.Reactions.Common;
 
-namespace CloudCanvas.Application.Posts.DTOs
+namespace CloudCanvas.Application.Posts.Photos
 {
     public sealed record PhotoDTO: PostDTO
     {
         public required string OriginalFilename { get; init; }
         public required string Location { get; init; } = default!;
+        public long ContentLength { get; init; }
         public bool CommentsEnabled { get; init; } = true;
         public string? Description { get; init; } = default!;
         public string? Title { get; init; }
-        public long ContentLength { get; init; }
         public List<string> UserTags { get; init; } = [];
         public Dictionary<string, string> Thumbnails { get; init; } = [];
         public string? GalleryId { get; init; } = default!;

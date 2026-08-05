@@ -1,5 +1,4 @@
-﻿using CloudCanvas.Application.Posts.DTOs;
-using CloudCanvas.Domain.Posts;
+﻿using CloudCanvas.Domain.Posts;
 
 namespace CloudCanvas.Application.Posts.Photos.Queries.GetAllPhotos
 {

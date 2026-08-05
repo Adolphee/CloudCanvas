@@ -2,7 +2,7 @@
 
 namespace CloudCanvas.Application.Abstractions.Persistence
 {
-    public interface IPostRepositoryEF<T> where T : Post
+    public interface IPostRepository<T> where T : Post
     {
         Task<string?> SaveAsync(T post, CancellationToken cancellation = default);
         Task<bool> UpdateAsync(T post, CancellationToken cancellation = default);

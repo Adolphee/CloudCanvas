@@ -1,7 +1,7 @@
 ﻿using CloudCanvas.Application.Abstractions.Messaging;
 using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Application.Events;
-using CloudCanvas.Application.Posts.DTOs;
+using CloudCanvas.Application.Posts.Photos;
 using CloudCanvas.Domain.Enums;
 using static CloudCanvas.Application.Common.Constants.ServiceBus;
 

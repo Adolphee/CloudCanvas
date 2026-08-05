@@ -1,16 +1,12 @@
-﻿using CloudCanvas.Domain.Posts.Entities;
+﻿using CloudCanvas.Application.Abstractions.Persistence;
+using CloudCanvas.Domain.Posts.Entities;
 using CloudCanvas.Domain.Thumbnail;
 
 namespace CloudCanvas.Application.Posts.Photos.Interfaces
 {
-    public interface IPhotoRepository
+    public interface IPhotoRepository: IPostRepository<Photo>
     {
-        Task<string?> SaveAsync(Photo post, CancellationToken cancellation = default);
-        Task<bool> UpdateAsync(Photo post, CancellationToken cancellation = default);
-        Task<bool> DeleteAsync(string id, bool softDelete = true, CancellationToken cancellation = default);
-        Task<Photo?> GetByIdAsync(string id, CancellationToken cancellation = default);
-        Task<bool> ExistsAsync(string id, CancellationToken cancellation = default);
-
+        Task<List<Photo>> GetPhotosByIdsAsync(List<string> photos, CancellationToken cancellationToken);
         Task<bool> SaveThumbnailAsync(PhotoThumbnail thumnail, CancellationToken cancellation = default);
     }
 }

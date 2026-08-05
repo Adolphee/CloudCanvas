@@ -20,7 +20,6 @@
     <Folder Include="Posts\Comments\Queries\GetComments\" />
     <Folder Include="Posts\Galleries\Commands\SortGalleryItems\" />
     <Folder Include="Posts\Commands\PublishPost\" />
-    <Folder Include="Posts\Galleries\Commands\UploadGalleryItem\" />
     <Folder Include="Posts\Galleries\Queries\GetGetGalleryById\" />
     <Folder Include="Posts\Galleries\Queries\GetPublicGalleries\" />
     <Folder Include="Posts\Galleries\Queries\GetUnpublished\" />

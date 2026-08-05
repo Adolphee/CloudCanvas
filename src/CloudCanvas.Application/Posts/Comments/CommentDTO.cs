@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CloudCanvas.Application.Posts.DTOs
+namespace CloudCanvas.Application.Posts.Comments
 {
     public sealed record CommentDTO: PostDTO
     {

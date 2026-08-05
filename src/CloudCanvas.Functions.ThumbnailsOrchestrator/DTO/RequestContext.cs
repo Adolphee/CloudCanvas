@@ -1,4 +1,6 @@
-﻿namespace CloudCanvas.Functions.ThumbnailOrchestrator.DTO
+﻿using CloudCanvas.Application.Posts.Photos;
+
+namespace CloudCanvas.Functions.ThumbnailOrchestrator.DTO
 {
     public class RequestContext
     {

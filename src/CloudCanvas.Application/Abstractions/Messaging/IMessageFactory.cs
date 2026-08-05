@@ -1,4 +1,6 @@
-﻿namespace CloudCanvas.Application.Abstractions.Messaging
+﻿using CloudCanvas.Application.Posts.Photos;
+
+namespace CloudCanvas.Application.Abstractions.Messaging
 {
     public interface IMessageFactory
     {
