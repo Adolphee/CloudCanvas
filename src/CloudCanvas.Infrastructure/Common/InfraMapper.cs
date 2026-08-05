@@ -14,6 +14,8 @@ namespace CloudCanvas.Infrastructure.Common
     internal static class InfraMapper
     {
 
+        public static PartitionKey PartitionKey(this ProjectionKey key) => new(key.UserId);
+
         /// <summary>
         /// Converts `CCEventMessage` to `ServiceBusMessage`. 
         /// </summary>

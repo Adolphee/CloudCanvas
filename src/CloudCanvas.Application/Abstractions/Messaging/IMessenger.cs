@@ -1,4 +1,5 @@
 ﻿using CloudCanvas.Application.Events;
+using CloudCanvas.Application.Posts.Photos;
 using CloudCanvas.Application.Posts.Photos.Commands.CreatePhoto;
 using CloudCanvas.Application.Thumbnails.Commands.CreateThumbnail;
 

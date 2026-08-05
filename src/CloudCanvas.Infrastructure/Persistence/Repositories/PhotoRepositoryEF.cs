@@ -8,7 +8,7 @@ namespace CloudCanvas.Infrastructure.Persistence.Repositories
     public class PhotoRepositoryEF(CCDBContext ctx) : IPhotoRepository
     {
         private readonly CCDBContext _contex = ctx;
-        public async Task<string?> SaveAsync(Photo photo, CancellationToken cancellation)
+        public async Task<string?> SaveAsync(Photo photo, CancellationToken cancellation = default)
         {
             string? id = null;
             if (await ExistsAsync(photo.Id!, cancellation)) id = _contex.Update(photo).Entity.Id;
@@ -49,6 +49,11 @@ namespace CloudCanvas.Infrastructure.Persistence.Repositories
         {
             _contex.Thumbnails.Add(thumnail);
             return await _contex.SaveChangesAsync(cancellation) == 1;
+        }
+
+        public Task<List<Photo>> GetPhotosByIdsAsync(List<string> photos, CancellationToken cancellationToken)
+        {
+            return _contex.Photos.Where(g => photos.Contains(g.Id!)).ToListAsync(cancellationToken);
         }
     }
 }

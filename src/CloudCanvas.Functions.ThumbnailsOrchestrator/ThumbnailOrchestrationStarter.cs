@@ -1,4 +1,5 @@
 using Azure.Messaging.ServiceBus;
+using CloudCanvas.Application.Posts.Photos;
 using static CloudCanvas.Application.Common.Constants.ServiceBus;
 namespace CloudCanvas.Functions.ThumbnailOrchestrator;
 

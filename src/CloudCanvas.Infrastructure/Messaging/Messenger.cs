@@ -2,7 +2,7 @@
 using CloudCanvas.Application.Abstractions.Messaging;
 using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Application.Events;
-using CloudCanvas.Application.Posts.DTOs;
+using CloudCanvas.Application.Posts.Photos;
 using CloudCanvas.Infrastructure.Common;
 using CloudCanvas.Infrastructure.Exceptions;
 using Microsoft.Extensions.Logging;

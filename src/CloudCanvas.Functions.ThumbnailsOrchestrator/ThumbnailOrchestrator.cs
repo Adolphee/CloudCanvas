@@ -1,3 +1,4 @@
+using CloudCanvas.Application.Posts.Photos;
 using CloudCanvas.Domain.Enums;
 using CloudCanvas.Functions.ThumbnailOrchestrator.Activities;
 using Microsoft.DurableTask;
