@@ -1,4 +1,5 @@
 using CloudCanvas.Application.Abstractions.Messaging;
+using CloudCanvas.Application.Posts.Photos;
 using static CloudCanvas.Application.Common.Constants.ServiceBus;
 
 namespace CloudCanvas.Functions.ThumbnailOrchestrator.Activities;

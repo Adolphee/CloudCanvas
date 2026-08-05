@@ -1,4 +1,4 @@
-﻿using CloudCanvas.Application.Posts.DTOs;
+﻿using CloudCanvas.Application.Posts.Photos;
 using CloudCanvas.Infrastructure.DTOs;
 namespace CloudCanvas.Functions.ThumbnailOrchestrator.DTO
 {

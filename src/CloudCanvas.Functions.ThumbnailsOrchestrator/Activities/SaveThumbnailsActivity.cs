@@ -1,3 +1,4 @@
+using CloudCanvas.Application.Posts.Photos;
 using CloudCanvas.Application.Thumbnails.Commands.SaveThumbnail;
 
 namespace CloudCanvas.Functions.ThumbnailOrchestrator.Activities;
