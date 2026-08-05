@@ -3,6 +3,19 @@
 /// </summary>
 namespace CloudCanvas.Application.Common.Constants
 {
+    public abstract class Unknown
+    {
+        public const string Username = "unknown_user";
+        public const string DisplayName = "Unknown User";
+    }
+    public abstract class AppSettings
+    {
+        public const string AppInsights = "APPINSIGHTS_INSTRUMENTATIONKEY";
+        public const string AppInsightsConnectionString = "APPINSIGHTS_CONNECTIONSTRING";
+        public const string AppInsightsRoleName = "APPINSIGHTS_ROLE_NAME";
+        public const string AppInsightsRoleInstance = "APPINSIGHTS_ROLE_INSTANCE";
+    }
+
     public abstract class BStorage
     {
         public const string Self = "AzureBlobStorage";
@@ -72,6 +85,7 @@ namespace CloudCanvas.Application.Common.Constants
         public abstract class Containers {
             public const string BlobMeta = "blob_metadata";
             public const string UserPhotos = "user_photos";
+            public const string Galleries = "galleries";
         }
     }
 

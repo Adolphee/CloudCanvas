@@ -1,4 +1,4 @@
-﻿using CloudCanvas.Application.Posts.DTOs;
+﻿using CloudCanvas.Application.Posts.Photos;
 using System;
 using System.Collections.Generic;
 using System.Text;
