@@ -1,4 +1,4 @@
-using CloudCanvas.Application.Posts.DTOs;
+using CloudCanvas.Application.Posts.Photos;
 using CloudCanvas.Application.Posts.Photos.Commands.CreatePhoto;
 using CloudCanvas.Application.Posts.Photos.Commands.UploadFile;
 using CloudCanvas.Application.Posts.Photos.Queries.GetAllPhotos;

@@ -1,4 +1,5 @@
-﻿using CloudCanvas.Application.Posts.Photos.Commands.CreatePhoto;
+﻿using CloudCanvas.Application.Posts.Galleries.Commands.CreateGallery;
+using CloudCanvas.Application.Posts.Photos.Commands.CreatePhoto;
 using CloudCanvas.Application.Posts.Photos.Commands.UploadFile;
 using CloudCanvas.Application.Posts.Photos.Queries.GetAllPhotos;
 using CloudCanvas.Application.Posts.Photos.Queries.GetPhotosByUser;
@@ -20,6 +21,7 @@ namespace CloudCanvas.Application
                 cfg.RegisterServicesFromAssemblyContaining<EnsureUserExistsCommand>();
                 cfg.RegisterServicesFromAssemblyContaining<GetAllPhotosQuery>();
                 cfg.RegisterServicesFromAssemblyContaining<GetUserPhotosQuery>();
+                cfg.RegisterServicesFromAssemblyContaining<CreateGalleryCommand>();
             });
 
             services.Configure<JsonSerializerOptions>(options =>
