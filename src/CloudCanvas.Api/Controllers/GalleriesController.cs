@@ -1,5 +1,4 @@
-﻿using CloudCanvas.Application.Posts.Galleries;
-using CloudCanvas.Application.Posts.Galleries.Commands.CreateGallery;
+﻿using CloudCanvas.Application.Posts.Galleries.Commands.CreateGallery;
 
 namespace CloudCanvas.Api.Controllers
 {
@@ -7,17 +6,11 @@ namespace CloudCanvas.Api.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
-    public class GalleryController(ISender sender) : Controller
+    public sealed class GalleriesController(ISender sender) : Controller
     {
         private readonly ISender _sender = sender;
 
-        // GET: GalleryController
-        public async Task<ActionResult<List<GalleryDTO>>> Index()
-        {
-            return Ok();
-        }
-
-        // POST: GalleryController/Create
+        // POST: GalleriesController/Create
         [HttpPost(Name = "CreateGallery")]
         public async Task<ActionResult> Create([FromBody] CreateGalleryCommand command)
         {

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace CloudCanvas.Application.Posts.Galleries.Commands.CreateGallery
 {
-    public class CreateGalleryCommandHandler(IGalleryProjectionStore projectionStore, IGalleryRepository repository, IPhotoRepository _photoRepo, ILogger<CreateGalleryCommandHandler> logger) : IRequestHandler<CreateGalleryCommand, CreateGalleryResult>
+    public sealed class CreateGalleryCommandHandler(IGalleryProjectionStore projectionStore, IGalleryRepository repository, IPhotoRepository _photoRepo, ILogger<CreateGalleryCommandHandler> logger) : IRequestHandler<CreateGalleryCommand, CreateGalleryResult>
     {
         private readonly IGalleryProjectionStore _store = projectionStore;
         private readonly IGalleryRepository _repository = repository;

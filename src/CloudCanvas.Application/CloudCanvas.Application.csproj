@@ -11,7 +11,6 @@
     <Folder Include="Posts\Commands\DislikePost\" />
     <Folder Include="Posts\Commands\NewFolder\" />
     <Folder Include="Posts\Commands\UnpublishPost\" />
-    <Folder Include="Posts\Comments\Commands\AddComment\" />
     <Folder Include="Posts\Comments\Commands\EditComment\" />
     <Folder Include="Posts\Comments\Commands\DeleteComment\" />
     <Folder Include="Posts\Comments\Commands\ReportComment\" />
