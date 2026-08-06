@@ -6,6 +6,7 @@ using CloudCanvas.Application.Abstractions.Storage;
 using CloudCanvas.Application.Common;
 using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Application.Common.Interfaces;
+using CloudCanvas.Application.Posts.Comments;
 using CloudCanvas.Application.Posts.Galleries.Interfaces;
 using CloudCanvas.Application.Posts.Photos.Interfaces;
 using CloudCanvas.Infrastructure.BlobStorage;
@@ -34,6 +35,7 @@ namespace CloudCanvas.Infrastructure
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IGalleryRepository, GalleryRepository>();
             services.AddScoped<IGalleryProjectionStore, GalleryProjectionStore>();
+            services.AddScoped<ICommentRepository, CommentRepository>();
             services.AddTransient<IImageTool, ImageTool>();
 
             services.AddDbContext<CCDBContext>(options => options.UseSqlServer(config.GetConnectionString(SQLServer.ConnectionString), sql => sql.EnableRetryOnFailure()));
