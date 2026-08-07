@@ -28,6 +28,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "decisions", "decisions", "{
 	ProjectSection(SolutionItems) = preProject
 		docs\decisions\adr-clean-architecture-cqrs-upgrade-part2.md = docs\decisions\adr-clean-architecture-cqrs-upgrade-part2.md
 		docs\decisions\adr-clean-architecture-cqrs-upgrade.md = docs\decisions\adr-clean-architecture-cqrs-upgrade.md
+		docs\decisions\ai-enrichment-python-function-adr.md = docs\decisions\ai-enrichment-python-function-adr.md
+		docs\decisions\ai-enrichment-trigger-decision-adr.md = docs\decisions\ai-enrichment-trigger-decision-adr.md
 		docs\decisions\cosmosdb-read-models-for-gallery-pages.md = docs\decisions\cosmosdb-read-models-for-gallery-pages.md
 		docs\decisions\template_and_credits.md = docs\decisions\template_and_credits.md
 	EndProjectSection
