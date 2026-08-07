@@ -21,12 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudCanvas.Application", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{FE0EB5BF-C2DF-4993-9340-C76F2CD4EB47}"
 	ProjectSection(SolutionItems) = preProject
-		docs\decisions\adr-template_and_credits.md = docs\decisions\adr-template_and_credits.md
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "decisions", "decisions", "{A753A70B-B9AC-43E4-8087-E926F73173BA}"
-	ProjectSection(SolutionItems) = preProject
-		adr0-target_folder_structure.md = adr0-target_folder_structure.md
+		docs\adr-template-and-credits.md = docs\adr-template-and-credits.md
+		docs\decisions\adr0-target-folder-structure.md = docs\decisions\adr0-target-folder-structure.md
 		docs\decisions\adr1-cosmosdb-read-models-for-gallery-pages.md = docs\decisions\adr1-cosmosdb-read-models-for-gallery-pages.md
 		docs\decisions\adr2-clean-architecture-cqrs-upgrade.md = docs\decisions\adr2-clean-architecture-cqrs-upgrade.md
 		docs\decisions\adr3-clean-architecture-cqrs-upgrade-part2.md = docs\decisions\adr3-clean-architecture-cqrs-upgrade-part2.md
@@ -121,7 +117,6 @@ Global
 		{FD50614D-CD8C-245A-E1DB-C67C48CB2298} = {A0EB1171-2954-4C21-BE72-1F812E07A214}
 		{FE23DF8E-EB26-473A-BE23-EE2FCB051AD9} = {A0EB1171-2954-4C21-BE72-1F812E07A214}
 		{ADCEEFEF-516B-02EC-AD29-BB01E89DB2F2} = {A0EB1171-2954-4C21-BE72-1F812E07A214}
-		{A753A70B-B9AC-43E4-8087-E926F73173BA} = {FE0EB5BF-C2DF-4993-9340-C76F2CD4EB47}
 		{68197862-A4A8-613E-D1F4-A4283C9B7468} = {A0EB1171-2954-4C21-BE72-1F812E07A214}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
