@@ -1,3 +1,3 @@
-from .generate_tags import generate_tags
+from .vision_service import VisionService
 
 # __all__ = [generate_tags] 
