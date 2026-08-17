@@ -1,48 +1,20 @@
 # use case orchestration
+    
+###
+# Generate image enrichment ((WIP))
+# 1. Validate the incoming event. --> should 
+# 2. Ask ImageAnalyzer for tags and caption.
+# 3. Apply confidence and moderation policy. --> ?
+# 4. Persist enrichment state.
+# 5. Publish ImageEnriched (event, messaging).
+# 6. Make processing idempotent.
+###
 
-import os
-import logging
-from azure.ai.vision.imageanalysis.aio import ImageAnalysisClient
-from azure.ai.vision.imageanalysis.models import VisualFeatures
-from azure.core.credentials import AzureKeyCredential
+from application.ports.image_analyzer import ImageAnalyzer
+from domain.models import ImageTag
 
-logging.basicConfig(level=logging.INFO)
-
-try:
-    VISION_ENDPOINT = str(os.environ.get("VISION_ENDPOINT"))
-    VISION_KEY = str(os.environ.get("VISION_KEY"))
-    if not VISION_ENDPOINT or not VISION_KEY:
-        raise ValueError("VISION_ENDPOINT and VISION_KEY must be set in environment variables.")
-except Exception as e:
-    logging.error("Missing environment variable 'VISION_ENDPOINT' or 'VISION_KEY'")
-    logging.error("Set them before running this sample.")
-    exit()
-
-
-async def generate_tags(image_url: str):
-    logging.info(f"Generating tags for the image URL: {image_url}")
+async def generate_tags(client: ImageAnalyzer, image_url: str) -> list[ImageTag]:
     if image_url is None or image_url.strip() == "":
-        logging.error("Image URL is empty or None.")
-        return []
+        raise ValueError("Image URL is empty or None.")
+    return await client.generate_tags(image_url)
 
-    client = ImageAnalysisClient(endpoint=VISION_ENDPOINT, credential=AzureKeyCredential(VISION_KEY))
-    try:
-        result = await client.analyze_from_url(
-            image_url=image_url,
-            visual_features=[VisualFeatures.TAGS],
-            gender_neutral_caption=True,
-            language="en" 
-        )
-        
-        if result.tags is not None:
-            logging.info(f"{result.tags.__sizeof__()} tags found in the analysis result.")
-            tags = [tag.name for tag in result.tags.list]
-            return tags
-
-        logging.info("No tags found in the analysis result.")
-        return []
-    except Exception as e:
-        logging.error(f"Error analyzing image: {e}")
-        return []
-    finally:
-        await client.close()
