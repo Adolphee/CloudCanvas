@@ -2,8 +2,8 @@ import os
 import logging
 import azure.functions as func
 from domain.models import ImageTag
-from infrastructure.composition_root import build_image_analyzer
 from application.generate_tags import generate_tags
+from infrastructure.composition_root import build_image_analyzer
 
 TOPIC_NAME = str(os.environ.get("SBTopicName"))
 SUBSCRIPTION_NAME = str(os.environ.get("SBSubscription_tag"))

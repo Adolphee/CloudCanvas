@@ -13,13 +13,11 @@ def build_image_analyzer() -> ImageAnalyzer:
         if not VISION_ENDPOINT or not VISION_KEY:
             raise ValueError("VISION_ENDPOINT and VISION_KEY must be set in environment variables.")
     except Exception as e:
-        logging.error("Missing environment variable 'VISION_ENDPOINT' or 'VISION_KEY'")
+        logging.exception("An exception occurred during initialization of ImageAnalyzer.", {e})
         logging.error("Set them before running this sample.")
-        exit()
-
+        raise
     client = ImageAnalysisClient(
         endpoint=os.environ["VISION_ENDPOINT"],
         credential=AzureKeyCredential(os.environ["VISION_KEY"]),
     )
-
     return VisionService(client)

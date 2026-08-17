@@ -11,7 +11,7 @@ class VisionService(ImageAnalyzer):
         try:
             result = await self.client.analyze_from_url(image_url,[VisualFeatures.TAGS])
             if result.tags is not None:
-                logging.info(f"{len(result.tags)} tags generated A.I.")
+                logging.info(f"{len(result.tags.list)} tags generated A.I.")
                 return [ImageTag(tag.name, tag.confidence) for tag in result.tags.list]
             logging.warning("Azure Vision returned no caption for image URL %s", image_url)
             return []
@@ -23,7 +23,7 @@ class VisionService(ImageAnalyzer):
         try:
             result = await self.client.analyze_from_url(image_url,[VisualFeatures.CAPTION])
             if result.caption is not None:
-                logging.info("Generated caption: %s", result.caption)
+                logging.info("Generated caption: %s", result.caption.text)
                 return result.caption.text
             logging.warning("No caption was generated. Should be investigated.")
             return ""
