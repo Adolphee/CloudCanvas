@@ -6,8 +6,9 @@
         public string Subject { get; set; } = default!;
         public string ContentType { get; set; } = default!;
         public string CorrelationId { get; set; } = default!;
+        public string SessionId { get; set; } = default!;
         public string EventType { get; set; } = default!;
         public Dictionary<string, object> Properties { get; set; } = new();
-        public BinaryData Payload { get; set; } = default!;
+        public required BinaryData Payload { get; set; } = default!;
     }
 }

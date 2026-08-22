@@ -27,7 +27,8 @@ namespace CloudCanvas.Infrastructure.Common
                 ContentType = message.ContentType ?? Azure.Core.ContentType.ApplicationJson.ToString(),
                 MessageId = message.Id ?? Guid.NewGuid().ToString(),
                 Subject = message.Subject,
-                CorrelationId = message.CorrelationId
+                CorrelationId = message.CorrelationId,
+                SessionId = message.SessionId
             };
             foreach (var prop in message.Properties)
                 msg.ApplicationProperties[prop.Key] = prop.Value;
