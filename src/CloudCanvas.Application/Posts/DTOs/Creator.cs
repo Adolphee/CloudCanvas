@@ -1,25 +1,22 @@
-﻿namespace CloudCanvas.Application.Posts.DTOs
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace CloudCanvas.Application.Posts.DTOs
 {
-    public sealed record Creator
+    public sealed record Creator: CreatorMinimal
     {
-        public string? Id { get; init; }
-        public string? UserName { get; init; }
-        public string? DisplayName { get; init; }
-        public Creator() { }
-        public Creator(string id, string? username = null, string? displayName = null)
+        public required string UserName { get; init; }
+
+        [SetsRequiredMembers]
+        public Creator(string id, string username, string displayName): base(id, displayName)
         {
             Id = id;
-            UserName = username ?? "Unknown User";
-            DisplayName = displayName ?? "No display name";
+            UserName = username ?? Unknown.Username;
+            DisplayName = displayName ?? Unknown.DisplayName;
         }
 
-        public string? GetId() => Id;
-        public string? GetUserName() => UserName;
+        public string GetId() => Id;
+        public string GetUserName() => UserName;
 
-        private Creator WithUserNameOnly()
-            => this with { Id = null, UserName = UserName, DisplayName = null };
-
-        public Creator WithDisplayNameOnly(string? displayName = default) 
-            => this with { Id = null, UserName = null, DisplayName = displayName ?? DisplayName };
+        public CreatorMinimal MinimalVersion() => new(Id, DisplayName);
     }
 }

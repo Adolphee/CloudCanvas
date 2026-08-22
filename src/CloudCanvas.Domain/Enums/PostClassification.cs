@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CloudCanvas.Domain.Enums
+﻿namespace CloudCanvas.Domain.Enums
 {
     public enum PostClassification
     {

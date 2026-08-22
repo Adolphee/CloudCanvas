@@ -10,6 +10,8 @@ namespace CloudCanvas.Application.Common.Constants
     }
     public abstract class AppSettings
     {
+        public const string MaxMessageLength = "MAX_MSG_LEN";
+        public const string ProjectionDbName = "PROJECTION_DB_NAME";
         public const string AppInsights = "APPINSIGHTS_INSTRUMENTATIONKEY";
         public const string AppInsightsConnectionString = "APPINSIGHTS_CONNECTIONSTRING";
         public const string AppInsightsRoleName = "APPINSIGHTS_ROLE_NAME";
@@ -58,6 +60,7 @@ namespace CloudCanvas.Application.Common.Constants
             public const string EventType = "eventType";
             public const string ThumbnailSize = "thumbnailSize";
             public const string ContainerName = "ContainerName";
+            public const string Operation = "Operation";
         }
 
         public abstract class Subs
@@ -68,12 +71,19 @@ namespace CloudCanvas.Application.Common.Constants
             public const string PersistMetadata = "persist-metadata";
         }
 
+        public abstract class Ops
+        {
+            public const string Tag = "tag-photo";
+            public const string Caption = "caption-photo";
+        }
+
         public abstract class Status
         {
             public const string NewBlobDetected = "New Photo Detected";
             public const string ThumbnailCreated = "Thumbnail Created";
             public const string ImageResized = "Image Resized";
             public const string MetadataPersisted = "Metadata Persisted";
+            public const string Intelligence = "intelligence";
             public const string OrchestrationFinished = "Thumbnail Orchestration Concluded. Metadata updated.";
         }
     }
@@ -82,8 +92,8 @@ namespace CloudCanvas.Application.Common.Constants
     {
         public const string Sql = "cloudcosmos_sql";
         public const string Uri = "CosmosEndpointURI";
+        
         public abstract class Containers {
-            public const string BlobMeta = "blob_metadata";
             public const string UserPhotos = "user_photos";
             public const string Galleries = "galleries";
         }
@@ -100,11 +110,6 @@ namespace CloudCanvas.Application.Common.Constants
         public const string MTSTRG = "MTSTRG";
         public const string FUMSGO = "FUMSGO";
         public const string FUMSGI = "FUMSGI";
-    }
-
-    public abstract class Config
-    {
-        public const string MaxMessageLength = "MAX_MSG_LEN";
     }
 
     public abstract class CCClaimTypes
