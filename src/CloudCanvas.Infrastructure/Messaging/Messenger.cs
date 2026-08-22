@@ -6,6 +6,7 @@ using CloudCanvas.Application.Posts.Photos;
 using CloudCanvas.Infrastructure.Common;
 using CloudCanvas.Infrastructure.Exceptions;
 using Microsoft.Extensions.Logging;
+using static CloudCanvas.Application.Common.Constants.ServiceBus;
 
 namespace CloudCanvas.Infrastructure.Messaging
 {
@@ -36,6 +37,8 @@ namespace CloudCanvas.Infrastructure.Messaging
             try
             {
                 await sender.SendMessageAsync(message, cancellation);
+                _logger.LogInformation("{correlationId} Sent Message '{messageId}' to topic '{topic}': {subject}", 
+                    message.CorrelationId, message.MessageId, topic, msg.Subject);
                 return message.MessageId;
             } catch(ServiceBusException e)
             {
@@ -85,13 +88,24 @@ namespace CloudCanvas.Infrastructure.Messaging
         public async Task<string> NofityProjectionCompletedAsync(PhotoDTO photo, string correlationId, CancellationToken cancellation = default)
         {
             var msg = _mFactory.BuildForPhoto(photo).ProjectionCompleteMessage(correlationId).Finalize();
-            return await SendAsync(ServiceBus.Topics.FileUpdates, msg, cancellation);
+            return await SendAsync(Topics.FileUpdates, msg, cancellation);
         }
 
-        public async Task<string> SendCreateThumbnailsCompletionMessage(PhotoDTO photo, string correlationId, CancellationToken cancellation = default)
+        public async Task<string> SendCreateThumbnailsCompletionAsync(PhotoDTO photo, string correlationId, CancellationToken cancellation = default)
         {
             var msg = _mFactory.BuildForPhoto(photo).ThumbnailsCreatedMessage(correlationId).Finalize();
-            return await SendAsync(ServiceBus.Topics.FileUpdates, msg, cancellation);
+            return await SendAsync(Topics.FileUpdates, msg, cancellation);
+        }
+
+        // TODO: make this method accept a list of operations which enables caller to be more specific so not all operations are always performed
+        public async Task<IEnumerable<string>> NotifyReadyForIntelligenceAsync(EnrichmentTarget image, string correlationId, CancellationToken cancellation = default)
+        {
+            var msg = _mFactory.BuildForEnrichment(image).ReadyForEnrichmentMessage(Ops.Tag, correlationId).Finalize();
+            var tagMsgId = await SendAsync(Topics.FileUpdates, msg, cancellation);
+
+            msg = _mFactory.BuildForEnrichment(image).ReadyForEnrichmentMessage(Ops.Caption, correlationId).Finalize();
+            var captionMsgId = await SendAsync(Topics.FileUpdates, msg, cancellation);
+            return [tagMsgId, captionMsgId];
         }
     }
 }
