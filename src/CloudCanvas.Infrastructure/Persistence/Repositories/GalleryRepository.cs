@@ -11,63 +11,41 @@ namespace CloudCanvas.Infrastructure.Persistence.Repositories
 
         public async Task<bool> DeleteAsync(string id, bool softDelete = true, CancellationToken cancellation = default)
         {
-            if(await ExistsAsync(id, cancellation))
+            var gallery = await GetByIdAsync(id, cancellation);
+            if (gallery != null)
             {
-                var gallery = await GetByIdAsync(id, cancellation);
-                if (gallery != null)
-                {
-                    if (softDelete)
-                    {
-                        gallery.DeletedOn = DateTime.UtcNow;
-                        _context.Galleries.Update(gallery);
-                    }
-                    else
-                    {
-                        _context.Galleries.Remove(gallery);
-                    }
-                    await _context.SaveChangesAsync(cancellation);
-                    return true;
-                }
+                gallery.DeletedOn = DateTime.UtcNow;
+                if (softDelete) _context.Galleries.Update(gallery);
+                else _context.Galleries.Remove(gallery);
+                await _context.SaveChangesAsync(cancellation);
+                return true;
             }
             return false;
         }
 
-        public async Task<bool> ExistsAsync(string id, CancellationToken cancellation = default)
-        {
-            return await _context.Galleries.AnyAsync(g => g.Id == id, cancellation);
-        }
+        public async Task<bool> ExistsAsync(string id, CancellationToken cancellation = default) 
+        => await _context.Galleries.AnyAsync(g => g.Id == id, cancellation);
 
         public async Task<Gallery?> GetByIdAsync(string id, CancellationToken cancellation = default)
-        {
-            return await _context.Galleries.FirstOrDefaultAsync(g => g.Id == id, cancellation);
-        }
+        => await _context.Galleries.FirstOrDefaultAsync(g => g.Id == id, cancellation);
 
-        public async Task<string?> SaveAsync(Gallery gallery, CancellationToken cancellation = default)
+        public async Task<string> SaveAsync(Gallery gallery, CancellationToken cancellation = default)
         {
-            if(await ExistsAsync(gallery.Id, cancellation))
-            {
-                return null;
-            }
-            else
-            {
-                await _context.Galleries.AddAsync(gallery, cancellation);
-                await _context.SaveChangesAsync(cancellation);
-                return gallery.Id;
-            }
+            if(await ExistsAsync(gallery.Id!, cancellation))_context.Galleries.Update(gallery);
+            else _context.Galleries.Add(gallery);
+            await _context.SaveChangesAsync(cancellation); // In case other changes happened on the opbject
+            return gallery.Id;
         }
 
         public async Task<bool> UpdateAsync(Gallery gallery, CancellationToken cancellation = default)
         {
-            if (await ExistsAsync(gallery.Id, cancellation))
+            if (await ExistsAsync(gallery.Id!, cancellation))
             {
                 _context.Galleries.Update(gallery);
                 await _context.SaveChangesAsync(cancellation);
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
     }
 }

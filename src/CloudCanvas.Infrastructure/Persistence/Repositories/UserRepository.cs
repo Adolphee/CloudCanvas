@@ -13,8 +13,8 @@ namespace CloudCanvas.Infrastructure.Persistence.Repositories
 
         public async Task<EnsureUserExistsResult> EnsureUserExistsAsync(ApplicationUser user, CancellationToken cancellation = default)
         {
-
-            if (!await ExistsAsync(user.Id, cancellation))
+            var identityUser = await _context.Users.FindAsync(user.Id, cancellation);
+            if (identityUser is null)
             {
                 var dbUser = await _context.AddAsync(user.ToIdentityUser(), cancellation);
                 try
@@ -27,9 +27,7 @@ namespace CloudCanvas.Infrastructure.Persistence.Repositories
                   // this user has already been inserted some other way
                   // We have ensured the user exists; moving on...
                 }
-            }
-
-            var identityUser = await _context.Users.FindAsync(user.Id, cancellation);
+            } 
             return new EnsureUserExistsResult(identityUser!.ToAppUser(), true);
         }
 
