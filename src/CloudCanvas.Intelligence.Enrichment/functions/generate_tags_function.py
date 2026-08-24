@@ -1,30 +1,29 @@
-import os
-import logging
+import os, json, logging
 import azure.functions as func
-from domain.models import ImageTag
+from domain.models import Photo
 from application.generate_tags import generate_tags
-from infrastructure.composition_root import build_image_analyzer
+from infrastructure.composition_root import build_image_analyzer, build_projection_service
 
-TOPIC_NAME = str(os.environ.get("SBTopicName"))
-SUBSCRIPTION_NAME = str(os.environ.get("SBSubscription_tag"))
-SBCONNECTION_STRING = "SBConnection"
-MAX_SIZE = int(os.environ.get("MAX_MESSAGE_SIZE", 1024 * 1024))  # Default to 1 MB if not set
+SB_CONN = "SB_CONN"
+TOPIC = str(os.environ.get("SB_TOPIC"))
+SUB = str(os.environ.get("SBSUB_TAG"))
 
 blueprint = func.Blueprint()
 analyzer = build_image_analyzer()
+projector = build_projection_service()
 
 @blueprint.function_name(name="generate_ai_tags")
-@blueprint.service_bus_topic_trigger(
-    arg_name="message",
-    topic_name=TOPIC_NAME,
-    subscription_name=SUBSCRIPTION_NAME,
-    connection=SBCONNECTION_STRING,
-    is_sessions_enabled=True, 
-    max_message_size=MAX_SIZE
-)
+@blueprint.service_bus_topic_trigger("message", SB_CONN, TOPIC, SUB, is_sessions_enabled=True)
+@blueprint.retry(strategy="fixed_delay", max_retry_count="0", delay_interval="00:00:01")
 async def handle_tagging_enrichment(message: func.ServiceBusMessage):
-    image_url = message.get_body().decode()
-    logging.info(f"Processing image URL: {image_url}")
-    tags = await generate_tags(analyzer, image_url)
+    body = json.loads(message.get_body().decode())
+    image = Photo(**body) #todo: more validation needed for id & user_id
+    logging.info(f"Generating AI tags for image: {image.url}")
+    tags = await generate_tags(analyzer, image.url)
     for tag in tags:
         logging.info(f"Generated Tag: {tag.name}")
+        if(tag.name not in [t.name for t in image.tags]): image.tags.append(tag)
+        
+    logging.info(f"Saving tags to projection...")
+    await projector.project_tags(image)
+    logging.info("Done.") 
