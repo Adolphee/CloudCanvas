@@ -282,3 +282,6 @@ __blobstorage__
 /CloudCanvas.Web/appsettings.Development.json
 /Functions/APIs/BlobsMetadataAPI/local.settings.Development.json
 /Functions/APIs/BlobsMetadataAPI/local.settings.json
+*.crt
+*.key
+*.env.*
