@@ -1,5 +1,5 @@
 import logging
-from application.exceptions import ImageUrlNotFoundException, SmartTagFailedException
+from application.exceptions import SmartTagFailedException
 from application.ports.image_analyzer import ImageAnalyzer
 
 async def generate_caption(client: ImageAnalyzer, image_url: str) -> str:
