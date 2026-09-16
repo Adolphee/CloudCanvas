@@ -1,0 +1,6 @@
+from typing import Protocol
+from domain.models import Photo
+
+class ProjectionService(Protocol):
+    async def project_tags(self, image: Photo) -> bool: ...
+    async def project_caption(self, image: Photo) -> bool: ...
