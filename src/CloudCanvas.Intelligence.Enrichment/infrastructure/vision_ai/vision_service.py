@@ -1,13 +1,16 @@
+from email.mime import image
 import logging
 from domain.models import ImageTag
 from application.ports.image_analyzer import ImageAnalyzer
 from azure.ai.vision.imageanalysis.models import VisualFeatures
 from azure.ai.vision.imageanalysis.aio import ImageAnalysisClient
 
+
 class VisionService(ImageAnalyzer):
     def __init__(self, client: ImageAnalysisClient): self.client = client
 
     async def generate_tags(self, image_url: str) -> list[ImageTag]:
+        logging.info(f"Generating AI tags for image: {image_url}")
         try:
             result = await self.client.analyze_from_url(image_url,[VisualFeatures.TAGS])
             if result.tags is not None:
