@@ -8,7 +8,7 @@ class ImageTag:
 @dataclass
 class Photo:
     id: str
-    url: str
     user_id: str
+    url: str
     tags: list[ImageTag]
     caption: str
