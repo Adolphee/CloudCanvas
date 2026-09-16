@@ -284,4 +284,5 @@ __blobstorage__
 /Functions/APIs/BlobsMetadataAPI/local.settings.json
 *.crt
 *.key
+*.pfx
 *.env.*
