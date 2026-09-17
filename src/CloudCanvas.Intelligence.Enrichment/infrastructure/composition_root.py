@@ -1,9 +1,12 @@
-import os, logging, ssl
+import os, logging
 from azure.cosmos.aio import CosmosClient
 from azure.ai.vision.imageanalysis.aio import ImageAnalysisClient
+from azure.identity.aio import DefaultAzureCredential
+from azure.servicebus.aio import ServiceBusClient
+from application.ports import ImageAnalyzer, ProjectionService, Messenger
 from azure.core.credentials import AzureKeyCredential
-from application.ports import ImageAnalyzer, ProjectionService
 from application.exceptions import AppSettingsNotFoundException
+from infrastructure.servicebus import ServiceBusService
 from infrastructure.vision_ai.vision_service import VisionService
 from infrastructure.cosmos_db.cosmos_service import CosmosService
 
@@ -30,15 +33,20 @@ async def build_projection_service() -> ProjectionService:
     ssl_verify_setting = "COSMOS_CONN_VERIFY"
     try: 
         ENDPOINT = os.getenv(ep_name)
-        COSMOS_KEY = os.getenv(key_name)
         COSMOS_CONN_VERIFY = os.getenv(ssl_verify_setting)
-        if not ENDPOINT or not COSMOS_KEY: 
+        if not ENDPOINT: 
             logging.exception(msg)
             raise AppSettingsNotFoundException(setting_name=key_name, message=msg)
-        client = CosmosClient(ENDPOINT, COSMOS_KEY, connection_verify=COSMOS_CONN_VERIFY or True) #TODO: Set connection_verify=True before production
+        client = CosmosClient(ENDPOINT, credential=DefaultAzureCredential()) #TODO: Set connection_verify=True before production
         return CosmosService(client)
     except Exception as e: 
         logging.exception("An exception occurred during initialization of CosmosService.", {e})
         logging.error(msg)
         raise AppSettingsNotFoundException(setting_name=ep_name, message=msg) from e
     
+async def build_messenger() -> Messenger:
+    msg = "SB_ENDPOINT must be set in environment variables."
+    key_name = "SB_ENDPOINT"
+    SB_ENDPOINT = str(os.environ.get(key_name))
+    if not SB_ENDPOINT: raise AppSettingsNotFoundException(setting_name=key_name, message=msg)
+    async with ServiceBusClient(fully_qualified_namespace=SB_ENDPOINT, credential=DefaultAzureCredential()) as client: return ServiceBusService(client)
