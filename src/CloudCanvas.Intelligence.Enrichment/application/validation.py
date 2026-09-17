@@ -6,27 +6,31 @@ from application.validation_results import PhotoValidationResult
 from application.exceptions import BadRequestException, InvalidPayloadException, ValidationException, ImageUrlNotFoundException
 
 class Validator:
-    def validate_enrichment_request(self, payload: bytes) -> Photo:
-        valid_payload = self.validate_photo_payload(payload)
-        res = self.validate_photo(valid_payload)
+    @staticmethod
+    def validate_enrichment_request(payload: bytes) -> Photo:
+        valid_payload = Validator.validate_photo_payload(payload)
+        res = Validator.validate_photo(valid_payload)
         if not res.is_valid or not res.valid_photo:
             exc = BadRequestException()
-            for (k, v) in res.errors.items(): exc.errors[k] = v
+            for (k, v) in res.errors.items(): 
+                logger.error(f"Validation error for {k}: {v}")
             raise exc
         return res.valid_photo
         
-    def validate_photo_payload(self, payload: bytes) -> Photo:
+    @staticmethod
+    def validate_photo_payload(payload: bytes) -> Photo:
         photo: Photo
         try:
             body = json.loads(payload.decode()) 
-            photo = Photo(**body) #todo: more validation needed for id & user_id
+            photo = Photo(**body)
             return photo
         except Exception as e:
             err_msg = "Invalid message payload."
             logger.exception(err_msg)
             raise InvalidPayloadException() from e
 
-    def validate_photo(self, photo: Photo) -> PhotoValidationResult:
+    @staticmethod
+    def validate_photo(photo: Photo) -> PhotoValidationResult:
         errors = {}
         result = PhotoValidationResult()
 
@@ -42,7 +46,7 @@ class Validator:
                 errors[key] = f"A valid {key} is required."
                 logger.exception(errors[key])
 
-        result.is_valid = len(errors.items()) > 0
+        result.is_valid = len(errors) == 0
         if result.is_valid:
             result.valid_photo = photo
             result.message = "Valid photo object."

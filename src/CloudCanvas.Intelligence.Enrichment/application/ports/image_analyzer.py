@@ -1,6 +1,6 @@
-from typing import Protocol
+from application.ports import Closable
 from domain.models import ImageTag
 
-class ImageAnalyzer(Protocol):
+class ImageAnalyzer(Closable):
     async def generate_tags(self, image_url: str) -> list[ImageTag]: ...
     async def generate_caption(self, image_url: str) -> str: ...
