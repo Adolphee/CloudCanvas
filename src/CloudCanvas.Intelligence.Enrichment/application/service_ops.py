@@ -2,7 +2,6 @@ from application.ports.closable import Closable
 from application.ports.image_analyzer import ImageAnalyzer
 from application.ports.messenger import Messenger
 from application.ports.projection_service import ProjectionService
-from application.validation import Validator
 from infrastructure.composition_root import build_image_analyzer, build_messenger, build_projection_service
 
 

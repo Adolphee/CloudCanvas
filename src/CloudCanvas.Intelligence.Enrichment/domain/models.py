@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any
 
 @dataclass
 class ImageTag:
@@ -12,3 +13,18 @@ class Photo:
     url: str
     tags: list[ImageTag]
     caption: str
+
+@dataclass
+class CCEventMessage:
+    id: str
+    subject: str
+    content_type: str
+    correlation_id: str
+    session_id: str
+    properties: dict[str | bytes, Any]
+    body: str | object
+
+@dataclass
+class PhotoVerificationResult:
+    is_complered: bool
+    photo: Photo | None

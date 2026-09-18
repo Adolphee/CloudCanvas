@@ -1,19 +1,19 @@
 from dataclasses import dataclass, field
 
 @dataclass(slots=True, kw_only=True)
-class BaseEnrichmentException(Exception):
+class EnrichmentException(Exception):
     msg: str
     operation: str
 
 @dataclass(slots=True, kw_only=True)
-class SmartTagFailedException(BaseEnrichmentException): 
+class SmartTagFailedException(EnrichmentException): 
     operation: str = field(default="tag_photo")
 
 @dataclass(slots=True)
-class SmartCaptionFailedException(BaseEnrichmentException): ...
+class SmartCaptionFailedException(EnrichmentException): ...
 
 @dataclass(slots=True)
-class ImageUrlNotFoundException(BaseEnrichmentException):
+class ImageUrlNotFoundException(EnrichmentException):
     message: str = field(default="Image URL not found.")
     operation: str = field(default="caption_photo")
 
@@ -44,3 +44,10 @@ class BadRequestException(Exception):
 @dataclass(kw_only=True)
 class InvalidPayloadException(Exception): ...
 
+@dataclass(kw_only=True)
+class MessagingException(Exception):
+    message: str = field(default="An error occurred while interacting with the Service Bus.")
+    topic: str = field(default="Unspecified")
+
+@dataclass(kw_only=True)
+class MessageSendFailureException(MessagingException): ...
