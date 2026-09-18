@@ -1,31 +1,30 @@
-import os, logging
+import os, logging as logger
 import azure.functions as func
-from domain.models import Photo
-from application.exceptions import InvalidPayloadException, BadRequestException
 from application.validation import Validator
+from domain.models import Photo, PhotoVerificationResult as Verification
 from application.generate_caption import generate_caption
-from infrastructure.composition_root import build_image_analyzer, build_projection_service
-
+from application.service_ops import init_services, close_services
+from domain.constats import Constants
 SB_CONN = "SB_CONN"
 TOPIC = str(os.environ.get("SB_TOPIC"))
 SUB = str(os.environ.get("SBSUB_CAP"))
 
-async def init_services():
-    global analyzer, projector, validator
-    analyzer = analyzer or await build_image_analyzer()
-    projector = projector or  await build_projection_service()
-    validator = validator or Validator()
-
 blueprint = func.Blueprint()
 @blueprint.function_name("generate_ai_caption")
 @blueprint.service_bus_topic_trigger("message", SB_CONN, TOPIC, SUB, is_sessions_enabled=True)
-@blueprint.retry(strategy="fixed_delay", max_retry_count="0", delay_interval="00:00:01") #debugging only, remove for production
 async def handle_caption_enrichment(message: func.ServiceBusMessage):
-    await init_services()
-    photo: Photo = validator.validate_enrichment_request(message.get_body())
-    logging.info(f"Generating AI caption for image: {photo.url}")
-    photo.caption = await generate_caption(analyzer, photo.url)
-    logging.info(f"Saving caption to projection...")
-    res = await projector.project_caption(photo) #Next: Notify service bus
-    logging.info("Done.")
-    
+    photo: Photo = Validator.validate_enrichment_request(message.get_body()) #Fail fast principle
+    analyzer, projector, messenger = await init_services()
+    verification = await projector.verify_no_prior_enrichment(photo.id, photo.user_id)
+    if verification.is_complered: logger.critical("Enrichment already completed for %a", photo.id)
+    else:
+        photo = verification.photo or photo
+        logger.info(f"Generating AI caption for image: {photo.url}")
+        photo.caption = await generate_caption(analyzer, photo.url)
+        logger.info(f"Saving caption to projection...")
+        res = await projector.project_caption(photo)
+        logger.info(f"Caption projected. Sending notification...")
+        await messenger.notify_enrichment_complete(photo)
+        logger.info("Notification sent. Cleaning up...") 
+    await close_services([analyzer, projector, messenger])
+    logger.info("Done.")
