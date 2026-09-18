@@ -10,6 +10,7 @@ from infrastructure.servicebus import ServiceBusService
 from infrastructure.vision_ai.vision_service import VisionService
 from infrastructure.cosmos_db.cosmos_service import CosmosService
 
+CREDENTIAL = DefaultAzureCredential()
 
 async def build_image_analyzer() -> ImageAnalyzer:
     msg = "VISION_ENDPOINT and VISION_KEY must be set in environment variables."
@@ -37,7 +38,7 @@ async def build_projection_service() -> ProjectionService:
         if not ENDPOINT: 
             logging.exception(msg)
             raise AppSettingsNotFoundException(setting_name=key_name, message=msg)
-        client = CosmosClient(ENDPOINT, credential=DefaultAzureCredential()) #TODO: Set connection_verify=True before production
+        client = CosmosClient(ENDPOINT, credential=CREDENTIAL)
         return CosmosService(client)
     except Exception as e: 
         logging.exception("An exception occurred during initialization of CosmosService.", {e})
@@ -49,4 +50,5 @@ async def build_messenger() -> Messenger:
     key_name = "SB_ENDPOINT"
     SB_ENDPOINT = str(os.environ.get(key_name))
     if not SB_ENDPOINT: raise AppSettingsNotFoundException(setting_name=key_name, message=msg)
-    async with ServiceBusClient(fully_qualified_namespace=SB_ENDPOINT, credential=DefaultAzureCredential()) as client: return ServiceBusService(client)
+    client = ServiceBusClient(fully_qualified_namespace=SB_ENDPOINT, credential=CREDENTIAL)
+    return ServiceBusService(client)

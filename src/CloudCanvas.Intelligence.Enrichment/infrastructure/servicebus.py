@@ -1,5 +1,5 @@
 from dataclasses import asdict
-import json, logging
+import json, logging as logger
 from typing import Any
 from azure.servicebus import ServiceBusMessage
 from azure.servicebus.aio import ServiceBusClient
@@ -18,7 +18,7 @@ class ServiceBusService(Messenger):
             try: await sender.send_messages(msg)
             except MessageSendFailureException as e:
                 e.message="Failed to send message."
-                logging.exception(e.message)
+                logger.exception(e.message)
                 raise
 
     async def notify_enrichment_complete(self, photo: Photo):
@@ -44,7 +44,9 @@ class ServiceBusService(Messenger):
                 await sender.send_messages(msg)
         except MessageSendFailureException as e:
             e.message="Failed to notify enrichment complete."
-            logging.exception(e.message)
+            logger.exception(e.message)
             raise
 
-    async def close_connection(self): await self.client.close()
+    async def close_connection(self): 
+        logger.debug("Closing ServiceBus connection...")
+        await self.client.close()
