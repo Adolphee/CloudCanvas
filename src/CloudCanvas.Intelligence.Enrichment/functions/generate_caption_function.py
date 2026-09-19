@@ -20,8 +20,8 @@ async def handle_caption_enrichment(message: func.ServiceBusMessage):
     credential = DefaultAzureCredential()
     services: dict[str, Closable] = {}
     try:
-        analyzer, projector, messenger = await init_services(credential)
         S = Constants.Services  
+        analyzer, projector, messenger = await init_services(credential)
         services = { S.ANALYZER: analyzer, S.PROJECTOR: projector, S.MESSENGER: messenger }
         verification = await projector.verify_no_prior_enrichment(photo.id, photo.user_id)
         if verification.is_completed: 

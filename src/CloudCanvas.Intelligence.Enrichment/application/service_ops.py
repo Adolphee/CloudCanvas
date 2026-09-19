@@ -8,13 +8,10 @@ from infrastructure.composition_root import build_image_analyzer, build_messenge
 import logging as logger
 
 async def init_services(credential: DefaultAzureCredential) -> tuple[ImageAnalyzer, ProjectionService, Messenger]:
-    S = Constants.Services
-    services = {
-        S.ANALYZER: await build_image_analyzer(credential),
-        S.PROJECTOR: await build_projection_service(credential),
-        S.MESSENGER: await build_messenger(credential)
-    }
-    return services[S.ANALYZER], services[S.PROJECTOR], services[S.MESSENGER]
+    analyzer = await build_image_analyzer(credential)
+    projector = await build_projection_service(credential)
+    messenger = await build_messenger(credential)
+    return analyzer, projector, messenger
 
 async def close_services(services: dict[str, Closable], credential: DefaultAzureCredential):
     for name, service in services.items(): 

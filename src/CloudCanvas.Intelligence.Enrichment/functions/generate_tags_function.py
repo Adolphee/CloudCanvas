@@ -38,7 +38,7 @@ async def handle_tagging_enrichment(message: func.ServiceBusMessage):
         services = { S.ANALYZER: analyzer, S.PROJECTOR: projector, S.MESSENGER: messenger }
         verification = await projector.verify_no_prior_enrichment(photo.id, photo.user_id)
         if verification.is_completed: 
-            logger.critical("Enrichment already completed for %a", photo.id)
+            logger.info("Enrichment already completed for %a. Skipping...", photo.id)
             return
         photo = verification.photo or photo
         logger.info(f"Generating AI tags for image: {photo.url}")
