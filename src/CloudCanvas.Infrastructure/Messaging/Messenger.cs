@@ -1,6 +1,5 @@
 ﻿using Azure.Messaging.ServiceBus;
 using CloudCanvas.Application.Abstractions.Messaging;
-using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Application.Events;
 using CloudCanvas.Application.Posts.Photos;
 using CloudCanvas.Infrastructure.Common;

@@ -1,5 +1,4 @@
-﻿using CloudCanvas.Application.Abstractions.Persistence;
-using CloudCanvas.Application.Posts.Galleries.Interfaces;
+﻿using CloudCanvas.Application.Posts.Galleries.Interfaces;
 using CloudCanvas.Domain.Posts.Entities;
 using Microsoft.EntityFrameworkCore;
 

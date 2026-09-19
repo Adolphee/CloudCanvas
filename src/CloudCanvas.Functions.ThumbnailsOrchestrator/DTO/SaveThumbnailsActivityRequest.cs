@@ -1,5 +1,4 @@
 ﻿using CloudCanvas.Application.Posts.Photos;
-using CloudCanvas.Infrastructure.DTOs;
 namespace CloudCanvas.Functions.ThumbnailOrchestrator.DTO
 {
     public sealed record SaveThumbnailsActivityRequest: ThumbnailOrchestrationRequest

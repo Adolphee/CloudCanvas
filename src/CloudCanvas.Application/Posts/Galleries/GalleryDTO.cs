@@ -1,5 +1,4 @@
-﻿using CloudCanvas.Application.Posts.Photos;
-using CloudCanvas.Domain.Enums;
+﻿using CloudCanvas.Domain.Enums;
 
 namespace CloudCanvas.Application.Posts.Galleries
 {

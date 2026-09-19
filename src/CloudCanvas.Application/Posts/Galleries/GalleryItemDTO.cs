@@ -1,6 +1,4 @@
-﻿using CloudCanvas.Domain.Enums;
-
-namespace CloudCanvas.Application.Posts.Galleries
+﻿namespace CloudCanvas.Application.Posts.Galleries
 {
     public record GalleryItemDTO
     {

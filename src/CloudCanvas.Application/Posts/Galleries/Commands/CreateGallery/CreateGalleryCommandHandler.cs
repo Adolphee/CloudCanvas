@@ -1,6 +1,5 @@
 ﻿using CloudCanvas.Application.Posts.Galleries.Interfaces;
 using CloudCanvas.Application.Posts.Photos.Interfaces;
-using CloudCanvas.Application.Common.Mapping;
 using Microsoft.Extensions.Logging;
 
 namespace CloudCanvas.Application.Posts.Galleries.Commands.CreateGallery

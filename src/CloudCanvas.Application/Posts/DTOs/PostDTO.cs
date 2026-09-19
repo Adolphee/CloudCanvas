@@ -1,6 +1,5 @@
 ﻿using CloudCanvas.Application.Reactions.Common;
 using CloudCanvas.Domain.Abstractions;
-using System.ComponentModel.DataAnnotations;
 
 namespace CloudCanvas.Application.Posts.DTOs
 {

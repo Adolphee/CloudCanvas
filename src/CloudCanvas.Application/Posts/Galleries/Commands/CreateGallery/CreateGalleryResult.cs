@@ -1,5 +1,4 @@
 ﻿using CloudCanvas.Application.Common;
-using Microsoft.AspNetCore.Authentication;
 
 namespace CloudCanvas.Application.Posts.Galleries.Commands.CreateGallery
 {

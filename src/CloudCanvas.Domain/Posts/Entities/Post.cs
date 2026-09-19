@@ -2,7 +2,6 @@
 using CloudCanvas.Domain.Enums;
 using CloudCanvas.Domain.Posts.Contracts;
 using CloudCanvas.Domain.Reactions.Entities;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CloudCanvas.Domain.Posts.Entities
