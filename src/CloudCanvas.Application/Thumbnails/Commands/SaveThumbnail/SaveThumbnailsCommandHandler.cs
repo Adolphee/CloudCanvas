@@ -24,7 +24,7 @@ namespace CloudCanvas.Application.Thumbnails.Commands.SaveThumbnail
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "EF Failed to save {ThumbnailsCount} thumbnails for ({PhotoId}).", command.Photo.Thumbnails.Count, photo.Id);
+                _logger.LogError(e, "Failed to save {ThumbnailsCount} thumbnails for ({PhotoId}).", command.Photo.Thumbnails.Count, photo.Id);
             }
             return new(null);
         }
