@@ -1,4 +1,3 @@
-import json
 import logging as logger
 from application.exceptions import *
 from azure.cosmos.partition_key import PartitionKeyType
@@ -67,7 +66,6 @@ class CosmosService(ProjectionService):
             item = await container.read_item(photo_id, partition_key=user_id)
             if item:
                 A = Constants.Attr
-                S = Constants.Status
                 photo = Photo(
                     id=item[A.ID],
                     user_id=item[A.USER_ID],

@@ -26,5 +26,5 @@ class CCEventMessage:
 
 @dataclass
 class PhotoVerificationResult:
-    is_complered: bool
+    is_completed: bool
     photo: Photo | None

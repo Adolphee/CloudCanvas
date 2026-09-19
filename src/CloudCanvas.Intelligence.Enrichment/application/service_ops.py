@@ -1,17 +1,26 @@
+from azure.identity.aio import DefaultAzureCredential
 from application.ports.closable import Closable
 from application.ports.image_analyzer import ImageAnalyzer
 from application.ports.messenger import Messenger
 from application.ports.projection_service import ProjectionService
+from domain.constats import Constants
 from infrastructure.composition_root import build_image_analyzer, build_messenger, build_projection_service
+import logging as logger
 
-
-async def init_services() -> tuple[ImageAnalyzer, ProjectionService, Messenger]:
+async def init_services(credential: DefaultAzureCredential) -> tuple[ImageAnalyzer, ProjectionService, Messenger]:
+    S = Constants.Services
     services = {
-        "analyzer": await build_image_analyzer(),
-        "projector": await build_projection_service(),
-        "messenger": await build_messenger()
+        S.ANALYZER: await build_image_analyzer(credential),
+        S.PROJECTOR: await build_projection_service(credential),
+        S.MESSENGER: await build_messenger(credential)
     }
-    return services["analyzer"], services["projector"], services["messenger"]
+    return services[S.ANALYZER], services[S.PROJECTOR], services[S.MESSENGER]
 
-async def close_services(services: list[Closable]):
-    for service in services: await service.close_connection()
+async def close_services(services: dict[str, Closable], credential: DefaultAzureCredential):
+    for name, service in services.items(): 
+        try: await service.close_connection()
+        except Exception as e: 
+            logger.exception("Failed to close the %a connection", name)
+    try: await credential.close()
+    except Exception as e: 
+        logger.exception("Failed to close the Credential")
