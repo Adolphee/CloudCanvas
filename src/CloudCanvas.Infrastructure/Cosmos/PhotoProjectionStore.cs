@@ -18,7 +18,7 @@ namespace CloudCanvas.Infrastructure.Cosmos
         public async override Task<PhotoDTO> CreateProjectionAsync(PhotoDTO photo, CancellationToken cancellation = default)
         {
             if (photo.UserId is null) 
-                throw new ArgumentNullException(nameof(photo), message: "PhotoUserId is required.");
+                throw new ArgumentNullException(nameof(photo), message: "Value for Photo.UserId is required.");
             _container ??= await GetContainerAsync(_containerName, cancellation);
             var res = await _container.CreateItemAsync(photo, new PartitionKey(photo.UserId), default, cancellation);
             return res.Resource;
@@ -27,7 +27,7 @@ namespace CloudCanvas.Infrastructure.Cosmos
         public async override Task<bool> ReplaceProjectionAsync(PhotoDTO photo, CancellationToken cancellation = default)
         {
             if (photo.Id is null || photo.UserId is null) 
-                throw new ProjectionException(message: "both {PhotoId, PhotoUserId} are required.");
+                throw new ProjectionException(message: "Both {PhotoId, Photo.UserId} are required.");
             if(await ExistsAsync(new ProjectionKey(photo.Id, photo.UserId), cancellation))
             {
                 _container ??= await GetContainerAsync(_containerName, cancellation);
@@ -39,9 +39,9 @@ namespace CloudCanvas.Infrastructure.Cosmos
 
         public async override Task<List<PhotoDTO>> GetAllAsync(CancellationToken cancellation = default)
         {
-            var con = await GetContainerAsync(_containerName, cancellation);
+            var _container = await GetContainerAsync(_containerName, cancellation);
             var res = new List<PhotoDTO>(); 
-            using var queryable = con.GetItemQueryIterator<PhotoDTO>();
+            using var queryable = _container.GetItemQueryIterator<PhotoDTO>();
             while (queryable.HasMoreResults)
             {
                 var feedResponse = await queryable.ReadNextAsync(cancellationToken: cancellation);
@@ -53,9 +53,9 @@ namespace CloudCanvas.Infrastructure.Cosmos
 
         public async override Task<List<PhotoDTO>> GetByUserIdAsync(string userId, CancellationToken cancellation = default)
         {
-            var con = await GetContainerAsync(_containerName, cancellation);
+            _container ??= await GetContainerAsync(_containerName, cancellation);
             var res = new List<PhotoDTO>();
-            using var queryable = con.GetItemQueryIterator<PhotoDTO>();
+            using var queryable = _container.GetItemQueryIterator<PhotoDTO>();
 
             while (queryable.HasMoreResults)
             {
@@ -96,29 +96,29 @@ namespace CloudCanvas.Infrastructure.Cosmos
         {
             try
             {
-                await SingleAsync(key, cancellation);
+                var item = await SingleAsync(key, cancellation);
+                return item != null;
             }
             catch (Exception e) when (e is CosmosException ||  e is ProjectionNotFoundException)
             {
                 _logger.LogTrace(e, "Photo projection not found: {PhotoId}.", key.Id);
                 return false; // item doesn't exist if we get to this point
             }
-            return true;
         }
 
         public async override Task<PhotoDTO> PatchAsync(ProjectionKey key, IDictionary<string, object> ops, CancellationToken cancellation = default)
         {
             var patches = ops.Select(p => PatchOperation.Set(p.Key, p.Value)).ToList();
-            _container = await GetContainerAsync(_containerName, cancellation);
+            _container ??= await GetContainerAsync(_containerName, cancellation);
             var res = await _container.PatchItemAsync<PhotoDTO>(key.Id, key.AsPartitionKey(), patchOperations: patches, cancellationToken: cancellation);
             return res.Resource;
         }
 
         public async override Task<List<PhotoDTO>> GetAllFilteredAsync(Expression<Func<PhotoDTO, bool>> filter, CancellationToken cancellation = default)
         {
-            var con = await GetContainerAsync(_containerName, cancellation);
+            _container ??= await GetContainerAsync(_containerName, cancellation);
             var res = new List<PhotoDTO>();
-            using var queryable = con.GetItemQueryIterator<PhotoDTO>();
+            using var queryable = _container.GetItemQueryIterator<PhotoDTO>();
             while (queryable.HasMoreResults)
             {
                 var feedResponse = await queryable.ReadNextAsync(cancellationToken: cancellation);
