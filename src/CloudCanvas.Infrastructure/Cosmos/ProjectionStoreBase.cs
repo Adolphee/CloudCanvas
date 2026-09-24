@@ -27,7 +27,7 @@ namespace CloudCanvas.Infrastructure.Cosmos
 
         protected async Task<Container> GetContainerAsync(string containerId, CancellationToken cancellation = default)
         {
-            string databaseName = _config[AppSettings.ProjectionDbName] ?? Projection.Sql; //TODO: verify setting at startup
+            string databaseName = _config[AppSettings.ProjectionDbName] ?? _config.GetValue<string>(AppSettings.ProjectionDbName) ?? Projection.Sql; //TODO: verify setting at startup
             try
             {
                 return await EnsureContainerExistsAsync(databaseName, containerId, cancellation);

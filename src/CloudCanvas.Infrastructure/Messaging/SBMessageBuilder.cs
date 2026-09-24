@@ -103,5 +103,7 @@ namespace CloudCanvas.Infrastructure.Messaging
         {
             if(_message.Payload is null) throw new InvalidOperationException("No payload available.");
         }
+
+        
     }
 }
