@@ -1,18 +1,24 @@
 from dataclasses import dataclass
+import json
 from typing import Any
+from domain.constants import Constants
 
+A = Constants.Attr
 @dataclass
 class ImageTag:
     name: str
     confidence: float
+    def toJSON(self): return { A.NAME: self.name, A.CONFIDENCE: self.confidence }
 
-@dataclass
+
+
+@dataclass(kw_only=True, slots=True)
 class Photo:
     id: str
     user_id: str
     url: str
-    tags: list[ImageTag]
     caption: str
+    tags: list[ImageTag]
 
 @dataclass
 class CCEventMessage:
@@ -21,8 +27,8 @@ class CCEventMessage:
     content_type: str
     correlation_id: str
     session_id: str
-    properties: dict[str | bytes, Any]
     body: str | object
+    properties: dict[str | bytes, Any]
 
 @dataclass
 class PhotoVerificationResult:

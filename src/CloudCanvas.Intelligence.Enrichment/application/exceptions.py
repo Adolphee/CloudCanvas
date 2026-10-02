@@ -51,3 +51,9 @@ class MessagingException(Exception):
 
 @dataclass(kw_only=True)
 class MessageSendFailureException(MessagingException): ...
+
+@dataclass(kw_only=True)
+class TableNotFoundException(Exception): 
+    tableName: str
+    database: str
+    def get_message(self) -> str: return f"Table '{self.database}.{self.tableName}' Not Found."
