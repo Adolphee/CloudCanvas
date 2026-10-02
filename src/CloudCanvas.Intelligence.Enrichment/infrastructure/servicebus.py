@@ -26,7 +26,7 @@ class ServiceBusService(Messenger):
                 "enrichment_status": "complete",
                 "results": json.dumps({
                     "caption": photo.caption,
-                    "tags": [tag.name for tag in photo.tags]
+                    "tags": [tag.name or tag for tag in photo.tags]
                 })
             }
         
