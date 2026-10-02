@@ -6,7 +6,7 @@ from application.validation import Validator
 from domain.models import Photo
 from application.generate_caption import generate_caption
 from application.service_ops import init_services, close_services
-from domain.constats import Constants
+from domain.constants import Constants
 
 A = Constants.AppSettings
 TOPIC = os.getenv(A.SB_TOPIC)
@@ -21,7 +21,7 @@ async def handle_caption_enrichment(message: func.ServiceBusMessage):
     services: dict[str, Closable] = {}
     try:
         S = Constants.Services  
-        analyzer, projector, messenger = await init_services(credential)
+        analyzer, persistence, projector, messenger = init_services(credential)
         services = { S.ANALYZER: analyzer, S.PROJECTOR: projector, S.MESSENGER: messenger }
         verification = await projector.verify_no_prior_enrichment(photo.id, photo.user_id)
         if verification.is_completed: 
@@ -30,11 +30,12 @@ async def handle_caption_enrichment(message: func.ServiceBusMessage):
         photo = verification.photo or photo
         logger.info(f"Generating AI caption for image: {photo.url}")
         photo.caption = await generate_caption(analyzer, photo.url)
-        logger.info(f"Saving caption to projection...")
+        logger.info(f"Saving caption to persistence store...")
+        persistence.update_smartCaption(photo.id, photo.caption)
+        logger.info(f"Saving caption to projection store...")
         await projector.project_caption(photo)
         logger.info(f"Caption projected. Sending notification...")
         await messenger.notify_enrichment_complete(photo)
-        logger.info("Notification sent.") 
     finally: # Guarantee that services get closed
         logger.debug("Cleaning up...")
         await close_services(services, credential)
