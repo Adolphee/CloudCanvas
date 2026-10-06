@@ -15,12 +15,13 @@ from application.generate_tags import generate_tags
 # 1. Validate the incoming event. --> ✅
 # 2. Ask ImageAnalyzer for tags and caption. ✅
 # 3. Apply confidence and moderation policy. --> TODO! (good flex)
-# 4. Persist enriched state. --> done: projection, TODO: persistence
+# 4. Persist enriched state. --> ✅
 # 5. Publish ImageEnriched (event, messaging). --> ✅
 # 6. Make processing idempotent. --> ✅
 #   --> means: processing the same event multiple times should have the same result
 #   --> TODO: implement in the function itself (ServiceBus message lock token)
 ###
+
 A = Constants.Attr
 P = Constants.AppSettings
 TOPIC = os.environ.get(P.SB_TOPIC)
@@ -45,21 +46,20 @@ async def handle_tagging_enrichment(message: func.ServiceBusMessage):
         services = {S.ANALYZER: analyzer, S.PROJECTOR: projector, S.MESSENGER: messenger}
         proj_check = await projector.verify_no_prior_enrichment(payload_photo.id, payload_photo.user_id)
         pers_check = persistence.verify_no_prior_enrichment(payload_photo.id)
-        logger.critical("Completed: %a and %a, Photo: %a", pers_check, proj_check.is_completed, proj_check.photo)
         if pers_check and proj_check.is_completed:
-            logger.info("Enrichment already completed for %a. Skipping...", payload_photo.id)
+            logger.warning("Enrichment already completed for %a. Skipping...", payload_photo.id)
             return
         photo = proj_check.photo or payload_photo
-        logger.info(f"Generating AI tags for image: {photo.url}")
+        logger.info("Generating AI tags for image: %a", photo.url)
         tags = await generate_tags(analyzer, photo.url)
         for tag in tags:
-            logger.info(f"Generated Tag: {tag.name} with confidence: {tag.confidence}")
+            logger.info("Generated Tag: %a with confidence: %a", tag.name, tag.confidence)
             if (tag.name not in [t.name for t in photo.tags]): photo.tags.append(tag)
-        logger.info(f"Saving {len(photo.tags)} tags to persistence store...")
+        logger.info("Saving %a tags to persistence store...", len(photo.tags))
         persistence.update_smartTags(photo.id, [t.name for t in photo.tags])
-        logger.info(f"Saving {len(photo.tags)} tags to projection store...")
+        logger.info("Saving %a tags to projection store...", len(photo.tags))
         await projector.project_tags(photo)
-        logger.info(f"Tags projected. Sending notification...")
+        logger.info("Tags projected. Sending notification...")
         await messenger.notify_enrichment_complete(photo)
     finally:  # "thank you for your service"
         logger.debug("Cleaning up...")

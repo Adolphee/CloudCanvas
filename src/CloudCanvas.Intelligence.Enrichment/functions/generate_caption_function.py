@@ -25,16 +25,16 @@ async def handle_caption_enrichment(message: func.ServiceBusMessage):
         services = { S.ANALYZER: analyzer, S.PROJECTOR: projector, S.MESSENGER: messenger }
         verification = await projector.verify_no_prior_enrichment(photo.id, photo.user_id)
         if verification.is_completed: 
-            logger.critical("Enrichment already completed for %a", photo.id)
+            logger.warning("Enrichment already completed for %a. Skipping...", photo.id)
             return
         photo = verification.photo or photo
-        logger.info(f"Generating AI caption for image: {photo.url}")
+        logger.info("Generating AI caption for image: %a", photo.url)
         photo.caption = await generate_caption(analyzer, photo.url)
-        logger.info(f"Saving caption to persistence store...")
+        logger.info("Saving caption to persistence store...")
         persistence.update_smartCaption(photo.id, photo.caption)
-        logger.info(f"Saving caption to projection store...")
+        logger.info("Saving caption to projection store...")
         await projector.project_caption(photo)
-        logger.info(f"Caption projected. Sending notification...")
+        logger.info("Caption projected. Sending notification...")
         await messenger.notify_enrichment_complete(photo)
     finally: # Guarantee that services get closed
         logger.debug("Cleaning up...")
