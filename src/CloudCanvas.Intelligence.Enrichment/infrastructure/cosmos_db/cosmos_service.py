@@ -1,4 +1,4 @@
-import os, json , logging as logger
+import os, logging as logger
 from application.exceptions import *
 from azure.cosmos.partition_key import PartitionKeyType
 from domain.models import Photo, PhotoVerificationResult as Verification
@@ -64,9 +64,6 @@ class CosmosService(ProjectionService):
         logger.debug("Closing CosmosService connection...")
         await self.client.close()
 
-    # TODO: check if this photo has already been enriched
-    # TODO: return the properties missing enrichments, to boost idempotency
-    # --> Will come in handy later if I'm able to pull it off
     async def verify_no_prior_enrichment(self, photo_id: str, user_id: PartitionKeyType) -> Verification:
         container = self.__get_container()
         operation = "Verify_no_prior_enrichment"
@@ -78,8 +75,8 @@ class CosmosService(ProjectionService):
                 is_completed = bool(photo and len(photo.tags) > 0 and photo.caption)
                 return Verification(is_completed, photo)
             else:
-                msg = f"Photo not found in projection-store:{photo_id}"
-                logger.exception(msg)
+                msg = "Photo not found in projection-store: %a"
+                logger.exception(msg, photo_id)
                 raise EnrichmentException(msg=msg, operation=operation)
         except Exception as e:
             logger.exception("Exception while verifying prior enrichment item %a from container %a/%a", photo_id, DB_NAME, container.id)

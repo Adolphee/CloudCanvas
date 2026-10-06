@@ -286,3 +286,4 @@ __blobstorage__
 *.key
 *.pfx
 *.env.*
+src/CloudCanvas.Functions.ThumbnailsOrchestrator/local.settings.Development.example.json

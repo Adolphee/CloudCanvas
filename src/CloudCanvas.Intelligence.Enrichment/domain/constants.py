@@ -7,7 +7,11 @@ class Constants:
         SBSUB_TAG="SBSUB_TAG"
         SBSUB_CAP="SBSUB_CAP"
         SB_CONN="SB_CONN"
+        VISION_ENDPOINT="VISION_ENDPOINT"
+        VISION_KEY="VISION_KEY"
+        COSMOS_ENDPOINT="COSMOS_ENDPOINT"
         PROJ_PHOTOS_CONTAINER="PROJ_PHOTOS_CONTAINER"
+        SB_ENDPOINT="SB_ENDPOINT"
     class Attr:
         ID="id" 
         USER_ID="userId"

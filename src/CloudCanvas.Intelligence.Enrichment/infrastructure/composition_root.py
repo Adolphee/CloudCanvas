@@ -1,4 +1,5 @@
 import os, logging as logger
+from domain.constants import Constants
 from azure.cosmos.aio import CosmosClient
 from sqlalchemy.engine import create_engine, URL
 from azure.ai.vision.imageanalysis.aio import ImageAnalysisClient
@@ -14,21 +15,20 @@ from infrastructure.cosmos_db.cosmos_service import CosmosService
 def build_image_analyzer(credential: DefaultAzureCredential) -> ImageAnalyzer:
     msg = "VISION_ENDPOINT and VISION_KEY must be set in environment variables."
     try:
-        VISION_ENDPOINT = os.getenv("VISION_ENDPOINT")
-        VISION_KEY = os.getenv("VISION_KEY")
-        if not VISION_ENDPOINT or not VISION_KEY:
+        vision_endp = os.getenv(Constants.AppSettings.VISION_ENDPOINT)
+        vision_key = os.getenv(Constants.AppSettings.VISION_KEY)
+        if not vision_endp or not vision_key:
             logger.exception(msg)
             raise AppSettingsNotFoundException(setting_name="VISION_KEY", message=msg)
-        client = ImageAnalysisClient(VISION_ENDPOINT, credential)
+        client = ImageAnalysisClient(vision_endp, credential)
         return VisionService(client)
     except Exception as e:
-        logger.exception("An exception occurred during initialization of VisionService.", {e})
-        logger.error(msg)
-        raise AppSettingsNotFoundException(setting_name="VISION_KEY", message=msg)from e
+        logger.exception("An exception occurred during initialization of VisionService:\n%a", e)
+        raise AppSettingsNotFoundException(setting_name="VISION_KEY and/or VISION_ENDPOINT", message=msg)from e
 
 def build_projection_service(credential: DefaultAzureCredential) -> ProjectionService:
     msg = "COSMOS secrets must be set in environment variables."
-    ep_name = "COSMOS_ENDPOINT"
+    ep_name = Constants.AppSettings.COSMOS_ENDPOINT
     try: 
         ENDPOINT = os.getenv(ep_name)
         if not ENDPOINT: 
@@ -37,13 +37,13 @@ def build_projection_service(credential: DefaultAzureCredential) -> ProjectionSe
         client = CosmosClient(ENDPOINT, credential)
         return CosmosService(client)
     except Exception as e: 
-        logger.exception("An exception occurred during initialization of CosmosService.", {e})
+        logger.exception("An exception occurred during initialization of CosmosService:\n%a", e)
         logger.error(msg)
         raise AppSettingsNotFoundException(setting_name=ep_name, message=msg) from e
     
 def build_messenger(credential: DefaultAzureCredential) -> Messenger:
-    msg = "SB_ENDPOINT must be set in environment variables."
-    key_name = "SB_ENDPOINT"
+    key_name = Constants.AppSettings.SB_ENDPOINT
+    msg = f"{key_name} must be set in environment variables."
     SB_ENDPOINT = str(os.environ.get(key_name))
     if not SB_ENDPOINT: raise AppSettingsNotFoundException(setting_name=key_name, message=msg)
     client = ServiceBusClient(fully_qualified_namespace=SB_ENDPOINT, credential=credential)

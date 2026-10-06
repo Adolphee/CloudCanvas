@@ -31,8 +31,7 @@ class SQLService(PersistenceService):
                 )
                 connection.commit()
             except Exception | NoSuchTableError as e:
-                logger.exception(
-                    "Failed to save caption to persistence store (SQL): %a", photo_id)
+                logger.exception("Failed to save caption to persistence store (SQL): %a", photo_id)
             finally:
                 connection.close()
 
@@ -47,8 +46,7 @@ class SQLService(PersistenceService):
                 )
                 connection.commit()
             except Exception as e:
-                logger.exception(
-                    "Failed to save caption to persistence store (SQL): %a", photo_id)
+                logger.exception("Failed to save caption to persistence store (SQL): %a", photo_id)
                 raise
             finally:
                 connection.close()

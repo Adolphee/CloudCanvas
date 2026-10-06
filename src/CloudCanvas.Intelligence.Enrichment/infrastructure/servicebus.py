@@ -17,8 +17,7 @@ class ServiceBusService(Messenger):
         async with self.client.get_queue_sender(queue_name) as sender:
             try: await sender.send_messages(msg)
             except MessageSendFailureException as e:
-                e.message="Failed to send message."
-                logger.exception(e.message)
+                logger.exception("Failed to send message: %a", e.message)
                 raise
 
     async def notify_enrichment_complete(self, photo: Photo):
@@ -43,8 +42,7 @@ class ServiceBusService(Messenger):
             async with self.client.get_queue_sender("file-updates") as sender:
                 await sender.send_messages(msg)
         except MessageSendFailureException as e:
-            e.message="Failed to notify enrichment complete."
-            logger.exception(e.message)
+            logger.exception("Failed to notify enrichment complete.")
             raise
 
     async def close_connection(self): 
