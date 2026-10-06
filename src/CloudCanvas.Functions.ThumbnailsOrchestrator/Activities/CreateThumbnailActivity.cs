@@ -11,8 +11,8 @@ public sealed class CreateThumbnailActivity(ISender sender)
     {
         var logger = context.GetLogger(nameof(CreateThumbnailActivity));
         logger.LogInformation("{correlationId} Activity Invoked: Create {size} for {containerName}/{photoIdentifier}", 
-        req.correlationId, req.thumbnailSize, req.srcContainer, req.photo.Id);
-        var cmd = new CreateThumbnailCommand(req.photo, req.thumbnailSize, req.srcContainer, req.correlationId);
+        req.CorrelationId, req.thumbnailSize, req.SrcContainer, req.Photo.Id);
+        var cmd = new CreateThumbnailCommand(req.Photo, req.thumbnailSize, req.SrcContainer, req.CorrelationId);
         var thumbnail = await _sender.Send(cmd);
         return thumbnail.ThumbnailUrl;
     }

@@ -4,6 +4,7 @@ using CloudCanvas.Application.Posts.Galleries;
 using CloudCanvas.Application.Posts.Galleries.Commands.CreateGallery;
 using CloudCanvas.Application.Posts.Photos;
 using CloudCanvas.Application.Posts.Photos.Commands.CreatePhoto;
+using CloudCanvas.Domain.Abstractions;
 using CloudCanvas.Domain.Enums;
 using CloudCanvas.Domain.Posts.Entities;
 using CloudCanvas.Domain.Thumbnail;
@@ -40,7 +41,9 @@ namespace CloudCanvas.Application.Common.Mapping
             OriginalFilename = dto.OriginalFilename,
             Title = dto.Title,
             Caption = dto.Description,
-            UserTags = dto.UserTags ?? [],
+            SmartCaption = dto.SmartCaption,
+            UserTags = dto.UserTags ?? dto.UserTags ?? [],
+            SmartTags = dto.SmartTags ?? [],
             ContentLength = dto.ContentLength,
             Location = dto.Location,
             UserId = dto.UserId!,
@@ -55,7 +58,7 @@ namespace CloudCanvas.Application.Common.Mapping
             CreatedOn = dto.TimeStamps.CreatedOn,
             ModifiedOn = dto.TimeStamps.ModifiedOn,
             DeletedOn = dto.TimeStamps.DeletedOn,
-            CommentsEnabled = dto.CommentsEnabled
+            CommentsEnabled = dto.CommentsEnabled    
         };
 
         public static Photo ToPhoto(this FileMetadata fmdt, string userId) => new()
@@ -90,7 +93,7 @@ namespace CloudCanvas.Application.Common.Mapping
                 DisplayName = command.DisplayName,
                 Description = command.Description,
                 CommentsEnabled = command.CommentsEnabled,
-                Photos = new List<Photo>()
+                Photos = new List<Photo>()                
             };
             return gallery;
         }
@@ -106,7 +109,8 @@ namespace CloudCanvas.Application.Common.Mapping
             LastName = prinicipal.FindFirstValue(ClaimTypes.Surname)!,
             UserName = prinicipal.FindFirstValue(ClaimTypes.Email)!
         };
-        public static PhotoDTO ToPhotoDTO(this FileMetadata fmdt, Creator creator) => new()
+
+        public static PhotoDTO ToPhotoDTO(this FileMetadata fmdt, CreatorMinimal creator) => new()
         {
             Id = fmdt.Id ?? Guid.NewGuid().ToString(),
             OriginalFilename = fmdt.OriginalFilename,
@@ -115,9 +119,9 @@ namespace CloudCanvas.Application.Common.Mapping
             UserTags = fmdt.UserTags ?? default!,
             ContentLength = fmdt.ContentLength,
             Location = fmdt.Location,
-            Classification = nameof(PostClassification.Photo),
+            Classification = PostClassification.Photo.ToString(),
             Thumbnails = fmdt.Thumbnails.ToDictionary(k => k.ToString(), v => v.Value),
-            UserId = fmdt.Metadata.TryGetValue(Meta.UploadedBy, out var uploadedBy) ? uploadedBy : fmdt.UserId ?? creator.GetId(),
+            UserId = fmdt.Metadata.TryGetValue(Meta.UploadedBy, out var uploadedBy) ? uploadedBy : fmdt.UserId ??creator.Id,
             Creator = creator,
             TimeStamps = new()
             {
@@ -127,72 +131,73 @@ namespace CloudCanvas.Application.Common.Mapping
             },
             CommentsEnabled = fmdt.CommentsEnabled ?? false
         };
-        public static PhotoDTO ToProjection(this Photo photo, Creator creator) => new()
+        public static PhotoDTO ToProjection(this Photo photo, CreatorMinimal creator) => new()
         {
             Id = photo.Id ?? Guid.NewGuid().ToString(),
             UserId = photo.UserId,
             OriginalFilename = photo.OriginalFilename,
             Location = photo.Location ?? throw new CCMapperException("Photo.Location is null"),
             CommentsEnabled = photo.CommentsEnabled,
-            Description = photo.Caption,
+            Description = photo.Caption ?? photo.SmartCaption,
+            SmartCaption = photo.SmartCaption,
             Title = photo.Title,
             ContentLength = photo.ContentLength,
             UserTags = photo.UserTags,
+            SmartTags = photo.SmartTags,
             GalleryId = photo.GalleryId,
             Reactions = {
                 Likes = photo.LikesCount(),
                 Dislikes = photo.DislikesCount(),
                 EmojiReactions = photo.EmojiReactionsCount()
             },
-            Creator = creator ?? new()
-            {
-                Id = photo.UserId,
-                UserName = Unknown.Username,
-                DisplayName = Unknown.DisplayName
-            },
-            TimeStamps = new Domain.Abstractions.AuditableEntity
+            Creator = creator,
+            TimeStamps = new AuditableEntity
             {
                 CreatedOn = photo.CreatedOn,
                 ModifiedOn = photo.ModifiedOn,
                 DeletedOn = photo.DeletedOn
             },
-            Thumbnails = photo.Thumbnails.ToDictionary(p => p.Size.ToString(), p => p.Url)
+            Thumbnails = photo.Thumbnails.ToDictionary(p => p.Size.ToString(), p => p.Url),
+            Classification = PostClassification.Photo.ToString()
         };
 
-        public static GalleryItemDTO ToGalleryItem(this Photo photo, Creator creator) => new(){
+        public static GalleryItemDTO ToGalleryItem(this Photo photo, CreatorMinimal creator) => new(){
             Location = photo.Location ?? throw new CCMapperException("Photo.Location is null"),
             Title = photo.Title ?? throw new CCMapperException("Photo.Title is null"),
             MediumThumbnail = photo.Thumbnails.FirstOrDefault(t => t.Size == ThumbnailSize.medium)?.Url,
-            Creator = creator?? new(photo.UserId, Unknown.Username, Unknown.DisplayName)
+            Creator = creator
         };
 
-    public static GalleryDTO ToProjection(this Gallery gallery, Creator creator) => new(gallery.Id, creator)
+    public static GalleryDTO ToProjection(this Gallery gallery, CreatorMinimal creator)
         {
-            Id = gallery.Id ?? Guid.NewGuid().ToString(),
-            UserId = gallery.UserId,
-            DisplayName = gallery.DisplayName,
-            Description = gallery.Description,
-            CommentsEnabled = gallery.CommentsEnabled,
-            Creator = creator ?? new()
+            creator ??= new(gallery.UserId, Unknown.DisplayName);
+            return new(gallery.Id, gallery.DisplayName, creator)
             {
-                Id = gallery.UserId,
-                UserName = Unknown.Username,
-                DisplayName = Unknown.DisplayName
-            },
-            TimeStamps = new Domain.Abstractions.AuditableEntity
-            {
-                CreatedOn = gallery.CreatedOn,
-                ModifiedOn = gallery.ModifiedOn,
-                DeletedOn = gallery.DeletedOn
-            },
-            Photos = gallery.Photos.Select(p => p.ToGalleryItem(creator)).ToList(),
-            Reactions = {
-                Likes = gallery.LikesCount(),
-                Dislikes = gallery.DislikesCount(),
-                EmojiReactions = gallery.EmojiReactionsCount()
-            }, 
-            UserTags = gallery.UserTags
-        };
+                Id = gallery.Id ?? Guid.NewGuid().ToString(),
+                UserId = gallery.UserId,
+                DisplayName = gallery.DisplayName,
+                Description = gallery.Description,
+                CommentsEnabled = gallery.CommentsEnabled,
+                Creator = creator,
+                TimeStamps = new AuditableEntity
+                {
+                    CreatedOn = gallery.CreatedOn,
+                    ModifiedOn = gallery.ModifiedOn,
+                    DeletedOn = gallery.DeletedOn
+                },
+                Photos = gallery.Photos.Select(p => p.ToGalleryItem(creator)).ToList(),
+                Reactions = {
+                    Likes = gallery.LikesCount(),
+                    Dislikes = gallery.DislikesCount(),
+                    EmojiReactions = gallery.EmojiReactionsCount()
+                }, 
+                UserTags = gallery.UserTags,
+                Classification = PostClassification.Gallery.ToString()
+            };
+        }
+
+        public static EnrichmentTarget ToEnrichmentTarget(this PhotoDTO photo) => new(photo.Id!, photo.UserId!, photo.Location) { tags = photo.SmartTags };
+
         #endregion
 
         #region CONVERT TO COMMANDS

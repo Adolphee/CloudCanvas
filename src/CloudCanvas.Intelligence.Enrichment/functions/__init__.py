@@ -1,0 +1,2 @@
+from .generate_tags_function import handle_tagging_enrichment
+from .generate_caption_function import handle_caption_enrichment

@@ -39,16 +39,15 @@ namespace CloudCanvas.Infrastructure
             services.AddDbContext<CCDBContext>(options => options.UseSqlServer(config.GetConnectionString(SQLServer.ConnectionString), sql => sql.EnableRetryOnFailure()));
             services.AddSingleton(cc =>
             {
-                var endpoint = config.GetConnectionString(Projection.Uri);
-
-                return new CosmosClient(endpoint, new CosmosClientOptions
+                var conn = config.GetConnectionString(Projection.Uri);
+                return new CosmosClient(conn, new CosmosClientOptions
                 {
                     ConnectionMode = ConnectionMode.Gateway,
                     SerializerOptions = new CosmosSerializationOptions
                     {
                         PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase,
                         IgnoreNullValues = true
-                    }
+                    }, ConsistencyLevel = ConsistencyLevel.Eventual
                 });
             });
             services.AddSingleton(cc =>

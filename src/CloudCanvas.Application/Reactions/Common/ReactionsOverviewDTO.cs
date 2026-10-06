@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CloudCanvas.Application.Reactions.Common
+﻿namespace CloudCanvas.Application.Reactions.Common
 {
     public sealed record ReactionsOverviewDTO
     {

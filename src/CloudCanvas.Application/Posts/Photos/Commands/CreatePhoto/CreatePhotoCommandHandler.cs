@@ -16,7 +16,7 @@ public sealed class CreatePhotoCommandHandler(IProjectionStore store, IPhotoRepo
         Photo photo = command.ToPhoto();
         photo.Id = await _repostitory.SaveAsync(photo, cancellation);
         // Create & Save Projection
-        var projection = photo.ToProjection(command.Creator);
+        var projection = photo.ToProjection(command.Creator.MinimalVersion());
         projection = await _store.CreateProjectionAsync(projection, cancellation);
         var res = new CreatePhotoResult(projection);
         // Announce: projection ready

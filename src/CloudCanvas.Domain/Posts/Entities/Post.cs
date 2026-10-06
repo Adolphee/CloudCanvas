@@ -2,7 +2,6 @@
 using CloudCanvas.Domain.Enums;
 using CloudCanvas.Domain.Posts.Contracts;
 using CloudCanvas.Domain.Reactions.Entities;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CloudCanvas.Domain.Posts.Entities
@@ -10,11 +9,9 @@ namespace CloudCanvas.Domain.Posts.Entities
     public abstract class Post: AuditableEntity, IPost, ICommentable
     {
         #region PROPERTIES
-        [Required]
-        public string? Id { get; set; }
-        [Required]
-        public string UserId { get; set; } = default!;
-        public string? Location { get; set; } = default!;
+        public required string Id { get; set; }
+        public required string UserId { get; set; } = default!;
+        public string Location { get; set; } = default!;
         public long ContentLength { get; set; }
         public bool CommentsEnabled { get; set; } = true;
         public List<Reaction> Reactions { get; set; } = [];

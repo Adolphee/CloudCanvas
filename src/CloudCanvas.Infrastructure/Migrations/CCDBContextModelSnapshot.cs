@@ -112,6 +112,7 @@ namespace CloudCanvas.Infrastructure.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Location")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("ModifiedOn")
@@ -453,6 +454,7 @@ namespace CloudCanvas.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DisplayName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId1")
@@ -474,6 +476,13 @@ namespace CloudCanvas.Infrastructure.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("OriginalFilename")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SmartCaption")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.PrimitiveCollection<string>("SmartTags")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
