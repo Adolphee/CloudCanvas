@@ -1,6 +1,4 @@
-import json
-import logging as logger
-import os
+import os, json , logging as logger
 from application.exceptions import *
 from azure.cosmos.partition_key import PartitionKeyType
 from domain.models import Photo, PhotoVerificationResult as Verification
@@ -55,7 +53,7 @@ class CosmosService(ProjectionService):
         try:
             # I could use create-if-not-exists here but...
             db_client = self.client.get_database_client(db)
-            # ... these functions shouldn't in the absence of these resources
+            # ... these functions shouldn't be triggered in the absence of these resources
             container = db_client.get_container_client(name)
             return container
         except CosmosHttpResponseError as e:
@@ -84,5 +82,5 @@ class CosmosService(ProjectionService):
                 logger.exception(msg)
                 raise EnrichmentException(msg=msg, operation=operation)
         except Exception as e:
-            logger.exception("Exception while verifying prior enrichment item %a from container %a", photo_id, container.id)
+            logger.exception("Exception while verifying prior enrichment item %a from container %a/%a", photo_id, DB_NAME, container.id)
             raise EnrichmentException(msg=f"Photo not found: {photo_id}", operation=operation) from e

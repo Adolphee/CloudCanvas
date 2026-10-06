@@ -1,5 +1,6 @@
 import json
 import logging as logger
+from unittest import result
 from domain.constants import Constants
 from sqlalchemy import Engine, MetaData, Table, select, update
 from sqlalchemy.exc import NoSuchTableError
@@ -52,23 +53,19 @@ class SQLService(PersistenceService):
             finally:
                 connection.close()
 
-    # TODO: this method is broken, need to fix it to use it !!!
-    def verify_no_prior_enrichment(self, photo_id: str):
+    def verify_no_prior_enrichment(self, photo_id: str) -> bool:
         table = self.get_table(Constants.Tables.PHOTOS)
         with self._engine.begin() as conn:
             try:
-                res = conn.execute(
-                    select(table.c.SmartTags, table.c.SmartCaption).where(
-                        table.c.Id == photo_id)
-                )
-                conn.commit()
-                logger.warning("Prior enrichment found for photo: %a", json.dumps(res.fetchone()))
-                return res.rowcount > 0
+                query = select(table.c.SmartTags, table.c.SmartCaption).where( table.c.Id == photo_id).limit(1)
+                row = conn.execute(query).fetchone()
+                if row and row.SmartTags and row.SmartCaption:
+                    logger.info("Prior enrichment found for photo: %a", row._asdict())
+                    return True
             except Exception as e:
                 logger.exception("Failed to verify prior enrichment in persistence store for photo: %a", photo_id)
-            finally:
                 return False
+        return False
 
     def close_connection(self):
-        if self._engine:
-            self._engine.dispose()
+        if self._engine: self._engine.dispose()
