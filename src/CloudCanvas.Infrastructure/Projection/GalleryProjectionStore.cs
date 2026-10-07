@@ -8,12 +8,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 
-namespace CloudCanvas.Infrastructure.Cosmos
+namespace CloudCanvas.Infrastructure.Projection
 {
-    public class GalleryProjectionStore (CosmosClient client, IConfiguration config, ILogger<GalleryProjectionStore> logger):  ProjectionStoreBase<GalleryDTO>(client, config, logger), IGalleryProjectionStore
+    public class GalleryProjectionStore(CosmosClient client, IConfiguration config, ILogger<GalleryProjectionStore> logger) : ProjectionStoreBase<GalleryDTO>(client, config, logger), IGalleryProjectionStore
     {
         private Container _container = null!; // The Cosmos DB container for gallery projections
-        private const string _containerName = Projection.Containers.Galleries;
+        private const string _containerName = Application.Common.Constants.Projection.Containers.Galleries;
 
         public async override Task<List<GalleryDTO>> GetAllFilteredAsync(Expression<Func<GalleryDTO, bool>>? filter = null, CancellationToken cancellation = default)
         {
@@ -82,7 +82,7 @@ namespace CloudCanvas.Infrastructure.Cosmos
         public async override Task<GalleryDTO> PatchAsync(ProjectionKey key, IDictionary<string, object> ops, CancellationToken cancellationToken = default)
         {
             _container ??= await GetContainerAsync(_containerName);
-            if(!await ExistsAsync(key, cancellationToken))
+            if (!await ExistsAsync(key, cancellationToken))
             {
                 throw new InvalidOperationException($"Gallery with Id {key.Id} and UserId {key.UserId} does not exist.");
             }

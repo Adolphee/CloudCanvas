@@ -10,7 +10,7 @@ using CloudCanvas.Application.Posts.Galleries.Interfaces;
 using CloudCanvas.Application.Posts.Photos.Interfaces;
 using CloudCanvas.Infrastructure.BlobStorage;
 using CloudCanvas.Infrastructure.Common;
-using CloudCanvas.Infrastructure.Cosmos;
+using CloudCanvas.Infrastructure.Projection;
 using CloudCanvas.Infrastructure.Messaging;
 using CloudCanvas.Infrastructure.Persistence;
 using CloudCanvas.Infrastructure.Persistence.Repositories;
@@ -39,7 +39,7 @@ namespace CloudCanvas.Infrastructure
             services.AddDbContext<CCDBContext>(options => options.UseSqlServer(config.GetConnectionString(SQLServer.ConnectionString), sql => sql.EnableRetryOnFailure()));
             services.AddSingleton(cc =>
             {
-                var conn = config.GetConnectionString(Projection.Uri);
+                var conn = config.GetConnectionString(Application.Common.Constants.Projection.Uri);
                 return new CosmosClient(conn, new CosmosClientOptions
                 {
                     ConnectionMode = ConnectionMode.Gateway,

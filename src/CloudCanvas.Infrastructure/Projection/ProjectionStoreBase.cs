@@ -7,7 +7,7 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace CloudCanvas.Infrastructure.Cosmos
+namespace CloudCanvas.Infrastructure.Projection
 {
     public abstract class ProjectionStoreBase<T>(CosmosClient client, IConfiguration config, ILogger logger) : IProjectionStoreBase<T> where T : PostDTO
     {
@@ -27,12 +27,13 @@ namespace CloudCanvas.Infrastructure.Cosmos
 
         protected async Task<Container> GetContainerAsync(string containerId, CancellationToken cancellation = default)
         {
-            string? databaseName = _config[AppSettings.ProjectionDbName] ?? Projection.Sql;
+            string? databaseName = _config[AppSettings.ProjectionDbName] ?? Application.Common.Constants.Projection.Sql;
             try
             {
                 return await EnsureContainerExistsAsync(databaseName, containerId, cancellation);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 throw new CosmosContainerNotFoundException($"Failed to ensure the existence of {containerId} in {databaseName}", e)
                 {
                     ContainerName = containerId,

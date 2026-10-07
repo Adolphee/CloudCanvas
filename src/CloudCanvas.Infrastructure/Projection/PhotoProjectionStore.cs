@@ -8,16 +8,16 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
-namespace CloudCanvas.Infrastructure.Cosmos
+namespace CloudCanvas.Infrastructure.Projection
 {
     public class PhotoProjectionStore(CosmosClient client, IConfiguration config, ILogger<PhotoProjectionStore> logger) : ProjectionStoreBase<PhotoDTO>(client, config, logger), IPhotoProjectionStore
     {
         private Container _container = default!;
-        private const string _containerName = Projection.Containers.UserPhotos;
+        private const string _containerName = Application.Common.Constants.Projection.Containers.UserPhotos;
 
         public async override Task<PhotoDTO> CreateProjectionAsync(PhotoDTO photo, CancellationToken cancellation = default)
         {
-            if (photo.UserId is null) 
+            if (photo.UserId is null)
                 throw new ArgumentNullException(nameof(photo), message: "Value for Photo.UserId is required.");
             _container ??= await GetContainerAsync(_containerName, cancellation);
             var res = await _container.CreateItemAsync(photo, new PartitionKey(photo.UserId), default, cancellation);
@@ -26,9 +26,9 @@ namespace CloudCanvas.Infrastructure.Cosmos
 
         public async override Task<bool> ReplaceProjectionAsync(PhotoDTO photo, CancellationToken cancellation = default)
         {
-            if (photo.Id is null || photo.UserId is null) 
+            if (photo.Id is null || photo.UserId is null)
                 throw new ProjectionException(message: "Both {PhotoId, Photo.UserId} are required.");
-            if(await ExistsAsync(new ProjectionKey(photo.Id, photo.UserId), cancellation))
+            if (await ExistsAsync(new ProjectionKey(photo.Id, photo.UserId), cancellation))
             {
                 _container ??= await GetContainerAsync(_containerName, cancellation);
                 var res = await _container.ReplaceItemAsync(photo, photo.Id, new PartitionKey(photo.UserId), default, cancellation);
@@ -40,7 +40,7 @@ namespace CloudCanvas.Infrastructure.Cosmos
         public async override Task<List<PhotoDTO>> GetAllAsync(CancellationToken cancellation = default)
         {
             var _container = await GetContainerAsync(_containerName, cancellation);
-            var res = new List<PhotoDTO>(); 
+            var res = new List<PhotoDTO>();
             using var queryable = _container.GetItemQueryIterator<PhotoDTO>();
             while (queryable.HasMoreResults)
             {
@@ -99,7 +99,7 @@ namespace CloudCanvas.Infrastructure.Cosmos
                 var item = await SingleAsync(key, cancellation);
                 return item != null;
             }
-            catch (Exception e) when (e is CosmosException ||  e is ProjectionNotFoundException)
+            catch (Exception e) when (e is CosmosException || e is ProjectionNotFoundException)
             {
                 _logger.LogTrace(e, "Photo projection not found: {PhotoId}.", key.Id);
                 return false; // item doesn't exist if we get to this point
