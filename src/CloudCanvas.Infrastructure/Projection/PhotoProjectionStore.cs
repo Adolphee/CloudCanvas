@@ -9,7 +9,7 @@ namespace CloudCanvas.Infrastructure.Projection
     {
         public PhotoProjectionStore(CosmosClient client, IConfiguration config, ILogger<PhotoProjectionStore> logger) : base(client, config, logger)
         {
-            _containerName = InferContainerNameFromType();
+            _containerName ??= InferContainerNameFromType();
         }
     }
 }
