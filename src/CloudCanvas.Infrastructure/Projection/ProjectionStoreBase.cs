@@ -20,7 +20,7 @@ namespace CloudCanvas.Infrastructure.Projection
         protected readonly IConfiguration _config = config;
         protected readonly ILogger _logger = logger;
         protected string _containerName { get; init; } = null!;
-        protected Container _container { get; private set; } = null!;
+        protected Container _container { get; private set; } = null!; 
 
         private async Task<Container> EnsureContainerExistsAsync(string database, string containerId, CancellationToken cancellation = default)
         {
