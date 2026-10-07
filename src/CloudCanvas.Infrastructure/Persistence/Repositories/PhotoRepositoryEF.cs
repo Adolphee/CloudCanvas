@@ -5,19 +5,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CloudCanvas.Infrastructure.Persistence.Repositories
 {
-    public class PhotoRepositoryEF(CCDBContext ctx) : IPhotoRepository
+    public class PhotoRepository(CCDBContext ctx) : IPhotoRepository
     {
         private readonly CCDBContext _contex = ctx;
         public async Task<string> SaveAsync(Photo photo, CancellationToken cancellation = default)
         {
             string id = default!;
             if (await ExistsAsync(photo.Id!, cancellation)) id = _contex.Update(photo).Entity.Id;
-            else  id = _contex.Photos.Add(photo).Entity.Id;
+            else id = _contex.Photos.Add(photo).Entity.Id;
             await _contex.SaveChangesAsync(cancellation);
             return id!;
         }
 
-        public async Task<bool> ExistsAsync(string id, CancellationToken cancellation = default) 
+        public async Task<bool> ExistsAsync(string id, CancellationToken cancellation = default)
             => await _contex.Photos.AnyAsync(x => x.Id == id, cancellation);
 
 
@@ -40,10 +40,12 @@ namespace CloudCanvas.Infrastructure.Persistence.Repositories
                 {
                     photo.SetDeletedOn();
                     photo.SetModifiedOn();
-                    _contex.Update(photo); 
-                } else _contex.Remove(photo);
+                    _contex.Update(photo);
+                }
+                else _contex.Remove(photo);
                 return await _contex.SaveChangesAsync(cancellation) > 0;
-            } return false;
+            }
+            return false;
         }
 
         public async Task<bool> SaveThumbnailAsync(PhotoThumbnail thumnail, CancellationToken cancellation = default)
@@ -53,6 +55,6 @@ namespace CloudCanvas.Infrastructure.Persistence.Repositories
         }
 
         public Task<List<Photo>> GetPhotosByIdsAsync(List<string> photos, CancellationToken cancellation = default)
-        =>  _contex.Photos.Where(g => photos.Contains(g.Id!)).ToListAsync(cancellation);
+        => _contex.Photos.Where(g => photos.Contains(g.Id!)).ToListAsync(cancellation);
     }
 }

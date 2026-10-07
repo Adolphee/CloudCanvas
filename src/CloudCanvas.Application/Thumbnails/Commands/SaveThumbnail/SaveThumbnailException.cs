@@ -1,7 +1,7 @@
 ﻿namespace CloudCanvas.Application.Thumbnails.Commands.SaveThumbnail
 {
     [Serializable]
-    internal class SaveThumbnailException : Exception
+    public class SaveThumbnailException : Exception
     {
         public SaveThumbnailException()
         {

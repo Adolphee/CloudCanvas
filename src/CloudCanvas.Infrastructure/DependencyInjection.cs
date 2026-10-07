@@ -29,7 +29,7 @@ namespace CloudCanvas.Infrastructure
             services.AddScoped<IMessageBuilder, SBMessageBuilder>();
             services.AddScoped<IMessageFactory, MessageFactory>();
 
-            services.AddScoped<IPhotoRepository, PhotoRepositoryEF>();
+            services.AddScoped<IPhotoRepository, PhotoRepository>();
             services.AddScoped<IPhotoProjectionStore, PhotoProjectionStore>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IGalleryRepository, GalleryRepository>();
@@ -47,7 +47,8 @@ namespace CloudCanvas.Infrastructure
                     {
                         PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase,
                         IgnoreNullValues = true
-                    }, ConsistencyLevel = ConsistencyLevel.Eventual
+                    },
+                    ConsistencyLevel = ConsistencyLevel.Eventual
                 });
             });
             services.AddSingleton(cc =>
