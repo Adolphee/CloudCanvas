@@ -19,8 +19,8 @@ namespace CloudCanvas.Infrastructure.Projection
         protected readonly CosmosClient _client = client;
         protected readonly IConfiguration _config = config;
         protected readonly ILogger _logger = logger;
-        protected string _containerName { get; init; } = null!; // The name of the Cosmos DB container for this projection type
-        private Container _container { get; init; } = null!; // The Cosmos DB container for gallery projections
+        protected string _containerName { get; init; } = null!;
+        protected Container _container { get; private set; } = null!;
 
         private async Task<Container> EnsureContainerExistsAsync(string database, string containerId, CancellationToken cancellation = default)
         {
@@ -52,14 +52,14 @@ namespace CloudCanvas.Infrastructure.Projection
         public async Task<T> CreateProjectionAsync(T photo, CancellationToken cancellation = default)
         {
             if (photo.UserId is null) throw new ArgumentNullException(nameof(photo), message: "Value for Photo.UserId is required.");
-            var _container = await GetContainerAsync(_containerName, cancellation);
+            _container ??= await GetContainerAsync(_containerName, cancellation);
             var res = await _container.UpsertItemAsync(photo, new PartitionKey(photo.UserId), default, cancellation);
             return res.Resource;
         }
         
         public async Task<bool> DeleteAsync(T meta, bool softDelete = true, CancellationToken cancellation = default)
         {
-            var container = await GetContainerAsync(_containerName, cancellation);
+            _container ??= await GetContainerAsync(_containerName, cancellation);
                 if (softDelete)
                 {
                     meta.TimeStamps.DeletedOn = DateTimeOffset.UtcNow;
@@ -69,7 +69,7 @@ namespace CloudCanvas.Infrastructure.Projection
                 }
                 try
                 {
-                    var res = await container.DeleteItemAsync<T>(meta.Id!, new PartitionKey(meta.UserId!), cancellationToken: cancellation);
+                    var res = await _container.DeleteItemAsync<T>(meta.Id!, new PartitionKey(meta.UserId!), cancellationToken: cancellation);
                     return res.StatusCode == System.Net.HttpStatusCode.NoContent;
                 } catch (CosmosException e) when (e.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
@@ -97,7 +97,7 @@ namespace CloudCanvas.Infrastructure.Projection
         public async Task<T> PatchAsync(ProjectionKey key, IDictionary<string, object> ops, CancellationToken cancellation = default)
         {
             var patches = ops.Select(p => PatchOperation.Set(p.Key, p.Value)).ToList();
-            var _container = await GetContainerAsync(_containerName, cancellation);
+            _container ??= await GetContainerAsync(_containerName, cancellation);
             try
             {
                 return await _container.PatchItemAsync<T>(key.Id, key.AsPartitionKey(), patchOperations: patches, cancellationToken: cancellation)
@@ -116,10 +116,10 @@ namespace CloudCanvas.Infrastructure.Projection
 
         public async Task<T?> SingleAsync(ProjectionKey key, CancellationToken cancellation = default)
         {
-        var container = await GetContainerAsync(_containerName, cancellation);
+        _container ??= await GetContainerAsync(_containerName, cancellation);
             try
             {
-                var photo = await container.ReadItemAsync<T>(key.Id, key.AsPartitionKey(), default, cancellation);
+                var photo = await _container.ReadItemAsync<T>(key.Id, key.AsPartitionKey(), default, cancellation);
                 return photo.Resource;
             }
             catch (CosmosException e) when (e.StatusCode == System.Net.HttpStatusCode.NotFound)
@@ -135,7 +135,7 @@ namespace CloudCanvas.Infrastructure.Projection
         
         public async Task<List<T>> GetByUserIdAsync(string userId, CancellationToken cancellation = default)
         {
-            var _container = await GetContainerAsync(_containerName, cancellation);
+            _container ??= await GetContainerAsync(_containerName, cancellation);
             var res = new List<T>();
             using var queryable = _container.GetItemQueryIterator<T>();
 
@@ -150,7 +150,7 @@ namespace CloudCanvas.Infrastructure.Projection
 
         public async Task<List<T>> GetAllAsync(CancellationToken cancellation = default)
         {
-            var _container = await GetContainerAsync(_containerName, cancellation);
+            _container ??= await GetContainerAsync(_containerName, cancellation);
             var res = new List<T>();
             using var queryable = _container.GetItemQueryIterator<T>();
             while (queryable.HasMoreResults)
@@ -188,7 +188,7 @@ namespace CloudCanvas.Infrastructure.Projection
 
         public async Task<List<T>> GetAllFilteredAsync(Expression<Func<T, bool>> filter, CancellationToken cancellation = default)
         {
-            var _container = await GetContainerAsync(_containerName, cancellation);
+            _container ??= await GetContainerAsync(_containerName, cancellation);
             var res = new List<T>();
             using var queryable = _container.GetItemQueryIterator<T>();
             while (queryable.HasMoreResults)
