@@ -11,7 +11,6 @@ namespace CloudCanvas.Application.Abstractions.Projection
         Task<List<T>> GetByUserIdAsync(string userId, CancellationToken cancellationToken = default);
         Task<bool> ReplaceProjectionAsync(T post, CancellationToken cancellation = default);
         Task<T?> SingleAsync(ProjectionKey key, CancellationToken cancellationToken = default);
-        Task<bool> ExistsAsync(ProjectionKey key, CancellationToken cancellationToken = default);
         Task<T> PatchAsync(ProjectionKey key, IDictionary<string, object> ops, CancellationToken cancellationToken = default);
     }
 }
