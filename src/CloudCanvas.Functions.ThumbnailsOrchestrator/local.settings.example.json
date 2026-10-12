@@ -1,6 +1,7 @@
 {
   "IsEncrypted": false,
   "Values": {
+    "ASPNET_ENVIRONMENT": "Development",
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
     "FUNCTIONS_EXTENSION_VERSION": "~5",
@@ -9,5 +10,4 @@
     "ServiceBusUri": "",
     "BlobStorageUri": ""
   }
-
 }

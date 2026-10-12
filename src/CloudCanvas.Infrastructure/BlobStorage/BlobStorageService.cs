@@ -8,6 +8,7 @@ using CloudCanvas.Infrastructure.Exceptions;
 using Microsoft.Extensions.Logging;
 using CloudCanvas.Application.Thumbnails.Commands.CreateThumbnail;
 using CloudCanvas.Infrastructure.Common;
+using System.Globalization;
 
 namespace CloudCanvas.Infrastructure.BlobStorage
 {
@@ -51,8 +52,8 @@ namespace CloudCanvas.Infrastructure.BlobStorage
             } catch (Exception e)
             {
                 _logger.LogError(e, "Error: Failed to initiate new BlobContainerClient for container {containerName}", containerName);
-                // This layer doesn’t know what to do with this low-level transport exception
-                //  — let whoever owns the retry logic or orchestration deal with it.
+                // This layer doesn't know what to do with this low-level transport exception
+                // let whoever owns the retry logic or orchestration deal with it.
                 // SPOILER ALERT: that's me -_-'
                 throw new BlobContainerClientInitializationFailedException(e.Message, e);
             }
@@ -128,7 +129,7 @@ namespace CloudCanvas.Infrastructure.BlobStorage
             Dictionary<string, string> properties = [];
             properties.Add(BStorage.Meta.OriginalFilename, filename); // this is to enforce data consistency, convertability between BlobProperties & FileMetadata
             properties.Add(BStorage.Meta.UploadedBy, uploadedById); // Idem dito, these blob metadata are not available OOTB (afaik)
-            properties.Add(BStorage.Meta.CreatedOn, DateTime.UtcNow.ToString());
+            properties.Add(BStorage.Meta.CreatedOn, DateTime.UtcNow.ToString("O", CultureInfo.InvariantCulture));
             return properties;
         }
 

@@ -1,4 +1,5 @@
-﻿using CloudCanvas.Application.Abstractions.Storage;
+﻿using System.Globalization;
+using CloudCanvas.Application.Abstractions.Storage;
 using static CloudCanvas.Application.Common.Constants.BStorage;
 
 namespace CloudCanvas.Application.Posts.Photos.Commands.UploadFile
@@ -13,7 +14,7 @@ namespace CloudCanvas.Application.Posts.Photos.Commands.UploadFile
             {
                 { Meta.UploadedBy, command.UserId },
                 { Meta.OriginalFilename, file.FileName },
-                { Meta.CreatedOn, DateTimeOffset.UtcNow.ToString() },
+                { Meta.CreatedOn, DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture) },
                 { Meta.Container, Containers.Uploads }
             };
             var res = await _files.UploadAsync(command.Stream, $"{Guid.NewGuid().ToString()}.jpeg", props, Containers.Uploads, default!, cancellationToken);

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CloudCanvas.Application.Common
+﻿namespace CloudCanvas.Application.Common
 {
     public enum CCOperationStatus
     {

@@ -12,10 +12,10 @@ namespace CloudCanvas.Domain.Posts.Contracts
     public interface IPost : ILikeable, IDisLikeable, IHasTimestamps, IPublishable, IDeletable, IReportable
     {
         [Required]
-        string? Id { get; set; }
+        string Id { get; set; }
         [Required]
         string UserId { get; set; }
-        string? Location { get; set; }
+        string Location { get; set; }
 
         List<Reaction> Reactions { get; set; } 
         [NotMapped]

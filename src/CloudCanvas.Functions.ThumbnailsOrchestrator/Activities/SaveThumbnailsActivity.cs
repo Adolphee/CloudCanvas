@@ -12,8 +12,8 @@ public class SaveThumbnailsActivity(ISender sender)
     {
         var res = await _sender.Send(new SaveThumbnailsCommand
         {
-            Photo = req.photo,
-            Creator = req.photo.Creator!,
+            Photo = req.Photo,
+            Creator = req.Photo.Creator,
         }, cancellation);
         return res.Photo!;
     }

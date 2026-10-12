@@ -1,5 +1,4 @@
 ﻿using Azure.Messaging.ServiceBus;
-using CloudCanvas.Application.Abstractions.Messaging;
 
 namespace CloudCanvas.Infrastructure.Messaging
 {

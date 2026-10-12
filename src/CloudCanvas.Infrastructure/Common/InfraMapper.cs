@@ -8,6 +8,7 @@ using CloudCanvas.Infrastructure.DTOs;
 using User = CloudCanvas.Infrastructure.Identity.User;
 using Microsoft.Azure.Cosmos;
 using CloudCanvas.Application.Abstractions.Identity;
+using System.Globalization;
 
 namespace CloudCanvas.Infrastructure.Common
 {
@@ -27,7 +28,8 @@ namespace CloudCanvas.Infrastructure.Common
                 ContentType = message.ContentType ?? Azure.Core.ContentType.ApplicationJson.ToString(),
                 MessageId = message.Id ?? Guid.NewGuid().ToString(),
                 Subject = message.Subject,
-                CorrelationId = message.CorrelationId
+                CorrelationId = message.CorrelationId,
+                SessionId = message.SessionId
             };
             foreach (var prop in message.Properties)
                 msg.ApplicationProperties[prop.Key] = prop.Value;
@@ -77,12 +79,11 @@ namespace CloudCanvas.Infrastructure.Common
             {
                 try
                 {
-                    deleted = DateTimeOffset.TryParse(deletedOn, out result);
+                    deleted = DateTimeOffset.TryParse(deletedOn, CultureInfo.InvariantCulture, out result);
                 }
                 catch (Exception) {/*swallowing this because it tells us deletedOn wasn't set so we can proceed as planned*/}
             }
 
-            // TODO: uploadedBy / userID will be implemented with the Auth milestone --> Done
             var uploadedBy = props.Metadata.TryGetValue(BStorage.Meta.UploadedBy, out var uploader) ? uploader : null;
             var oFilename = props.Metadata.TryGetValue(BStorage.Meta.OriginalFilename, out var originalFilename) ? originalFilename : identifier;
             var containerName = props.Metadata.TryGetValue(BStorage.Meta.Container, out var container) ? container : BStorage.Containers.Uploads;

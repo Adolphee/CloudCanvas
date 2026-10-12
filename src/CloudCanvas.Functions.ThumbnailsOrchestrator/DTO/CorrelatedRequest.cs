@@ -2,7 +2,7 @@
 {
     // I need this to pull correlation through to the individual activities
     // The aim is to track the blob proces and not let go of the correlationId at all
-    public record CorrelatedRequest(string correlationId)
+    public record CorrelatedRequest(string CorrelationId)
     {
     }
 }

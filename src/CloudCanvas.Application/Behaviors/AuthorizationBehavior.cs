@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CloudCanvas.Application.Behaviors
+﻿namespace CloudCanvas.Application.Behaviors
 {
     internal class AuthorizationBehavior
     {

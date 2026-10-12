@@ -10,7 +10,7 @@ using CloudCanvas.Application.Posts.Galleries.Interfaces;
 using CloudCanvas.Application.Posts.Photos.Interfaces;
 using CloudCanvas.Infrastructure.BlobStorage;
 using CloudCanvas.Infrastructure.Common;
-using CloudCanvas.Infrastructure.Cosmos;
+using CloudCanvas.Infrastructure.Projection;
 using CloudCanvas.Infrastructure.Messaging;
 using CloudCanvas.Infrastructure.Persistence;
 using CloudCanvas.Infrastructure.Persistence.Repositories;
@@ -29,7 +29,7 @@ namespace CloudCanvas.Infrastructure
             services.AddScoped<IMessageBuilder, SBMessageBuilder>();
             services.AddScoped<IMessageFactory, MessageFactory>();
 
-            services.AddScoped<IPhotoRepository, PhotoRepositoryEF>();
+            services.AddScoped<IPhotoRepository, PhotoRepository>();
             services.AddScoped<IPhotoProjectionStore, PhotoProjectionStore>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IGalleryRepository, GalleryRepository>();
@@ -39,16 +39,16 @@ namespace CloudCanvas.Infrastructure
             services.AddDbContext<CCDBContext>(options => options.UseSqlServer(config.GetConnectionString(SQLServer.ConnectionString), sql => sql.EnableRetryOnFailure()));
             services.AddSingleton(cc =>
             {
-                var endpoint = config.GetConnectionString(Projection.Uri);
-
-                return new CosmosClient(endpoint, new CosmosClientOptions
+                var conn = config.GetConnectionString(Application.Common.Constants.Projection.Uri);
+                return new CosmosClient(conn, new CosmosClientOptions
                 {
                     ConnectionMode = ConnectionMode.Gateway,
                     SerializerOptions = new CosmosSerializationOptions
                     {
                         PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase,
                         IgnoreNullValues = true
-                    }
+                    },
+                    ConsistencyLevel = ConsistencyLevel.Eventual
                 });
             });
             services.AddSingleton(cc =>

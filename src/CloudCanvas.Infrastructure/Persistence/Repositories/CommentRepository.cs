@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CloudCanvas.Infrastructure.Persistence.Repositories
+﻿namespace CloudCanvas.Infrastructure.Persistence.Repositories
 {
     public class CommentRepository
     {
+        
     }
 }
