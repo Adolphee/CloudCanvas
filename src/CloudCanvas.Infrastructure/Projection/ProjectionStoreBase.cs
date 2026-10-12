@@ -49,11 +49,13 @@ namespace CloudCanvas.Infrastructure.Projection
             }
         }
 
-        public async Task<T> CreateProjectionAsync(T photo, CancellationToken cancellation = default)
+        public async Task<T> CreateProjectionAsync(T post, bool overwrite = false, CancellationToken cancellation = default)
         {
-            if (photo.UserId is null) throw new ArgumentNullException(nameof(photo), message: "Value for Photo.UserId is required.");
+            if (post.Id is null || post.UserId is null)
+                throw new ProjectionException(message: $"Both {{Post.Id, Post.UserId}} are required. container: {{_containerName}}");
             _container ??= await GetContainerAsync(_containerName, cancellation);
-            var res = await _container.UpsertItemAsync(photo, new PartitionKey(photo.UserId), default, cancellation);
+            var res = overwrite ? await _container.UpsertItemAsync(post, new PartitionKey(post.UserId), default, cancellation) 
+            : await _container.CreateItemAsync(post, new PartitionKey(post.UserId), default, cancellation);
             return res.Resource;
         }
         
@@ -119,8 +121,8 @@ namespace CloudCanvas.Infrastructure.Projection
         _container ??= await GetContainerAsync(_containerName, cancellation);
             try
             {
-                var photo = await _container.ReadItemAsync<T>(key.Id, key.AsPartitionKey(), default, cancellation);
-                return photo.Resource;
+                var post = await _container.ReadItemAsync<T>(key.Id, key.AsPartitionKey(), default, cancellation);
+                return post.Resource;
             }
             catch (CosmosException e) when (e.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
@@ -160,30 +162,6 @@ namespace CloudCanvas.Infrastructure.Projection
                 res.AddRange(availableItems);
             }
             return [.. res];
-        }
-
-        public async Task<bool> ReplaceProjectionAsync(T photo, CancellationToken cancellation = default)
-        {
-            if (photo.Id is null || photo.UserId is null)
-                throw new ProjectionException(message: "Both {PhotoId, Photo.UserId} are required.");
-            try
-            {
-                var _container = await GetContainerAsync(_containerName, cancellation);
-                var res = await _container.ReplaceItemAsync(photo, photo.Id, new PartitionKey(photo.UserId), default, cancellation);
-                return res.StatusCode == System.Net.HttpStatusCode.OK;
-            }
-            catch (CosmosException e) when (e.StatusCode == System.Net.HttpStatusCode.NotFound)
-            {
-                throw new ProjectionNotFoundException($"Projection not found for PhotoId={photo.Id} and UserId={photo.UserId}.", e)
-                {
-                    ContainerName = _containerName,
-                    DocumentId = photo.Id,
-                    UserId = photo.UserId
-                };
-            } finally
-            {
-                _logger.LogTrace("ReplaceProjectionAsync completed for PhotoId={PhotoId} and UserId={UserId}.", photo.Id, photo.UserId);
-            }
         }
 
         public async Task<List<T>> GetAllFilteredAsync(Expression<Func<T, bool>> filter, CancellationToken cancellation = default)
