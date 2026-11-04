@@ -1,3 +1,4 @@
+using CloudCanvas.Application.Common.Constants;
 using CloudCanvas.Application.Posts.Photos;
 using CloudCanvas.Application.Posts.Photos.Commands.CreatePhoto;
 using CloudCanvas.Application.Posts.Photos.Commands.UploadFile;
@@ -22,7 +23,7 @@ namespace CloudCanvas.Api.Controllers
             => Ok(await _sender.Send(new GetAllPhotosQuery(), cancellation));
 
         [HttpGet("single/{id}", Name = "GetPhotoById")]
-        public async Task<ActionResult<PhotoDTO>> GetSingleByKeyAsync([FromQuery] string id, [FromQuery] string userId, CancellationToken cancellation = default)
+        public async Task<ActionResult<PhotoDTO>> GetSingleByKeyAsync([FromRoute] string id, [FromQuery] string userId, CancellationToken cancellation = default)
         {
             _logger.LogInformation("Photo projection lookup with key: [id={PhotoId}, userId={userId}].", id, userId);
             var res = await _sender.Send(new GetPhotoByKeyQuery(new(id, userId)), cancellation);
@@ -30,8 +31,12 @@ namespace CloudCanvas.Api.Controllers
         }
 
         [HttpGet("user/{userId}", Name = "GetUserPhotos")]
-        public async Task<ActionResult<GetUserPhotosResult>> GetUserPhotosAsync(string userId, CancellationToken cancellation = default) 
-            => Ok(await _sender.Send(new GetUserPhotosQuery(userId), cancellation));
+        public async Task<ActionResult<GetUserPhotosResult>> GetUserPhotosAsync([FromRoute] string userId, CancellationToken cancellation = default) 
+            => Ok(await _sender.Send(new GetUserPhotosQuery
+            {
+                UserId = userId,
+                ContainerName = Projection.Containers.UserPhotos
+            }, cancellation));
 
         [HttpPost(Name = "CreatePhoto")]
         public async Task<ActionResult<CreatePhotoResult>> CreatePhotoAsync([FromBody] CreatePhotoCommand command, CancellationToken cancellation = default) 
