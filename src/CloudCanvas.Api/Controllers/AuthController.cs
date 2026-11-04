@@ -1,5 +1,5 @@
 ﻿using CloudCanvas.Application.Users.Commands.EnsureUserExists;
-using User = CloudCanvas.Application.Abstractions.Identity.ApplicationUser;
+using User = CloudCanvas.Domain.Abstractions.Identity.ApplicationUser;
 
 namespace CloudCanvas.Api.Controllers
 {

@@ -1,4 +1,4 @@
-﻿using CloudCanvas.Application.Abstractions.Identity;
+﻿using CloudCanvas.Domain.Abstractions.Identity;
 
 namespace CloudCanvas.Application.Users.Commands.EnsureUserExists
 {

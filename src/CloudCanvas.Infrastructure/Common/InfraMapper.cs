@@ -7,7 +7,7 @@ using CloudCanvas.Application.Posts.DTOs;
 using CloudCanvas.Infrastructure.DTOs;
 using User = CloudCanvas.Infrastructure.Identity.User;
 using Microsoft.Azure.Cosmos;
-using CloudCanvas.Application.Abstractions.Identity;
+using CloudCanvas.Domain.Abstractions.Identity;
 using System.Globalization;
 
 namespace CloudCanvas.Infrastructure.Common
