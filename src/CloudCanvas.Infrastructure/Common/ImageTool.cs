@@ -5,7 +5,7 @@ using SixLabors.ImageSharp.Processing;
 
 namespace CloudCanvas.Infrastructure.Common
 {
-    public class ImageTool : IImageTool
+    public sealed class ImageTool : IImageTool
     {
         public async Task<Stream> ResizeAsync(Stream input, ThumbnailSize size, CancellationToken cancellation = default)
         {

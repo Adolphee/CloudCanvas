@@ -7,7 +7,7 @@ using static CloudCanvas.Application.Common.Constants.ServiceBus;
 
 namespace CloudCanvas.Infrastructure.Messaging
 {
-    public class SBMessageBuilder : IMessageBuilder
+    public sealed class SBMessageBuilder : IMessageBuilder
     {
         private CCEventMessage _message = default!;
         public SBMessageBuilder(PhotoDTO payload)

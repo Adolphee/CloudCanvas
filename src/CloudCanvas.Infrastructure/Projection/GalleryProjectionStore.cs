@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace CloudCanvas.Infrastructure.Projection
 {
-    public class GalleryProjectionStore: ProjectionStoreBase<GalleryDTO>, IGalleryProjectionStore
+    public sealed class GalleryProjectionStore: ProjectionStoreBase<GalleryDTO>, IGalleryProjectionStore
     {
         public GalleryProjectionStore(CosmosClient client, IConfiguration config, ILogger<GalleryProjectionStore> logger) : base(client, config, logger)
         {
