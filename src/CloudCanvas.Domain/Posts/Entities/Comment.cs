@@ -1,22 +1,19 @@
-﻿using CloudCanvas.Domain.Abstractions;
+﻿
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
+using CloudCanvas.Domain.Entities;
 namespace CloudCanvas.Domain.Posts.Entities
 {
-    public class Comment: AuditableEntity
+    public class Comment : ReactionTarget
     {
-        public required string Id { get; set; }
         [MaxLength(255), Required]
         public string Text { get; set; } = default!;
         [Required]
-        public string PostId { get; set; } = default!;
+        public string PostId { get; init; } = default!;
         public Post Post { get; set; } = default!;
-        [Required]
-        public string UserId { get; set; } = default!;
 
         [NotMapped]
-        public string UserName { get; set; } = default!;
+        public string UserDisplayName { get; set; } = default!;
     }
 
     // Idea: introduce Special (Rich Text) comments

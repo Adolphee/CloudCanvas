@@ -6,8 +6,7 @@
         public DateTimeOffset GetDeletedOn();
         public DateTimeOffset GetModifiedOn();
 
-        public void SetCreatedOn();
-        public void SetDeletedOn();
-        public void SetModifiedOn();
+        public void SetDeletedOn(DateTimeOffset? time = null);
+        public void SetModifiedOn(DateTimeOffset? time = null);
     }
 }

@@ -3,7 +3,7 @@
     public class Gallery : Post
     {
         public List<Photo> Photos { get; set; } = [];
-        public string DisplayName { get; set; } = default!;
+        public required string DisplayName { get; init; } = default!;
         public string? Description { get; set; } = default!;
 
         public Gallery(bool commentsEnabled = true)

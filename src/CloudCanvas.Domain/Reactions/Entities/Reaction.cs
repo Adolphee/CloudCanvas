@@ -13,6 +13,7 @@ namespace CloudCanvas.Domain.Reactions.Entities
         public string? Id { get; set; }
         public ReactionType Type { get; set; }
         public string UserId { get; set; } = default!;
+        
         [Required, NotMapped]
         public string? PostId { get; set; }
         public Post Post { get; set; } = default!;

@@ -1,10 +1,10 @@
 ﻿namespace CloudCanvas.Domain.Abstractions
 {
-    public class AuditableEntity: IHasTimestamps
+    public abstract class AuditableEntity: IHasTimestamps
     {
-        public DateTimeOffset CreatedOn { get; set; } = DateTimeOffset.Now;
-        public DateTimeOffset DeletedOn { get; set; } = default!;
-        public DateTimeOffset ModifiedOn { get; set; } = default!;
+        public virtual DateTimeOffset CreatedOn { get; init; } = DateTimeOffset.Now;
+        public virtual DateTimeOffset DeletedOn { get; protected set; } = default!;
+        public virtual DateTimeOffset ModifiedOn { get; protected set; } = default!;
 
         public DateTimeOffset GetCreatedOn() => CreatedOn;
 
@@ -12,19 +12,14 @@
 
         public DateTimeOffset GetModifiedOn() => ModifiedOn;
 
-        public void SetCreatedOn()
+        public void SetDeletedOn(DateTimeOffset? time = null)
         {
-            CreatedOn = DateTimeOffset.Now;
+            DeletedOn = time ?? DateTimeOffset.Now;
         }
 
-        public void SetDeletedOn()
+        public void SetModifiedOn(DateTimeOffset? time = null)
         {
-            DeletedOn = DateTimeOffset.Now;
-        }
-
-        public void SetModifiedOn()
-        {
-            ModifiedOn = DateTimeOffset.Now;
+            ModifiedOn = time ?? DateTimeOffset.Now;
         }
     }
 }
