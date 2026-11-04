@@ -4,16 +4,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CloudCanvas.Infrastructure.Persistence.Repositories
 {
-    public class GalleryRepository (CCDBContext context) : IGalleryRepository
+    public sealed class GalleryRepository (CCDBContext context) : IGalleryRepository
     {
         private readonly CCDBContext _context = context;
 
         public async Task<bool> DeleteAsync(string id, bool softDelete = true, CancellationToken cancellation = default)
         {
-            var gallery = await GetByIdAsync(id, cancellation);
+            var gallery = await GetByIdAsync(id, true, cancellation);
             if (gallery != null)
             {
-                gallery.DeletedOn = DateTime.UtcNow;
+                gallery.SetDeletedOn();
                 if (softDelete) _context.Galleries.Update(gallery);
                 else _context.Galleries.Remove(gallery);
                 await _context.SaveChangesAsync(cancellation);
@@ -25,8 +25,10 @@ namespace CloudCanvas.Infrastructure.Persistence.Repositories
         public async Task<bool> ExistsAsync(string id, CancellationToken cancellation = default) 
         => await _context.Galleries.AnyAsync(g => g.Id == id, cancellation);
 
-        public async Task<Gallery?> GetByIdAsync(string id, CancellationToken cancellation = default)
-        => await _context.Galleries.FirstOrDefaultAsync(g => g.Id == id, cancellation);
+        public async Task<Gallery?> GetByIdAsync(string id, bool tracking = true, CancellationToken cancellation = default)
+        => tracking 
+            ? await _context.Galleries.AsNoTracking().FirstOrDefaultAsync(g => g.Id == id, cancellation)
+            : await _context.Galleries.FirstOrDefaultAsync(g => g.Id == id, cancellation);
 
         public async Task<string> SaveAsync(Gallery gallery, CancellationToken cancellation = default)
         {

@@ -7,19 +7,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CloudCanvas.Infrastructure.Persistence.Repositories
 {
-    public class UserRepository(CCDBContext context): IUserRepository
+    public sealed class UserRepository(CCDBContext context): IUserRepository
     {
         private readonly CCDBContext _context = context;
 
         public async Task<EnsureUserExistsResult> EnsureUserExistsAsync(ApplicationUser user, CancellationToken cancellation = default)
         {
-            var identityUser = await _context.Users.FindAsync(user.Id, cancellation);
+            var identityUser = await _context.Users.SingleOrDefaultAsync(u => u.Id == user.Id, cancellation);
             if (identityUser is null)
             {
                 var dbUser = await _context.AddAsync(user.ToIdentityUser(), cancellation);
                 try
                 {
-                    var res = await _context.SaveChangesAsync(default, cancellation);
+                    var res = await _context.SaveChangesAsync(cancellation);
                     return new EnsureUserExistsResult(dbUser.Entity.ToAppUser(), false);
                 }
                 catch (DbUpdateException ex) when (ex.InnerException is SqlException sqlEx && sqlEx.Number == 547)

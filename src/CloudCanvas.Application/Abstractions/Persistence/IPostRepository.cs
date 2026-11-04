@@ -7,7 +7,7 @@ namespace CloudCanvas.Application.Abstractions.Persistence
         Task<string> SaveAsync(T post, CancellationToken cancellation = default);
         Task<bool> UpdateAsync(T post, CancellationToken cancellation = default);
         Task<bool> DeleteAsync(string id, bool softDelete = true, CancellationToken cancellation = default);
-        Task<T?> GetByIdAsync(string id, CancellationToken cancellation = default);
+        Task<T?> GetByIdAsync(string id, bool tracking = true, CancellationToken cancellation = default);
         Task<bool> ExistsAsync(string id, CancellationToken cancellation = default);
     }
 }
