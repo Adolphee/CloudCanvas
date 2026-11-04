@@ -3,7 +3,6 @@ from application.ports import ImageAnalyzer, PersistenceService, Messenger, Proj
 from infrastructure.composition_root import build_image_analyzer, build_messenger, build_projection_service, build_persistence_store
 import logging as logger
 
-
 def init_services(credential: DefaultAzureCredential) -> tuple[ImageAnalyzer, PersistenceService, ProjectionService, Messenger]:
     analyzer = build_image_analyzer(credential)
     projector = build_projection_service(credential)

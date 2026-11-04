@@ -1,11 +1,12 @@
 import json
 import logging as logger
-from unittest import result
+import uuid
 from domain.constants import Constants
 from sqlalchemy import Engine, MetaData, Table, select, update
 from sqlalchemy.exc import NoSuchTableError
 from application.exceptions import TableNotFoundException
 from application.ports import PersistenceService
+from domain.models import ImageTag
 
 
 class SQLService(PersistenceService):
@@ -15,7 +16,7 @@ class SQLService(PersistenceService):
         metadata = MetaData()
         try:
             return Table(name, metadata, autoload_with=self._engine)
-        except Exception | NoSuchTableError as e:
+        except Exception as e:
             logger.exception("Table %a not found.", name)
             raise TableNotFoundException(
                 tableName=name, database=self._engine.url.database or "[Unknown / Missing]")
@@ -30,23 +31,22 @@ class SQLService(PersistenceService):
                     .values(SmartCaption=ai_caption)
                 )
                 connection.commit()
-            except Exception | NoSuchTableError as e:
-                logger.exception("Failed to save caption to persistence store (SQL): %a", photo_id)
+            except Exception as e:
+                logger.exception("Failed to save caption to persistence store (SQL): %a", photo_id, exc_info=e)
             finally:
                 connection.close()
 
-    def update_smartTags(self, photo_id: str, ai_tags: list[str]):
-        table = self.get_table(Constants.Tables.PHOTOS)
+    def update_smartTags(self, photo_id: str, ai_tags: list[ImageTag]):
+        table = self.get_table(Constants.Tables.SMARTTAGS)
         with self._engine.begin() as connection:
             try:
-                connection.execute(
-                    table.update()
-                    .where(table.c.Id == photo_id)
-                    .values(SmartTags=json.dumps(ai_tags))
-                )
+                for tag in ai_tags:
+                    connection.execute(
+                        table.insert().values(Id=uuid.uuid4(), PostId=photo_id, Name=tag.name, Confidence=tag.confidence)
+                    )
                 connection.commit()
             except Exception as e:
-                logger.exception("Failed to save caption to persistence store (SQL): %a", photo_id)
+                logger.exception("Failed to save caption to persistence store (SQL): %a", photo_id, exc_info=e)
                 raise
             finally:
                 connection.close()
@@ -61,8 +61,9 @@ class SQLService(PersistenceService):
                     logger.info("Prior enrichment found for photo: %a", row._asdict())
                     return True
             except Exception as e:
-                logger.exception("Failed to verify prior enrichment in persistence store for photo: %a", photo_id)
+                logger.exception("Failed to verify prior enrichment in persistence store for photo: %a", photo_id, exc_info=e)
                 return False
+            finally: conn.close()
         return False
 
     def close_connection(self):

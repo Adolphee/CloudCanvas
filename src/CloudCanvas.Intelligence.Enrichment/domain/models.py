@@ -10,8 +10,6 @@ class ImageTag:
     confidence: float
     def toJSON(self): return { A.NAME: self.name, A.CONFIDENCE: self.confidence }
 
-
-
 @dataclass(kw_only=True, slots=True)
 class Photo:
     id: str

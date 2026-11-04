@@ -29,3 +29,4 @@ class Constants:
         MESSENGER="messanger"
     class Tables:
         PHOTOS="Photos"
+        SMARTTAGS="SmartTags"

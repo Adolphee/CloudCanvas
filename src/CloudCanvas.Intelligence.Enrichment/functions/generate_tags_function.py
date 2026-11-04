@@ -56,7 +56,7 @@ async def handle_tagging_enrichment(message: func.ServiceBusMessage):
             logger.info("Generated Tag: %a with confidence: %a", tag.name, tag.confidence)
             if (tag.name not in [t.name for t in photo.tags]): photo.tags.append(tag)
         logger.info("Saving %a tags to persistence store...", len(photo.tags))
-        persistence.update_smartTags(photo.id, [t.name for t in photo.tags])
+        persistence.update_smartTags(photo.id, photo.tags)
         logger.info("Saving %a tags to projection store...", len(photo.tags))
         await projector.project_tags(photo)
         logger.info("Tags projected. Sending notification...")
