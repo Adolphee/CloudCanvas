@@ -1,5 +1,5 @@
 ﻿using CloudCanvas.Application.Reactions.Common;
-using CloudCanvas.Domain.Enums;
+using CloudCanvas.Domain.Posts.Entities;
 
 namespace CloudCanvas.Application.Posts.Photos
 {
@@ -13,7 +13,7 @@ namespace CloudCanvas.Application.Posts.Photos
         public string? SmartCaption { get; init; } = default!;
         public string? Title { get; init; }
         public List<string> UserTags { get; init; } = [];
-        public List<string> SmartTags { get; init; } = [];
+        public List<SmartTag> SmartTags { get; init; } = [];
         public Dictionary<string, string> Thumbnails { get; init; } = [];
         public string? GalleryId { get; init; } = default!;
 
@@ -28,7 +28,6 @@ namespace CloudCanvas.Application.Posts.Photos
             Reactions = rOverview;
             OriginalFilename = oFilename;
             Location = url;
-            Classification = PostClassification.Photo.ToString();
         }
     }
 }

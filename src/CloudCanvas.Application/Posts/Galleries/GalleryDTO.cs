@@ -16,7 +16,6 @@ namespace CloudCanvas.Application.Posts.Galleries
             Id = id;
             Creator = user;
             DisplayName = displayName;
-            Classification = PostClassification.Gallery.ToString();
         }
     }
 }

@@ -7,9 +7,8 @@ namespace CloudCanvas.Application.Posts.DTOs
     {
         public required string Id { get; init; }
         public required string UserId { get; init; }
-        public required CreatorMinimal Creator { get; init; } = default!;
-        public required string Classification { get; init; } = default!;
+        public required CreatorMinimal Creator { get; init; }
         public ReactionsOverviewDTO Reactions { get; init; } = new();
-        public AuditableEntity TimeStamps { get; init; } = new();
+        public required TimeStamps TimeStamps { get; init; }
     }
 }
