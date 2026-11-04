@@ -40,8 +40,8 @@ namespace CloudCanvas.Infrastructure.Projection
             {
                 return await EnsureContainerExistsAsync(databaseName, containerId, cancellation);
             }
-            catch (Exception e) {
-                throw new CosmosContainerNotFoundException($"Failed to ensure the existence of {containerId} in {databaseName}", e)
+            catch (CosmosException e) {
+                throw new CosmosContainerNotFoundException($"Error {e.StatusCode}: Failed to ensure the existence of {containerId} in {databaseName} because {e.Message}", e)
                 {
                     ContainerName = containerId,
                     DatabaseName = databaseName
@@ -64,7 +64,7 @@ namespace CloudCanvas.Infrastructure.Projection
             _container ??= await GetContainerAsync(_containerName, cancellation);
                 if (softDelete)
                 {
-                    meta.TimeStamps.DeletedOn = DateTimeOffset.UtcNow;
+                    meta.TimeStamps.SetDeletedOn();
                     var ops = new Dictionary<string, object> { ["/timestamps/deletedOn"] = DateTimeOffset.UtcNow };
                     var res = await PatchAsync(new ProjectionKey(meta.Id, meta.UserId!), ops, cancellation);
                     return res.TimeStamps.DeletedOn != DateTimeOffset.MinValue;
@@ -102,8 +102,8 @@ namespace CloudCanvas.Infrastructure.Projection
             _container ??= await GetContainerAsync(_containerName, cancellation);
             try
             {
-                return await _container.PatchItemAsync<T>(key.Id, key.AsPartitionKey(), patchOperations: patches, cancellationToken: cancellation)
-                    .ContinueWith(t => t.Result.Resource, cancellation);
+                var res = await _container.PatchItemAsync<T>(key.Id, key.AsPartitionKey(), patchOperations: patches, cancellationToken: cancellation);
+                return res.Resource;
             }
             catch (CosmosException e) when (e.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
@@ -139,7 +139,7 @@ namespace CloudCanvas.Infrastructure.Projection
         {
             _container ??= await GetContainerAsync(_containerName, cancellation);
             var res = new List<T>();
-            using var queryable = _container.GetItemQueryIterator<T>();
+            using var queryable = _container.GetItemQueryIterator<T>(default, default, default, new QueryRequestOptions { PartitionKey = new PartitionKey(userId) });
 
             while (queryable.HasMoreResults)
             {

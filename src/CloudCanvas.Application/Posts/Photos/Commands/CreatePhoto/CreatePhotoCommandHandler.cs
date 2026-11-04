@@ -14,10 +14,10 @@ public sealed class CreatePhotoCommandHandler(IProjectionStore store, IPhotoRepo
     public async Task<CreatePhotoResult> Handle(CreatePhotoCommand command, CancellationToken cancellation = default)
     {   // Create & Save Photo
         Photo photo = command.ToPhoto();
-        photo.Id = await _repostitory.SaveAsync(photo, cancellation);
+        await _repostitory.SaveAsync(photo, cancellation);
         // Create & Save Projection
         var projection = photo.ToProjection(command.Creator.MinimalVersion());
-        projection = await _store.CreateProjectionAsync(projection, cancellation);
+        projection = await _store.CreateProjectionAsync(projection, default, cancellation);
         var res = new CreatePhotoResult(projection);
         // Announce: projection ready
         await _messenger.NofityProjectionCompletedAsync(projection, projection.Id!, cancellation);

@@ -1,14 +1,13 @@
-﻿namespace CloudCanvas.Application.Posts.Photos.Queries.GetPhotosByUser
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace CloudCanvas.Application.Posts.Photos.Queries.GetPhotosByUser
 {
     public record GetUserPhotosQuery: IRequest<GetUserPhotosResult>
     {
-        public string UserId { get; set; }
-        public string ContainerName { get; set; }
+        [Required, MaxLength(50)]
+        public required string UserId { get; init; }
 
-        public GetUserPhotosQuery(string id, string container = Projection.Containers.UserPhotos)
-        {
-            UserId = id;
-            ContainerName = container;
-        }
+        [Required, MaxLength(100)]
+        public required string ContainerName { get; init; }
     }
 }
