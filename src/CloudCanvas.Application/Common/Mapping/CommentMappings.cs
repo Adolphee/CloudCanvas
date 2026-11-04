@@ -5,24 +5,22 @@ namespace CloudCanvas.Application.Common.Mapping
 {
     public static class CommentMappings
     {
-        public static CommentDTO ToProjection(this Comment comment, string AuthorDisplayName = default!) => new()
+        public static CommentDTO ToProjection(this Comment comment, string AuthorDisplayName = Unknown.DisplayName)
         {
-            Text = comment.Text,
-            Creator = new CreatorMinimal(comment.UserId, AuthorDisplayName), 
-            Id = comment.Id, 
-            Classification = "Comment",
-            UserId = comment.UserId, 
-            TimeStamps = new()
+            CommentDTO cmt = new()
             {
-                CreatedOn = comment.CreatedOn,
-                DeletedOn = comment.DeletedOn,
-                ModifiedOn = comment.ModifiedOn
-            }, Reactions = new()
-            {
-                Likes = comment.LikesCount(),
-                Dislikes = comment.DislikesCount(),
-                EmojiReactions = comment.EmojiReactionsCount()
-            }
-        };
+                Text = comment.Text,
+                Creator = new CreatorMinimal(comment.UserId, AuthorDisplayName), 
+                Id = comment.Id,
+                UserId = comment.UserId,
+                TimeStamps = new()
+                {
+                    CreatedOn = comment.CreatedOn
+                }
+            };
+
+            cmt.TimeStamps.SetModifiedOn(comment.ModifiedOn);
+            return cmt;
+        }
     }
 }

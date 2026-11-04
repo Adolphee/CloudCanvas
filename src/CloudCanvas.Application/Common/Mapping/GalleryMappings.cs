@@ -1,7 +1,6 @@
 using CloudCanvas.Application.Common.Exceptions;
 using CloudCanvas.Application.Posts.Galleries;
 using CloudCanvas.Application.Posts.Galleries.Commands.CreateGallery;
-using CloudCanvas.Domain.Abstractions;
 using CloudCanvas.Domain.Enums;
 using CloudCanvas.Domain.Posts.Entities;
 
@@ -19,7 +18,7 @@ namespace CloudCanvas.Application.Common.Mapping
         public static GalleryDTO ToProjection(this Gallery gallery, CreatorMinimal creator)
         {
             creator ??= new(gallery.UserId, Unknown.DisplayName);
-            return new(gallery.Id, gallery.DisplayName, creator)
+            GalleryDTO dto = new(gallery.Id, gallery.DisplayName, creator)
             {
                 Id = gallery.Id ?? Guid.NewGuid().ToString(),
                 UserId = gallery.UserId,
@@ -27,11 +26,9 @@ namespace CloudCanvas.Application.Common.Mapping
                 Description = gallery.Description,
                 CommentsEnabled = gallery.CommentsEnabled,
                 Creator = creator,
-                TimeStamps = new AuditableEntity
+                TimeStamps = new()
                 {
-                    CreatedOn = gallery.CreatedOn,
-                    ModifiedOn = gallery.ModifiedOn,
-                    DeletedOn = gallery.DeletedOn
+                    CreatedOn = gallery.CreatedOn
                 },
                 Photos = gallery.Photos.Select(p => p.ToGalleryItem(creator)).ToList(),
                 Reactions = {
@@ -39,9 +36,11 @@ namespace CloudCanvas.Application.Common.Mapping
                     Dislikes = gallery.DislikesCount(),
                     EmojiReactions = gallery.EmojiReactionsCount()
                 }, 
-                UserTags = gallery.UserTags,
-                Classification = PostClassification.Gallery.ToString()
+                UserTags = gallery.UserTags
             };
+            dto.TimeStamps.SetModifiedOn(gallery.ModifiedOn);
+            dto.TimeStamps.SetDeletedOn(gallery.DeletedOn);
+            return dto;
         }
         public static Gallery ToGallery(this CreateGalleryCommand command, CancellationToken cancellation = default)
         {
