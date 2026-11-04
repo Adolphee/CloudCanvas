@@ -1,3 +1,4 @@
+using CloudCanvas.Application.Common.Exceptions;
 using CloudCanvas.Application.Posts.Photos.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -7,11 +8,11 @@ namespace CloudCanvas.Application.Thumbnails.Commands.SaveThumbnail
     {
         private readonly IPhotoRepository _repository = repository;
         private readonly IPhotoProjectionStore _projection = projectionStore;
-        private readonly ILogger<SaveThumbnailsCommandHandler> _logger = logger; ///TODO: Add logging to this handler for better traceability and debugging.
+        private readonly ILogger<SaveThumbnailsCommandHandler> _logger = logger;
 
         public async Task<SaveThumbnailsResult> Handle(SaveThumbnailsCommand command, CancellationToken cancellation = default)
         {
-            var photo = await _repository.GetByIdAsync(command.Photo.Id!, cancellation) ?? throw new SaveThumbnailException("OriginalPhoto is missing.");
+            var photo = await _repository.GetByIdAsync(command.Photo.Id!, false, cancellation) ?? throw new SaveThumbnailException("OriginalPhoto is missing.");
             photo.Thumbnails = command.Photo.ToPhoto().Thumbnails; // use case boundary is 'thumbnails' here
             try
             {
@@ -22,7 +23,7 @@ namespace CloudCanvas.Application.Thumbnails.Commands.SaveThumbnail
                     return new SaveThumbnailsResult(projection);
                 }
             }
-            catch (Exception e)
+            catch (ProjectionNotFoundException e)
             {
                 _logger.LogError(e, "Failed to save {ThumbnailsCount} thumbnails for ({PhotoId}).", command.Photo.Thumbnails.Count, photo.Id);
             }
