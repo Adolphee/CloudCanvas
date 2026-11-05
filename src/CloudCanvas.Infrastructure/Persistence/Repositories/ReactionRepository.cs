@@ -1,6 +1,6 @@
 ﻿namespace CloudCanvas.Infrastructure.Persistence.Repositories
 {
-    public class ReactionRepository
+    public sealed class ReactionRepository
     {
     }
 }
