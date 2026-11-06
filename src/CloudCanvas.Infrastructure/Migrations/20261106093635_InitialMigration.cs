@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -192,17 +193,17 @@ namespace CloudCanvas.Infrastructure.Migrations
                 name: "Posts",
                 columns: table => new
                 {
+                    CreatedOn = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Location = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Location = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ContentLength = table.Column<long>(type: "bigint", nullable: false),
                     CommentsEnabled = table.Column<bool>(type: "bit", nullable: false),
                     PublishedOn = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     UnpublishedOn = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     UserTags = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedOn = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     DeletedOn = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    ModifiedOn = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
+                    ModifiedOn = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -221,10 +222,11 @@ namespace CloudCanvas.Infrastructure.Migrations
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Text = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     PostId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    UserDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedOn = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     DeletedOn = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    ModifiedOn = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
+                    ModifiedOn = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -246,7 +248,7 @@ namespace CloudCanvas.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    DisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DisplayName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserId1 = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
@@ -274,6 +276,7 @@ namespace CloudCanvas.Infrastructure.Migrations
                     Type = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     PostId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CommentId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     CreatedOn = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     DeletedOn = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     ModifiedOn = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
@@ -282,15 +285,22 @@ namespace CloudCanvas.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_Reactions", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_Reactions_Comments_CommentId",
+                        column: x => x.CommentId,
+                        principalTable: "Comments",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "SinglePost_ManyReactions",
                         column: x => x.PostId,
                         principalTable: "Posts",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "SingleUser_ManyReactions",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -301,6 +311,7 @@ namespace CloudCanvas.Infrastructure.Migrations
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     OriginalFilename = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Caption = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SmartCaption = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     GalleryId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
@@ -339,7 +350,28 @@ namespace CloudCanvas.Infrastructure.Migrations
                         name: "SinglePhoto_ManyThumbnails",
                         column: x => x.PhotoId,
                         principalTable: "Photos",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SmartTags",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Confidence = table.Column<double>(type: "float", nullable: false),
+                    PostId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SmartTags", x => x.Id);
+                    table.ForeignKey(
+                        name: "SinglePhoto_ManySmartTags",
+                        column: x => x.PostId,
+                        principalTable: "Photos",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -426,6 +458,11 @@ namespace CloudCanvas.Infrastructure.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Reactions_CommentId",
+                table: "Reactions",
+                column: "CommentId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Reactions_PostId",
                 table: "Reactions",
                 column: "PostId");
@@ -435,6 +472,13 @@ namespace CloudCanvas.Infrastructure.Migrations
                 table: "Reactions",
                 columns: new[] { "UserId", "PostId", "Type" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SmartTags_PostId_Name",
+                table: "SmartTags",
+                columns: new[] { "PostId", "Name" },
+                unique: true,
+                filter: "[PostId] IS NOT NULL");
         }
 
         /// <inheritdoc />
@@ -459,16 +503,19 @@ namespace CloudCanvas.Infrastructure.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Comments");
-
-            migrationBuilder.DropTable(
                 name: "PhotoThumbnails");
 
             migrationBuilder.DropTable(
                 name: "Reactions");
 
             migrationBuilder.DropTable(
+                name: "SmartTags");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Comments");
 
             migrationBuilder.DropTable(
                 name: "Photos");
