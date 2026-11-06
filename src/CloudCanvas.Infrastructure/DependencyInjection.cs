@@ -18,6 +18,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using CloudCanvas.Application.Posts.Comments;
+using Microsoft.Extensions.Logging;
+using CloudCanvas.Domain.Posts.Entities;
 namespace CloudCanvas.Infrastructure
 {
     public static class DependencyInjection
@@ -38,7 +40,9 @@ namespace CloudCanvas.Infrastructure
             services.AddScoped<IGalleryRepository, GalleryRepository>();
             services.AddScoped<ICommentRepository, CommentRepository>();
             services.AddScoped<IGalleryProjectionStore, GalleryProjectionStore>();
-            
+            services.AddScoped<IPostRepository<Post>, PostRepositoryBase<Post>>();
+            services.AddScoped<IPostRepository<Photo>, PhotoRepository>();
+            services.AddScoped<IPostRepository<Gallery>, GalleryRepository>();
             services.AddTransient<IImageTool, ImageTool>();
 
             services.AddDbContext<CCDBContext>(options => options.UseSqlServer(config.GetConnectionString(SQLServer.ConnectionString), sql => sql.EnableRetryOnFailure()));
