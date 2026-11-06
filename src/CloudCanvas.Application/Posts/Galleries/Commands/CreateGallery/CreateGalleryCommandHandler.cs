@@ -14,7 +14,7 @@ namespace CloudCanvas.Application.Posts.Galleries.Commands.CreateGallery
         public async Task<CreateGalleryResult> Handle(CreateGalleryCommand command, CancellationToken cancellationToken)
         {
             var gallery = command.ToGallery(cancellationToken);
-            var photos = await _photoRepository.GetPhotosByIdsAsync(command.Photos, cancellationToken);
+            var photos = await _photoRepository.GetManyByIdsAsync(command.Photos, cancellationToken);
             gallery.Photos = photos;
             var projection = gallery.ToProjection(command.Creator!.MinimalVersion());
             await _repository.SaveAsync(gallery, cancellationToken);

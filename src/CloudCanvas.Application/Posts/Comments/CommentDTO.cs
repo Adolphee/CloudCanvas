@@ -2,11 +2,13 @@
 
 namespace CloudCanvas.Application.Posts.Comments
 {
-    public sealed record CommentDTO: PostDTO
+    public sealed record CommentDTO
     {
-        [MaxLength(255), Required]
-        public string Text { get; init; } = default!;
-        public Creator Author { get; init; } = default!;
-        public PostDTO TargetPost { get; init; } = default!;
+        public required string Id { get; init; }
+        public required string Text { get; init; }
+        public required string Username { get; init; }
+        public required string UserId { get; init; }
+        public required DateTimeOffset CreatedOn { get; init; }
+        public required DateTimeOffset ModifiedOn { get; init; }
     }
 }
