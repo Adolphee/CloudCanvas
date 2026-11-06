@@ -7,7 +7,10 @@ A = Constants.Attr
 @dataclass
 class ImageTag:
     name: str
-    confidence: float
+    confidence: float | None
+    def __init__(self, name: str, confidence: float | None = None):
+        self.name = name
+        self.confidence = confidence
     def toJSON(self): return { A.NAME: self.name, A.CONFIDENCE: self.confidence }
 
 @dataclass(kw_only=True, slots=True)

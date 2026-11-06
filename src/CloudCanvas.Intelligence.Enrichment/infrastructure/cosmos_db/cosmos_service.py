@@ -20,7 +20,7 @@ class CosmosService(ProjectionService):
         operation = {
             "path": "/smartTags",
             "op": "add",
-            "value": [tag.toJSON() for tag in image.tags]
+            "value": [tag.name for tag in image.tags]
         }
         try:
             res = await container.patch_item(image.id, image.user_id, [operation])
