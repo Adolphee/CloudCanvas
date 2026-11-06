@@ -1,4 +1,5 @@
 using CloudCanvas.Application.Posts.Comments;
+using CloudCanvas.Application.Posts.Comments.Commands.EditComment;
 using CloudCanvas.Domain.Posts.Entities;
 
 namespace CloudCanvas.Application.Common.Mapping
@@ -7,20 +8,27 @@ namespace CloudCanvas.Application.Common.Mapping
     {
         public static CommentDTO ToProjection(this Comment comment, string AuthorDisplayName = Unknown.DisplayName)
         {
-            CommentDTO cmt = new()
+            return new()
             {
-                Text = comment.Text,
-                Creator = new CreatorMinimal(comment.UserId, AuthorDisplayName), 
                 Id = comment.Id,
+                Text = comment.Text,
+                Username = comment.UserDisplayName ?? AuthorDisplayName,
                 UserId = comment.UserId,
-                TimeStamps = new()
-                {
-                    CreatedOn = comment.CreatedOn
-                }
+                CreatedOn = comment.CreatedOn,
+                ModifiedOn = comment.ModifiedOn
             };
+        }
 
-            cmt.TimeStamps.SetModifiedOn(comment.ModifiedOn);
-            return cmt;
+        public static EditCommentCommand ToEditCommentCommand(this Comment comment)
+        {
+            return new()
+            {
+                Id = comment.Id,
+                Text = comment.Text,
+                UserId = comment.UserId,
+                PostId = comment.PostId,
+                UserDisplayName = comment.UserDisplayName
+            };
         }
     }
 }

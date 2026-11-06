@@ -26,7 +26,7 @@ namespace CloudCanvas.Application.Common
         }
 
         /// <summary>
-        /// Loads and returns the main JSON schema for CloudCanvas, resolving any referenced subschemas.
+        /// OBSOLETE:Loads and returns the main JSON schema for CloudCanvas, resolving any referenced subschemas.
         /// </summary>
         /// <remarks>This method reads the primary schema file and a referenced subschema file from the
         /// application's base directory. It resolves the subschema using a preloaded resolver to ensure all schema
@@ -46,6 +46,7 @@ namespace CloudCanvas.Application.Common
             var schema = JSchema.Parse(MainSchemaJson, resolver);
             return schema;
         }
+
         public static double Number(string paramName, double paramValue, double max = int.MaxValue, double min = 0)
         {
             if(min > paramValue || paramValue > max) 
