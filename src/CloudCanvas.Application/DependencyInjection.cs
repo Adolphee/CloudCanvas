@@ -1,8 +1,11 @@
-﻿using CloudCanvas.Application.Posts.Galleries.Commands.CreateGallery;
+﻿using CloudCanvas.Application.Posts.Comments.Commands.AddComment;
+using CloudCanvas.Application.Posts.Comments.Queries;
+using CloudCanvas.Application.Posts.Galleries.Commands.CreateGallery;
 using CloudCanvas.Application.Posts.Photos.Commands.CreatePhoto;
 using CloudCanvas.Application.Posts.Photos.Commands.UploadFile;
 using CloudCanvas.Application.Posts.Photos.Queries.GetAllPhotos;
 using CloudCanvas.Application.Posts.Photos.Queries.GetPhotosByUser;
+using CloudCanvas.Application.Posts.Queries.Existence;
 using CloudCanvas.Application.Users.Commands.EnsureUserExists;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
@@ -18,10 +21,14 @@ namespace CloudCanvas.Application
             {
                 cfg.RegisterServicesFromAssemblyContaining<UploadFileCommand>();
                 cfg.RegisterServicesFromAssemblyContaining<CreatePhotoCommand>();
+                cfg.RegisterServicesFromAssemblyContaining<AddCommentCommand>();
+                cfg.RegisterServicesFromAssemblyContaining<CreateGalleryCommand>();
                 cfg.RegisterServicesFromAssemblyContaining<EnsureUserExistsCommand>();
+
+                cfg.RegisterServicesFromAssemblyContaining<GetCommentsByPostIdQuery>();
+                cfg.RegisterServicesFromAssemblyContaining<VerifyExistenceByIdQuery>();
                 cfg.RegisterServicesFromAssemblyContaining<GetAllPhotosQuery>();
                 cfg.RegisterServicesFromAssemblyContaining<GetUserPhotosQuery>();
-                cfg.RegisterServicesFromAssemblyContaining<CreateGalleryCommand>();
             });
 
             services.Configure<JsonSerializerOptions>(options =>
